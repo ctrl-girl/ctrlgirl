@@ -1,0 +1,22 @@
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model User {
+id        String   @id @default(uuid())
+  name      String
+  nickname  String   @unique
+  email     String   @unique
+  password  String
+  birthDate DateTime
+  gender    String?
+  race      String?
+  city      String?
+  role      String   @default("USER")  // <--- Adiciona esta linha aqui!
+  createdAt DateTime @default(now())
+}

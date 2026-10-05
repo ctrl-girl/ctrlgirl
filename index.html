@@ -1,0 +1,2953 @@
+<!DOCTYPE html>
+<html lang="pt-BR" class="h-full bg-slate-100">
+<head>
+  <!-- Link para o Manifest do PWA -->
+    <link rel="manifest" href="/manifest.json">
+
+    <!-- Registo do Service Worker -->
+    <script>
+      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+          navigator.serviceWorker.register('/sw.js')
+            .then((reg) => console.log('Service Worker registado com sucesso!', reg))
+            .catch((err) => console.log('Erro ao registar o Service Worker:', err));
+        });
+      }
+    </script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>CTRLGIRL - eSports Inclusivo</title>
+  
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              purple: '#6B46C1',
+              darkPurple: '#5B21B6',
+              lightPurple: '#DDD6FE',
+              pink: '#D97706',
+              pinkVivid: '#EC4899',
+              blue: '#0284C7',
+              cardBg: '#F8FAFC'
+            }
+          },
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+            robotoSerif: ['"Roboto Serif"', 'serif'],
+          }
+        }
+      }
+    }
+  </script>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Roboto+Serif:ital,opsz,wght@0,8..144,300..700;1,8..144,300..700&display=swap" rel="stylesheet"/>
+
+  <style>
+    body {
+      font-family: 'Inter', sans-serif;
+    }
+    .font-serif-roboto {
+      font-family: 'Roboto Serif', serif;
+    }
+    .custom-scrollbar::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-track {
+      background: #f1f1f1;
+    }
+    .custom-scrollbar::-webkit-scrollbar-thumb {
+      background: #c7d2fe;
+      border-radius: 10px;
+    }
+    @keyframes pulse-subtle {
+      0%, 100% { transform: scale(1); opacity: 1; }
+      50% { transform: scale(1.05); opacity: 0.9; }
+    }
+    .animate-pulse-subtle {
+      animation: pulse-subtle 2.5s infinite ease-in-out;
+    }
+    @keyframes logoReveal {
+      0% { opacity: 0; transform: translateY(15px) scale(0.9); }
+      100% { opacity: 1; transform: translateY(0) scale(1); }
+    }
+    .animate-logo-reveal {
+      animation: logoReveal 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+    .figma-input {
+      border: none;
+      border-bottom: 2px solid #64748B;
+      background: transparent;
+      border-radius: 0;
+      padding: 10px 0;
+      width: 100%;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+    .figma-input:focus {
+      border-bottom-color: #6B46C1;
+      outline: 2px solid #6B46C1;
+      outline-offset: 2px;
+    }
+    :focus-visible {
+      outline: 3px solid #6B46C1 !important;
+      outline-offset: 2px !important;
+    }
+    .sr-only {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      white-space: nowrap;
+      border-width: 0;
+    }
+
+    @font-face {
+      font-family: 'OpenDyslexic';
+      src: url('https://cdn.jsdelivr.net/gh/antijingoist/opendyslexic@master/compiled/OpenDyslexic-Regular.otf') format('opentype');
+      font-weight: normal;
+      font-style: normal;
+      font-display: swap;
+    }
+    @font-face {
+      font-family: 'OpenDyslexic';
+      src: url('https://cdn.jsdelivr.net/gh/antijingoist/opendyslexic@master/compiled/OpenDyslexic-Bold.otf') format('opentype');
+      font-weight: bold;
+      font-style: normal;
+      font-display: swap;
+    }
+
+    /* Regra global do Modo Dislexia preservando icones do Font Awesome (i e [class*="fa-"]) */
+    body.dyslexia-mode, 
+    body.dyslexia-mode *:not(i):not([class*="fa-"]) {
+      font-family: 'OpenDyslexic', 'Inter', sans-serif !important;
+      letter-spacing: 0.04em !important;
+      word-spacing: 0.08em !important;
+    }
+
+    body.dyslexia-mode p, 
+    body.dyslexia-mode span, 
+    body.dyslexia-mode h1, 
+    body.dyslexia-mode h2, 
+    body.dyslexia-mode h3, 
+    body.dyslexia-mode h4, 
+    body.dyslexia-mode a, 
+    body.dyslexia-mode button, 
+    body.dyslexia-mode input, 
+    body.dyslexia-mode select, 
+    body.dyslexia-mode textarea,
+    body.dyslexia-mode li {
+      line-height: 1.7 !important;
+    }
+  </style>
+</head>
+<body class="h-full flex items-center justify-center bg-slate-900 md:p-4">
+
+  <a href="#mainContent" class="sr-only focus:not-sr-only focus:absolute focus:top-2 focus:left-2 focus:z-50 focus:p-3 focus:bg-brand-purple focus:text-white focus:rounded-lg focus:font-bold focus:shadow-2xl">
+    Pular para o conteúdo principal
+  </a>
+
+  <!-- Container principal -->
+  <div class="relative w-full max-w-md h-full md:h-[844px] bg-slate-50 md:rounded-[40px] shadow-2xl overflow-hidden flex flex-col border-4 border-slate-800">
+    
+    <!-- Barra de estado -->
+    <div class="bg-slate-900 text-white text-xs px-6 py-2 flex justify-between items-center z-50 shrink-0" aria-label="Status do dispositivo">
+      <span class="font-semibold text-slate-200">12:09 PM</span>
+      <div class="flex items-center gap-2 text-slate-300">
+        <i class="fa-solid fa-signal text-[10px]" aria-hidden="true"></i>
+        <i class="fa-solid fa-wifi text-[10px]" aria-hidden="true"></i>
+        <i class="fa-solid fa-battery-full text-[12px] text-green-400" aria-hidden="true"></i>
+        <span class="sr-only">Bateria 100%, Wi-Fi conectado, Sinal forte</span>
+      </div>
+    </div>
+
+    <!-- Splash Screen -->
+    <div id="splashScreen" role="dialog" aria-modal="true" aria-label="Carregando aplicativo" class="absolute inset-0 z-50 bg-slate-100 flex flex-col items-center justify-center p-6 transition-opacity duration-700">
+      <div class="flex flex-col items-center text-center space-y-6">
+        <div class="relative w-36 h-36 bg-purple-100 rounded-full flex items-center justify-center shadow-lg border-4 border-purple-300 animate-pulse-subtle overflow-hidden">
+          <svg viewBox="0 0 800 800" class="w-full h-full" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Mascote oficial Iu-Á">
+            <defs>
+              <radialGradient id="bgGradSplash" cx="50%" cy="50%" r="50%">
+                <stop offset="0%" stop-color="#F5F3FF"></stop>
+                <stop offset="100%" stop-color="#EDE9FE"></stop>
+              </radialGradient>
+            </defs>
+            <rect width="800" height="800" fill="url(#bgGradSplash)"></rect>
+            
+            <!-- Grupo da Mascote Centralizado -->
+            <g transform="translate(-18, -25)">
+              <path d="M 220 320 C 120 300 80 400 110 480 C 130 520 160 520 180 560 C 200 600 240 680 320 670 C 370 660 380 600 360 540 C 350 510 320 480 320 440 C 320 380 280 330 220 320 Z" fill="#69b4e2" stroke="#000000" stroke-width="8" stroke-linejoin="round"></path>
+              <path d="M 580 320 C 680 300 720 400 690 480 C 670 520 640 520 620 560 C 600 600 560 680 480 670 C 430 660 420 600 440 540 C 450 510 480 480 480 440 C 480 380 520 330 580 320 Z" fill="#7b4db5" stroke="#000000" stroke-width="8" stroke-linejoin="round"></path>
+              <path d="M 260 430 C 260 320 330 290 400 290 C 470 290 540 320 540 430 C 540 540 500 620 400 620 C 300 620 260 540 260 430 Z" fill="#8d4e2a" stroke="#000000" stroke-width="8"></path>
+              <ellipse cx="255" cy="450" rx="15" ry="25" fill="#8d4e2a" stroke="#000" stroke-width="6"></ellipse>
+              <ellipse cx="545" cy="450" rx="15" ry="25" fill="#8d4e2a" stroke="#000" stroke-width="6"></ellipse>
+              <path d="M 280 400 Q 320 370 370 390" fill="none" stroke="#e0bc24" stroke-width="8" stroke-linecap="round"></path>
+              <path d="M 520 400 Q 480 370 430 390" fill="none" stroke="#e0bc24" stroke-width="8" stroke-linecap="round"></path>
+              <path d="M 280 450 Q 330 420 380 450 Q 330 500 280 450 Z" fill="#ffffff" stroke="#000000" stroke-width="7"></path>
+              <g fill="#2176ff" stroke="#000" stroke-width="1.5">
+                <rect x="295" y="435" width="12" height="12"></rect>
+                <rect x="312" y="438" width="10" height="10"></rect>
+                <rect x="325" y="435" width="15" height="15" fill="#00b4d8"></rect>
+                <rect x="300" y="452" width="14" height="14"></rect>
+                <rect x="318" y="450" width="12" height="12" fill="#90e0ef"></rect>
+                <rect x="335" y="455" width="10" height="10"></rect>
+                <rect x="305" y="470" width="11" height="11" fill="#03045e"></rect>
+                <rect x="320" y="468" width="13" height="13"></rect>
+                <rect x="340" y="465" width="12" height="12" fill="#0077b6"></rect>
+              </g>
+              <path d="M 520 450 Q 470 420 420 450 Q 470 500 520 450 Z" fill="#ffffff" stroke="#000000" stroke-width="7"></path>
+              <g transform="translate(435, 435) scale(0.6)" stroke="#000" stroke-width="3" fill="none" stroke-linejoin="round" stroke-linecap="round">
+                <rect x="10" y="10" width="50" height="30" rx="15" fill="#fff"></rect>
+                <circle cx="22" cy="25" r="5" fill="#ff3366"></circle>
+                <line x1="42" y1="20" x2="42" y2="30"></line>
+                <line x1="37" y1="25" x2="47" y2="25"></line>
+              </g>
+              <g transform="translate(490, 430) scale(0.55)" stroke="#000" stroke-width="3" fill="#fff" stroke-linejoin="round">
+                <rect x="5" y="5" width="24" height="42" rx="4"></rect>
+                <circle cx="17" cy="43" r="2" fill="#000"></circle>
+                <rect x="9" y="10" width="16" height="26" fill="#00b4d8"></rect>
+              </g>
+              <path d="M 390 535 Q 400 515 410 535 Q 400 545 390 535 Z" fill="none" stroke="#000000" stroke-width="5" stroke-linecap="round"></path>
+              <circle cx="400" cy="542" r="3.5" fill="#ffffff" stroke="#000000" stroke-width="2"></circle>
+              <path d="M 370 575 Q 400 560 430 575 Q 400 610 370 575 Z" fill="#800080" stroke="#000000" stroke-width="6" stroke-linejoin="round"></path>
+              <path d="M 485 550 L 493 570 L 513 575 L 493 580 L 485 600 L 477 580 L 457 575 L 477 570 Z" fill="#fef08a" stroke="#000000" stroke-width="4" stroke-linejoin="round"></path>
+              <path d="M 230 450 C 200 250 600 250 570 450" fill="none" stroke="#fefae0" stroke-width="24" stroke-linecap="round"></path>
+              <path d="M 230 450 C 200 250 600 250 570 450" fill="none" stroke="#000000" stroke-width="6" stroke-dasharray="8 12" stroke-linecap="round"></path>
+              <g transform="translate(195, 410)">
+                <rect x="0" y="0" width="65" height="90" rx="30" fill="#1b4332" stroke="#000000" stroke-width="8"></rect>
+                <path d="M 35 25 C 20 25 15 45 35 65 C 25 55 25 35 35 25 Z" fill="#fefae0"></path>
+              </g>
+              <g transform="translate(540, 410)">
+                <rect x="0" y="0" width="65" height="90" rx="30" fill="#1b4332" stroke="#000000" stroke-width="8"></rect>
+                <path d="M 30 25 C 45 25 50 45 30 65 C 40 55 40 35 30 25 Z" fill="#fefae0"></path>
+              </g>
+              <path d="M 225 490 Q 280 620 380 615" fill="none" stroke="#1b4332" stroke-width="8" stroke-linecap="round"></path>
+              <path d="M 225 490 Q 280 620 380 615" fill="none" stroke="#000000" stroke-width="2" stroke-linecap="round"></path>
+              <circle cx="380" cy="615" r="9" fill="#000000"></circle>
+              <g transform="translate(590, 470)">
+                <path d="M 50 140 C 50 110 50 90 70 80 C 85 70 120 70 135 80 C 150 90 150 110 150 140 C 150 190 130 220 100 220 C 70 220 50 190 50 140 Z" fill="#8d4e2a" stroke="#000000" stroke-width="8" stroke-linejoin="round"></path>
+                <path d="M 85 150 C 95 170 110 180 125 195" fill="none" stroke="#000" stroke-width="5" stroke-linecap="round"></path>
+                <path d="M 100 150 C 100 170 85 190 75 205" fill="none" stroke="#000" stroke-width="5" stroke-linecap="round"></path>
+                <path d="M 60 85 C 50 80 40 50 55 30 C 65 20 75 35 68 60" fill="#8d4e2a" stroke="#000000" stroke-width="7" stroke-linecap="round"></path>
+                <circle cx="53" cy="40" r="5" fill="none" stroke="#000" stroke-width="2"></circle>
+                <path d="M 78 72 C 75 50 68 20 85 10 C 98 5 103 30 90 60" fill="#8d4e2a" stroke="#000000" stroke-width="7" stroke-linecap="round"></path>
+                <circle cx="85" cy="22" r="5" fill="none" stroke="#000" stroke-width="2"></circle>
+                <path d="M 100 70 C 100 45 100 10 120 5 C 135 2 135 30 115 58" fill="#8d4e2a" stroke="#000000" stroke-width="7" stroke-linecap="round"></path>
+                <circle cx="120" cy="18" r="5" fill="none" stroke="#000" stroke-width="2"></circle>
+                <path d="M 122 75 C 128 50 135 20 155 25 C 168 30 160 60 140 75" fill="#8d4e2a" stroke="#000000" stroke-width="7" stroke-linecap="round"></path>
+                <circle cx="153" cy="40" r="5" fill="none" stroke="#000" stroke-width="2"></circle>
+                <path d="M 145 120 C 170 120 185 140 170 160 C 160 170 145 150 140 140" fill="#8d4e2a" stroke="#000000" stroke-width="7" stroke-linecap="round"></path>
+                <circle cx="165" cy="148" r="4" fill="none" stroke="#000" stroke-width="2"></circle>
+              </g>
+            </g>
+          </svg>
+        </div>
+
+        <div id="splashTitle" class="space-y-2 opacity-0 animate-logo-reveal">
+          <h1 class="flex items-center justify-center text-4xl font-extrabold tracking-wider">
+            <span class="text-brand-pinkVivid">CTRL</span>
+            <span class="text-brand-blue flex items-center ml-1">
+              G
+              <svg class="h-[0.95em] w-auto inline-block mx-0.5 align-middle text-brand-blue drop-shadow-sm" viewBox="0 0 50 120" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Carranca estilizada do Rio São Francisco">
+                <path d="M10 15 C10 8, 40 8, 40 15 L42 105 C42 112, 8 112, 8 105 Z" fill="#38BDF8"/>
+                <path d="M8 100 L42 100 L42 110 C42 115 8 115 8 110 Z" fill="#0284C7"/>
+                <path d="M 6 35 C 0 38, 0 50, 8 55 Z" fill="#0284C7"/>
+                <path d="M 44 35 C 50 38, 50 50, 42 55 Z" fill="#0284C7"/>
+                <path d="M10 15 C10 8, 40 8, 40 15 L40 28 L25 35 L10 28 Z" fill="#0F172A"/>
+                <path d="M10 33 L23 40 L23 37 L11 31 Z" fill="#EF4444"/>
+                <path d="M40 33 L27 40 L27 37 L39 31 Z" fill="#EF4444"/>
+                <ellipse cx="17" cy="45" rx="6" ry="7" fill="#EF4444" transform="rotate(-15 17 45)"/>
+                <ellipse cx="17" cy="45" rx="4.5" ry="5.5" fill="#FFFFFF" transform="rotate(-15 17 45)"/>
+                <circle cx="17" cy="45" r="2.2" fill="#0F172A"/>
+                <ellipse cx="33" cy="45" rx="6" ry="7" fill="#EF4444" transform="rotate(15 33 45)"/>
+                <ellipse cx="33" cy="45" rx="4.5" ry="5.5" fill="#FFFFFF" transform="rotate(15 33 45)"/>
+                <circle cx="33" cy="45" r="2.2" fill="#0F172A"/>
+                <path d="M25 45 C18 55, 17 65, 20 66 C23 67, 27 67, 30 66 C33 65, 32 55, 25 45 Z" fill="#0284C7"/>
+                <ellipse cx="20" cy="63" rx="2.5" ry="3.5" fill="#0F172A"/>
+                <ellipse cx="30" cy="63" rx="2.5" ry="3.5" fill="#0F172A"/>
+                <rect x="12" y="70" width="26" height="24" rx="4" fill="#0F172A"/>
+                <rect x="13.5" y="71.5" width="23" height="21" rx="3" fill="#991B1B"/>
+                <path d="M18 85 Q25 80 32 85 Q25 93 18 85 Z" fill="#EF4444"/>
+                <path d="M14 71.5 L17 77 L20 71.5 L23 77 L25 71.5 L27 77 L30 71.5 L33 77 L36 71.5 Z" fill="#FFFFFF"/>
+                <path d="M14 92.5 L17 87 L20 92.5 L23 87 L25 92.5 L27 87 L30 92.5 L33 87 L36 92.5 Z" fill="#FFFFFF"/>
+              </svg>
+              RL
+            </span>
+          </h1>
+          <p class="text-slate-600 text-xs font-semibold tracking-wide">O portal de eSports inclusivo</p>
+        </div>
+
+        <div class="w-12 h-12 border-4 border-purple-200 border-t-brand-purple rounded-full animate-spin mt-4" role="progressbar" aria-label="Carregando portal"></div>
+      </div>
+    </div>
+
+    <!-- Main Header -->
+    <header id="mainHeader" role="banner" class="bg-white border-b border-slate-200 px-4 py-3 items-center justify-between shrink-0 shadow-sm z-30 hidden">
+      <button id="btnOpenMenu" aria-label="Abrir menu de navegação" aria-expanded="false" class="text-slate-700 hover:text-brand-purple p-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-purple">
+        <i class="fa-solid fa-bars text-xl" aria-hidden="true"></i>
+      </button>
+
+      <button onclick="switchTab('home')" aria-label="CTRLGIRL - Ir para a página inicial" class="flex items-center gap-2 rounded-lg p-1 focus:outline-none focus:ring-2 focus:ring-brand-purple">
+        <div class="w-8 h-8 rounded-full bg-purple-100 flex items-center justify-center border border-purple-300 overflow-hidden">
+          <svg viewBox="0 0 800 800" class="w-full h-full" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+            <defs>
+              <radialGradient id="bgGradHeader" cx="50%" cy="50%" r="50%">
+                <stop offset="0%" stop-color="#F5F3FF"></stop>
+                <stop offset="100%" stop-color="#EDE9FE"></stop>
+              </radialGradient>
+            </defs>
+            <rect width="800" height="800" fill="url(#bgGradHeader)"></rect>
+            <g transform="translate(-18, -25)">
+              <path d="M 220 320 C 120 300 80 400 110 480 C 130 520 160 520 180 560 C 200 600 240 680 320 670 C 370 660 380 600 360 540 C 350 510 320 480 320 440 C 320 380 280 330 220 320 Z" fill="#69b4e2" stroke="#000000" stroke-width="8" stroke-linejoin="round"></path>
+              <path d="M 580 320 C 680 300 720 400 690 480 C 670 520 640 520 620 560 C 600 600 560 680 480 670 C 430 660 420 600 440 540 C 450 510 480 480 480 440 C 480 380 520 330 580 320 Z" fill="#7b4db5" stroke="#000000" stroke-width="8" stroke-linejoin="round"></path>
+              <path d="M 260 430 C 260 320 330 290 400 290 C 470 290 540 320 540 430 C 540 540 500 620 400 620 C 300 620 260 540 260 430 Z" fill="#8d4e2a" stroke="#000000" stroke-width="8"></path>
+              <ellipse cx="255" cy="450" rx="15" ry="25" fill="#8d4e2a" stroke="#000" stroke-width="6"></ellipse>
+              <ellipse cx="545" cy="450" rx="15" ry="25" fill="#8d4e2a" stroke="#000" stroke-width="6"></ellipse>
+              <path d="M 280 400 Q 320 370 370 390" fill="none" stroke="#e0bc24" stroke-width="8" stroke-linecap="round"></path>
+              <path d="M 520 400 Q 480 370 430 390" fill="none" stroke="#e0bc24" stroke-width="8" stroke-linecap="round"></path>
+              <path d="M 280 450 Q 330 420 380 450 Q 330 500 280 450 Z" fill="#ffffff" stroke="#000000" stroke-width="7"></path>
+              <g fill="#2176ff" stroke="#000" stroke-width="1.5">
+                <rect x="295" y="435" width="12" height="12"></rect>
+                <rect x="312" y="438" width="10" height="10"></rect>
+                <rect x="325" y="435" width="15" height="15" fill="#00b4d8"></rect>
+                <rect x="300" y="452" width="14" height="14"></rect>
+                <rect x="318" y="450" width="12" height="12" fill="#90e0ef"></rect>
+                <rect x="335" y="455" width="10" height="10"></rect>
+                <rect x="305" y="470" width="11" height="11" fill="#03045e"></rect>
+                <rect x="320" y="468" width="13" height="13"></rect>
+                <rect x="340" y="465" width="12" height="12" fill="#0077b6"></rect>
+              </g>
+              <path d="M 520 450 Q 470 420 420 450 Q 470 500 520 450 Z" fill="#ffffff" stroke="#000000" stroke-width="7"></path>
+              <g transform="translate(435, 435) scale(0.6)" stroke="#000" stroke-width="3" fill="none" stroke-linejoin="round" stroke-linecap="round">
+                <rect x="10" y="10" width="50" height="30" rx="15" fill="#fff"></rect>
+                <circle cx="22" cy="25" r="5" fill="#ff3366"></circle>
+                <line x1="42" y1="20" x2="42" y2="30"></line>
+                <line x1="37" y1="25" x2="47" y2="25"></line>
+              </g>
+              <g transform="translate(490, 430) scale(0.55)" stroke="#000" stroke-width="3" fill="#fff" stroke-linejoin="round">
+                <rect x="5" y="5" width="24" height="42" rx="4"></rect>
+                <circle cx="17" cy="43" r="2" fill="#000"></circle>
+                <rect x="9" y="10" width="16" height="26" fill="#00b4d8"></rect>
+              </g>
+              <path d="M 390 535 Q 400 515 410 535 Q 400 545 390 535 Z" fill="none" stroke="#000000" stroke-width="5" stroke-linecap="round"></path>
+              <circle cx="400" cy="542" r="3.5" fill="#ffffff" stroke="#000000" stroke-width="2"></circle>
+              <path d="M 370 575 Q 400 560 430 575 Q 400 610 370 575 Z" fill="#800080" stroke="#000000" stroke-width="6" stroke-linejoin="round"></path>
+              <path d="M 485 550 L 493 570 L 513 575 L 493 580 L 485 600 L 477 580 L 457 575 L 477 570 Z" fill="#fef08a" stroke="#000000" stroke-width="4" stroke-linejoin="round"></path>
+              <path d="M 230 450 C 200 250 600 250 570 450" fill="none" stroke="#fefae0" stroke-width="24" stroke-linecap="round"></path>
+              <path d="M 230 450 C 200 250 600 250 570 450" fill="none" stroke="#000000" stroke-width="6" stroke-dasharray="8 12" stroke-linecap="round"></path>
+              <g transform="translate(195, 410)">
+                <rect x="0" y="0" width="65" height="90" rx="30" fill="#1b4332" stroke="#000000" stroke-width="8"></rect>
+                <path d="M 35 25 C 20 25 15 45 35 65 C 25 55 25 35 35 25 Z" fill="#fefae0"></path>
+              </g>
+              <g transform="translate(540, 410)">
+                <rect x="0" y="0" width="65" height="90" rx="30" fill="#1b4332" stroke="#000000" stroke-width="8"></rect>
+                <path d="M 30 25 C 45 25 50 45 30 65 C 40 55 40 35 30 25 Z" fill="#fefae0"></path>
+              </g>
+              <path d="M 225 490 Q 280 620 380 615" fill="none" stroke="#1b4332" stroke-width="8" stroke-linecap="round"></path>
+              <path d="M 225 490 Q 280 620 380 615" fill="none" stroke="#000000" stroke-width="2" stroke-linecap="round"></path>
+              <circle cx="380" cy="615" r="9" fill="#000000"></circle>
+              <g transform="translate(590, 470)">
+                <path d="M 50 140 C 50 110 50 90 70 80 C 85 70 120 70 135 80 C 150 90 150 110 150 140 C 150 190 130 220 100 220 C 70 220 50 190 50 140 Z" fill="#8d4e2a" stroke="#000000" stroke-width="8" stroke-linejoin="round"></path>
+                <path d="M 85 150 C 95 170 110 180 125 195" fill="none" stroke="#000" stroke-width="5" stroke-linecap="round"></path>
+                <path d="M 100 150 C 100 170 85 190 75 205" fill="none" stroke="#000" stroke-width="5" stroke-linecap="round"></path>
+                <path d="M 60 85 C 50 80 40 50 55 30 C 65 20 75 35 68 60" fill="#8d4e2a" stroke="#000000" stroke-width="7" stroke-linecap="round"></path>
+                <circle cx="53" cy="40" r="5" fill="none" stroke="#000" stroke-width="2"></circle>
+                <path d="M 78 72 C 75 50 68 20 85 10 C 98 5 103 30 90 60" fill="#8d4e2a" stroke="#000000" stroke-width="7" stroke-linecap="round"></path>
+                <circle cx="85" cy="22" r="5" fill="none" stroke="#000" stroke-width="2"></circle>
+                <path d="M 100 70 C 100 45 100 10 120 5 C 135 2 135 30 115 58" fill="#8d4e2a" stroke="#000000" stroke-width="7" stroke-linecap="round"></path>
+                <circle cx="120" cy="18" r="5" fill="none" stroke="#000" stroke-width="2"></circle>
+                <path d="M 122 75 C 128 50 135 20 155 25 C 168 30 160 60 140 75" fill="#8d4e2a" stroke="#000000" stroke-width="7" stroke-linecap="round"></path>
+                <circle cx="153" cy="40" r="5" fill="none" stroke="#000" stroke-width="2"></circle>
+                <path d="M 145 120 C 170 120 185 140 170 160 C 160 170 145 150 140 140" fill="#8d4e2a" stroke="#000000" stroke-width="7" stroke-linecap="round"></path>
+                <circle cx="165" cy="148" r="4" fill="none" stroke="#000" stroke-width="2"></circle>
+              </g>
+            </g>
+          </svg>
+        </div>
+
+        <span class="font-black text-lg tracking-tight flex items-center">
+          <span class="text-brand-pinkVivid">CTRL</span>
+          <span class="text-brand-blue flex items-center ml-0.5">
+            G
+            <svg class="h-[0.95em] w-auto inline-block mx-0.5 align-middle text-brand-blue drop-shadow-sm" viewBox="0 0 50 120" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+              <path d="M10 15 C10 8, 40 8, 40 15 L42 105 C42 112, 8 112, 8 105 Z" fill="#38BDF8"/>
+              <path d="M8 100 L42 100 L42 110 C42 115 8 115 8 110 Z" fill="#0284C7"/>
+              <path d="M 6 35 C 0 38, 0 50, 8 55 Z" fill="#0284C7"/>
+              <path d="M 44 35 C 50 38, 50 50, 42 55 Z" fill="#0284C7"/>
+              <path d="M10 15 C10 8, 40 8, 40 15 L40 28 L25 35 L10 28 Z" fill="#0F172A"/>
+              <path d="M10 33 L23 40 L23 37 L11 31 Z" fill="#EF4444"/>
+              <path d="M40 33 L27 40 L27 37 L39 31 Z" fill="#EF4444"/>
+              <ellipse cx="17" cy="45" rx="6" ry="7" fill="#EF4444" transform="rotate(-15 17 45)"/>
+              <ellipse cx="17" cy="45" rx="4.5" ry="5.5" fill="#FFFFFF" transform="rotate(-15 17 45)"/>
+              <circle cx="17" cy="45" r="2.2" fill="#0F172A"/>
+              <ellipse cx="33" cy="45" rx="6" ry="7" fill="#EF4444" transform="rotate(15 33 45)"/>
+              <ellipse cx="33" cy="45" rx="4.5" ry="5.5" fill="#FFFFFF" transform="rotate(15 33 45)"/>
+              <circle cx="33" cy="45" r="2.2" fill="#0F172A"/>
+              <path d="M25 45 C18 55, 17 65, 20 66 C23 67, 27 67, 30 66 C33 65, 32 55, 25 45 Z" fill="#0284C7"/>
+              <ellipse cx="20" cy="63" rx="2.5" ry="3.5" fill="#0F172A"/>
+              <ellipse cx="30" cy="63" rx="2.5" ry="3.5" fill="#0F172A"/>
+              <rect x="12" y="70" width="26" height="24" rx="4" fill="#0F172A"/>
+              <rect x="13.5" y="71.5" width="23" height="21" rx="3" fill="#991B1B"/>
+              <path d="M18 85 Q25 80 32 85 Q25 93 18 85 Z" fill="#EF4444"/>
+              <path d="M14 71.5 L17 77 L20 71.5 L23 77 L25 71.5 L27 77 L30 71.5 L33 77 L36 71.5 Z" fill="#FFFFFF"/>
+              <path d="M14 92.5 L17 87 L20 92.5 L23 87 L25 92.5 L27 87 L30 92.5 L33 87 L36 92.5 Z" fill="#FFFFFF"/>
+            </svg>
+            RL
+          </span>
+        </span>
+      </button>
+
+      <div class="flex items-center gap-3">
+        <button id="btnDyslexiaToggle" onclick="toggleDyslexiaFont()" title="Ativar/Desativar fonte OpenDyslexic para dislexia" aria-label="Ativar fonte OpenDyslexic para facilidade de leitura para dislexia" aria-pressed="false" class="text-slate-700 hover:text-brand-purple p-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-purple flex items-center justify-center">
+          <i class="fa-solid fa-universal-access text-xl" aria-hidden="true"></i>
+        </button>
+
+        <button onclick="switchTab('chat')" aria-label="Abrir Fórum de Comunidade. Há novas mensagens não lidas." class="relative text-slate-700 hover:text-brand-purple p-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-purple">
+          <i class="fa-solid fa-comments text-lg" aria-hidden="true"></i>
+          <span class="absolute top-1 right-1 w-2.5 h-2.5 bg-brand-pinkVivid rounded-full border-2 border-white"></span>
+        </button>
+        <button id="headerUserBadge" onclick="switchTab('profile')" aria-label="Acessar Meu Perfil de Usuária" class="w-8 h-8 rounded-full bg-purple-100 text-brand-purple flex items-center justify-center font-bold text-xs border border-purple-300 focus:outline-none focus:ring-2 focus:ring-brand-purple">
+          <i class="fa-solid fa-user" aria-hidden="true"></i>
+        </button>
+      </div>
+    </header>
+
+    <!-- Drawer / Menu Lateral -->
+    <div id="sideDrawer" role="dialog" aria-modal="true" aria-label="Menu principal de navegação" class="absolute inset-0 z-40 bg-slate-900/50 backdrop-blur-sm hidden transition-opacity duration-300">
+      <div id="drawerContent" class="w-3/4 max-w-[280px] h-full bg-white shadow-2xl p-5 flex flex-col transform -translate-x-full transition-transform duration-300">
+        <div class="flex items-center justify-between border-b pb-4 mb-4">
+          <div class="flex items-center gap-2">
+            <div class="w-8 h-8 bg-brand-purple text-white rounded-lg flex items-center justify-center font-bold" aria-hidden="true">CG</div>
+            <h2 class="font-extrabold text-slate-800 text-lg">Menu</h2>
+          </div>
+          <button id="btnCloseMenu" aria-label="Fechar menu de navegação" class="text-slate-500 hover:text-slate-800 p-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-purple">
+            <i class="fa-solid fa-xmark text-xl" aria-hidden="true"></i>
+          </button>
+        </div>
+
+        <nav aria-label="Links do Menu Lateral" class="space-y-2 flex-1">
+          <button onclick="switchTab('home'); closeMenu();" class="w-full text-left px-3 py-2.5 rounded-xl hover:bg-purple-50 hover:text-brand-purple font-semibold text-slate-800 flex items-center gap-3 focus:outline-none focus:ring-2 focus:ring-brand-purple">
+            <i class="fa-solid fa-house text-purple-600 w-5" aria-hidden="true"></i> Início
+          </button>
+          <button onclick="switchTab('matches'); closeMenu();" class="w-full text-left px-3 py-2.5 rounded-xl hover:bg-purple-50 hover:text-brand-purple font-semibold text-slate-800 flex items-center gap-3 focus:outline-none focus:ring-2 focus:ring-brand-purple">
+            <i class="fa-solid fa-calendar-days text-sky-600 w-5" aria-hidden="true"></i> Próximos Jogos
+          </button>
+          <button onclick="switchTab('about'); closeMenu();" class="w-full text-left px-3 py-2.5 rounded-xl hover:bg-purple-50 hover:text-brand-purple font-semibold text-slate-800 flex items-center gap-3 focus:outline-none focus:ring-2 focus:ring-brand-purple">
+            <i class="fa-solid fa-circle-info text-amber-600 w-5" aria-hidden="true"></i> Sobre Nós
+          </button>
+          <button onclick="switchTab('chat'); closeMenu();" class="w-full text-left px-3 py-2.5 rounded-xl hover:bg-purple-50 hover:text-brand-purple font-semibold text-slate-800 flex items-center gap-3 focus:outline-none focus:ring-2 focus:ring-brand-purple">
+            <i class="fa-solid fa-comments text-emerald-600 w-5" aria-hidden="true"></i> Fórum Comunidade
+          </button>
+          <button onclick="switchTab('profile'); closeMenu();" class="w-full text-left px-3 py-2.5 rounded-xl hover:bg-purple-50 hover:text-brand-purple font-semibold text-slate-800 flex items-center gap-3 focus:outline-none focus:ring-2 focus:ring-brand-purple">
+            <i class="fa-solid fa-user-gear text-purple-700 w-5" aria-hidden="true"></i> Meu Perfil
+          </button>
+          <button onclick="openTermsModal(); closeMenu();" class="w-full text-left px-3 py-2.5 rounded-xl hover:bg-purple-50 hover:text-brand-purple font-semibold text-slate-800 flex items-center gap-3 focus:outline-none focus:ring-2 focus:ring-brand-purple">
+            <i class="fa-solid fa-file-contract text-slate-600 w-5" aria-hidden="true"></i> Termos & Privacidade
+          </button>
+          
+          <button id="drawerDyslexiaBtn" onclick="toggleDyslexiaFont(); closeMenu();" class="w-full text-left px-3 py-2.5 rounded-xl hover:bg-purple-50 hover:text-brand-purple font-semibold text-slate-800 flex items-center justify-between focus:outline-none focus:ring-2 focus:ring-brand-purple">
+            <span class="flex items-center gap-3">
+              <i class="fa-solid fa-universal-access text-indigo-600 w-5" aria-hidden="true"></i> Fonte OpenDyslexic
+            </span>
+            <span id="dyslexiaBadge" class="text-[10px] font-extrabold px-2 py-0.5 rounded-full bg-slate-200 text-slate-700">DESATIVADA</span>
+          </button>
+        </nav>
+
+        <div class="pt-4 border-t border-slate-100 text-xs text-slate-600">
+          <div id="drawerUserStatus">Entrou como <b>Visitante</b></div>
+          <button id="btnDrawerLogin" onclick="switchTab('auth'); closeMenu();" class="mt-2 w-full py-2.5 bg-brand-purple text-white rounded-xl font-bold focus:outline-none focus:ring-2 focus:ring-brand-purple">
+            Sair e Voltar ao Login
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Conteúdo Principal -->
+    <main id="mainContent" role="main" aria-label="Conteúdo Principal do Portal" class="flex-1 overflow-y-auto custom-scrollbar p-4 space-y-4 bg-slate-100 relative">
+
+      <!-- ================= TELA ÚNICA DE AUTENTICAÇÃO ================= -->
+      <section id="viewAuth" role="region" aria-label="Autenticação e Cadastro" class="min-h-full flex flex-col justify-between pb-4">
+        
+        <div class="relative -mx-4 -mt-4 pt-8 pb-12 px-6 bg-gradient-to-b from-purple-200/80 via-purple-100/60 to-pink-100/40 overflow-hidden rounded-t-[36px] flex flex-col items-center justify-center text-center shadow-sm">
+          
+          <svg class="absolute bottom-0 left-0 w-full h-11 text-slate-100 fill-current pointer-events-none" viewBox="0 0 500 60" preserveAspectRatio="none" aria-hidden="true">
+            <path opacity="0.4" fill="#E9D5FF" d="M 0,15 Q 125,45 250,20 Q 375,-5 500,25 L 500,60 L 0,60 Z" />
+            <path opacity="0.7" fill="#FFFFFF" d="M 0,30 Q 80,10 160,32 Q 240,54 320,25 Q 400,-2 500,28 L 500,60 L 0,60 Z" />
+            <path fill="#F1F5F9" d="M 0,38 Q 100,20 200,42 Q 300,60 400,30 Q 450,15 500,32 L 500,60 L 0,60 Z" />
+          </svg>
+
+          <div class="relative z-10 mb-3">
+            <div class="w-20 h-20 rounded-full bg-purple-100 p-1 shadow-md border-2 border-purple-300 flex items-center justify-center animate-pulse-subtle overflow-hidden">
+              <svg viewBox="0 0 800 800" class="w-full h-full" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Mascote Iu-Á">
+                <defs>
+                  <radialGradient id="bgGradAuth" cx="50%" cy="50%" r="50%">
+                    <stop offset="0%" stop-color="#F5F3FF"></stop>
+                    <stop offset="100%" stop-color="#EDE9FE"></stop>
+                  </radialGradient>
+                </defs>
+                <rect width="800" height="800" fill="url(#bgGradAuth)"></rect>
+                <g transform="translate(-18, -25)">
+                  <path d="M 220 320 C 120 300 80 400 110 480 C 130 520 160 520 180 560 C 200 600 240 680 320 670 C 370 660 380 600 360 540 C 350 510 320 480 320 440 C 320 380 280 330 220 320 Z" fill="#69b4e2" stroke="#000000" stroke-width="8" stroke-linejoin="round"></path>
+                  <path d="M 580 320 C 680 300 720 400 690 480 C 670 520 640 520 620 560 C 600 600 560 680 480 670 C 430 660 420 600 440 540 C 450 510 480 480 480 440 C 480 380 520 330 580 320 Z" fill="#7b4db5" stroke="#000000" stroke-width="8" stroke-linejoin="round"></path>
+                  <path d="M 260 430 C 260 320 330 290 400 290 C 470 290 540 320 540 430 C 540 540 500 620 400 620 C 300 620 260 540 260 430 Z" fill="#8d4e2a" stroke="#000000" stroke-width="8"></path>
+                  <ellipse cx="255" cy="450" rx="15" ry="25" fill="#8d4e2a" stroke="#000" stroke-width="6"></ellipse>
+                  <ellipse cx="545" cy="450" rx="15" ry="25" fill="#8d4e2a" stroke="#000" stroke-width="6"></ellipse>
+                  <path d="M 280 400 Q 320 370 370 390" fill="none" stroke="#e0bc24" stroke-width="8" stroke-linecap="round"></path>
+                  <path d="M 520 400 Q 480 370 430 390" fill="none" stroke="#e0bc24" stroke-width="8" stroke-linecap="round"></path>
+                  <path d="M 280 450 Q 330 420 380 450 Q 330 500 280 450 Z" fill="#ffffff" stroke="#000000" stroke-width="7"></path>
+                  <g fill="#2176ff" stroke="#000" stroke-width="1.5">
+                    <rect x="295" y="435" width="12" height="12"></rect>
+                    <rect x="312" y="438" width="10" height="10"></rect>
+                    <rect x="325" y="435" width="15" height="15" fill="#00b4d8"></rect>
+                    <rect x="300" y="452" width="14" height="14"></rect>
+                    <rect x="318" y="450" width="12" height="12" fill="#90e0ef"></rect>
+                    <rect x="335" y="455" width="10" height="10"></rect>
+                    <rect x="305" y="470" width="11" height="11" fill="#03045e"></rect>
+                    <rect x="320" y="468" width="13" height="13"></rect>
+                    <rect x="340" y="465" width="12" height="12" fill="#0077b6"></rect>
+                  </g>
+                  <path d="M 520 450 Q 470 420 420 450 Q 470 500 520 450 Z" fill="#ffffff" stroke="#000000" stroke-width="7"></path>
+                  <g transform="translate(435, 435) scale(0.6)" stroke="#000" stroke-width="3" fill="none" stroke-linejoin="round" stroke-linecap="round">
+                    <rect x="10" y="10" width="50" height="30" rx="15" fill="#fff"></rect>
+                    <circle cx="22" cy="25" r="5" fill="#ff3366"></circle>
+                    <line x1="42" y1="20" x2="42" y2="30"></line>
+                    <line x1="37" y1="25" x2="47" y2="25"></line>
+                  </g>
+                  <g transform="translate(490, 430) scale(0.55)" stroke="#000" stroke-width="3" fill="#fff" stroke-linejoin="round">
+                    <rect x="5" y="5" width="24" height="42" rx="4"></rect>
+                    <circle cx="17" cy="43" r="2" fill="#000"></circle>
+                    <rect x="9" y="10" width="16" height="26" fill="#00b4d8"></rect>
+                  </g>
+                  <path d="M 390 535 Q 400 515 410 535 Q 400 545 390 535 Z" fill="none" stroke="#000000" stroke-width="5" stroke-linecap="round"></path>
+                  <circle cx="400" cy="542" r="3.5" fill="#ffffff" stroke="#000000" stroke-width="2"></circle>
+                  <path d="M 370 575 Q 400 560 430 575 Q 400 610 370 575 Z" fill="#800080" stroke="#000000" stroke-width="6" stroke-linejoin="round"></path>
+                  <path d="M 485 550 L 493 570 L 513 575 L 493 580 L 485 600 L 477 580 L 457 575 L 477 570 Z" fill="#fef08a" stroke="#000000" stroke-width="4" stroke-linejoin="round"></path>
+                  <path d="M 230 450 C 200 250 600 250 570 450" fill="none" stroke="#fefae0" stroke-width="24" stroke-linecap="round"></path>
+                  <path d="M 230 450 C 200 250 600 250 570 450" fill="none" stroke="#000000" stroke-width="6" stroke-dasharray="8 12" stroke-linecap="round"></path>
+                  <g transform="translate(195, 410)">
+                    <rect x="0" y="0" width="65" height="90" rx="30" fill="#1b4332" stroke="#000000" stroke-width="8"></rect>
+                    <path d="M 35 25 C 20 25 15 45 35 65 C 25 55 25 35 35 25 Z" fill="#fefae0"></path>
+                  </g>
+                  <g transform="translate(540, 410)">
+                    <rect x="0" y="0" width="65" height="90" rx="30" fill="#1b4332" stroke="#000000" stroke-width="8"></rect>
+                    <path d="M 30 25 C 45 25 50 45 30 65 C 40 55 40 35 30 25 Z" fill="#fefae0"></path>
+                  </g>
+                  <path d="M 225 490 Q 280 620 380 615" fill="none" stroke="#1b4332" stroke-width="8" stroke-linecap="round"></path>
+                  <path d="M 225 490 Q 280 620 380 615" fill="none" stroke="#000000" stroke-width="2" stroke-linecap="round"></path>
+                  <circle cx="380" cy="615" r="9" fill="#000000"></circle>
+                  <g transform="translate(590, 470)">
+                    <path d="M 50 140 C 50 110 50 90 70 80 C 85 70 120 70 135 80 C 150 90 150 110 150 140 C 150 190 130 220 100 220 C 70 220 50 190 50 140 Z" fill="#8d4e2a" stroke="#000000" stroke-width="8" stroke-linejoin="round"></path>
+                    <path d="M 85 150 C 95 170 110 180 125 195" fill="none" stroke="#000" stroke-width="5" stroke-linecap="round"></path>
+                    <path d="M 100 150 C 100 170 85 190 75 205" fill="none" stroke="#000" stroke-width="5" stroke-linecap="round"></path>
+                    <path d="M 60 85 C 50 80 40 50 55 30 C 65 20 75 35 68 60" fill="#8d4e2a" stroke="#000000" stroke-width="7" stroke-linecap="round"></path>
+                    <circle cx="53" cy="40" r="5" fill="none" stroke="#000" stroke-width="2"></circle>
+                    <path d="M 78 72 C 75 50 68 20 85 10 C 98 5 103 30 90 60" fill="#8d4e2a" stroke="#000000" stroke-width="7" stroke-linecap="round"></path>
+                    <circle cx="85" cy="22" r="5" fill="none" stroke="#000" stroke-width="2"></circle>
+                    <path d="M 100 70 C 100 45 100 10 120 5 C 135 2 135 30 115 58" fill="#8d4e2a" stroke="#000000" stroke-width="7" stroke-linecap="round"></path>
+                    <circle cx="120" cy="18" r="5" fill="none" stroke="#000" stroke-width="2"></circle>
+                    <path d="M 122 75 C 128 50 135 20 155 25 C 168 30 160 60 140 75" fill="#8d4e2a" stroke="#000000" stroke-width="7" stroke-linecap="round"></path>
+                    <circle cx="153" cy="40" r="5" fill="none" stroke="#000" stroke-width="2"></circle>
+                    <path d="M 145 120 C 170 120 185 140 170 160 C 160 170 145 150 140 140" fill="#8d4e2a" stroke="#000000" stroke-width="7" stroke-linecap="round"></path>
+                    <circle cx="165" cy="148" r="4" fill="none" stroke="#000" stroke-width="2"></circle>
+                  </g>
+                </g>
+              </svg>
+            </div>
+          </div>
+
+          <div class="relative z-10 space-y-1">
+            <h1 class="font-black text-3xl tracking-wider flex items-center justify-center drop-shadow-sm">
+              <span class="text-brand-pinkVivid">CTRL</span>
+              <span class="text-brand-blue flex items-center ml-1">
+                G
+                <svg class="h-[0.95em] w-auto inline-block mx-0.5 align-middle text-brand-blue drop-shadow-sm" viewBox="0 0 50 120" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Carranca estilizada">
+                  <path d="M10 15 C10 8, 40 8, 40 15 L42 105 C42 112, 8 112, 8 105 Z" fill="#38BDF8"/>
+                  <path d="M8 100 L42 100 L42 110 C42 115 8 115 8 110 Z" fill="#0284C7"/>
+                  <path d="M 6 35 C 0 38, 0 50, 8 55 Z" fill="#0284C7"/>
+                  <path d="M 44 35 C 50 38, 50 50, 42 55 Z" fill="#0284C7"/>
+                  <path d="M10 15 C10 8, 40 8, 40 15 L40 28 L25 35 L10 28 Z" fill="#0F172A"/>
+                  <path d="M10 33 L23 40 L23 37 L11 31 Z" fill="#EF4444"/>
+                  <path d="M40 33 L27 40 L27 37 L39 31 Z" fill="#EF4444"/>
+                  <ellipse cx="17" cy="45" rx="6" ry="7" fill="#EF4444" transform="rotate(-15 17 45)"/>
+                  <ellipse cx="17" cy="45" rx="4.5" ry="5.5" fill="#FFFFFF" transform="rotate(-15 17 45)"/>
+                  <circle cx="17" cy="45" r="2.2" fill="#0F172A"/>
+                  <ellipse cx="33" cy="45" rx="6" ry="7" fill="#EF4444" transform="rotate(15 33 45)"/>
+                  <ellipse cx="33" cy="45" rx="4.5" ry="5.5" fill="#FFFFFF" transform="rotate(15 33 45)"/>
+                  <circle cx="33" cy="45" r="2.2" fill="#0F172A"/>
+                  <path d="M25 45 C18 55, 17 65, 20 66 C23 67, 27 67, 30 66 C33 65, 32 55, 25 45 Z" fill="#0284C7"/>
+                  <ellipse cx="20" cy="63" rx="2.5" ry="3.5" fill="#0F172A"/>
+                  <ellipse cx="30" cy="63" rx="2.5" ry="3.5" fill="#0F172A"/>
+                  <rect x="12" y="70" width="26" height="24" rx="4" fill="#0F172A"/>
+                  <rect x="13.5" y="71.5" width="23" height="21" rx="3" fill="#991B1B"/>
+                  <path d="M18 85 Q25 80 32 85 Q25 93 18 85 Z" fill="#EF4444"/>
+                  <path d="M14 71.5 L17 77 L20 71.5 L23 77 L25 71.5 L27 77 L30 71.5 L33 77 L36 71.5 Z" fill="#FFFFFF"/>
+                  <path d="M14 92.5 L17 87 L20 92.5 L23 87 L25 92.5 L27 87 L30 92.5 L33 87 L36 92.5 Z" fill="#FFFFFF"/>
+                </svg>
+                RL
+              </span>
+            </h1>
+            <p class="text-xs text-slate-800 font-bold tracking-wide">O seu portal inclusivo de eSports</p>
+          </div>
+        </div>
+
+        <div class="my-auto space-y-6 pt-2">
+          <!-- Guias de Autenticação -->
+          <div role="tablist" aria-label="Opções de Acesso" class="flex bg-slate-200 p-1 rounded-2xl text-xs font-bold text-slate-700 max-w-xs mx-auto w-full">
+            <button id="authTabBtnLogin" role="tab" aria-selected="true" aria-controls="authPageLogin" onclick="switchAuthPage('login')" class="flex-1 py-2.5 rounded-xl bg-white shadow-sm text-brand-purple font-extrabold focus:outline-none focus:ring-2 focus:ring-brand-purple">Entrar</button>
+            <button id="authTabBtnRegister" role="tab" aria-selected="false" aria-controls="authPageRegister" onclick="switchAuthPage('register')" class="flex-1 py-2.5 rounded-xl text-slate-700 hover:text-brand-purple font-bold focus:outline-none focus:ring-2 focus:ring-brand-purple">Criar Conta</button>
+          </div>
+
+          <form id="authPageLogin" role="tabpanel" aria-labelledby="authTabBtnLogin" onsubmit="handleLoginSubmit(event)" class="space-y-6 px-4">
+            <div class="space-y-4">
+              <div>
+                <label for="loginUser" class="block text-xs font-bold text-slate-800 mb-1">Nickname ou Email</label>
+                <input type="text" id="loginUser" required placeholder="Insira o seu nickname ou email" class="figma-input text-xs text-slate-900 placeholder-slate-500 font-medium" />
+              </div>
+
+              <div>
+                <label for="loginPass" class="block text-xs font-bold text-slate-800 mb-1">Senha</label>
+                <input type="password" id="loginPass" required placeholder="••••••••" class="figma-input text-xs text-slate-900 placeholder-slate-500 font-medium" />
+              </div>
+            </div>
+
+            <div class="pt-2 text-center space-y-3">
+              <button type="submit" class="w-full py-3.5 bg-brand-purple hover:bg-brand-darkPurple text-white font-bold rounded-full shadow-lg transition text-xs tracking-wider uppercase focus:outline-none focus:ring-2 focus:ring-brand-purple">
+                Entrar no App
+              </button>
+
+              <button type="button" onclick="loginAsGuest()" class="w-full py-3 bg-slate-200 hover:bg-slate-300 text-slate-800 font-bold rounded-full transition text-xs tracking-wide focus:outline-none focus:ring-2 focus:ring-brand-purple">
+                <i class="fa-solid fa-user-secret mr-1" aria-hidden="true"></i> Entrar como Visitante
+              </button>
+            </div>
+          </form>
+
+          <form id="authPageRegister" role="tabpanel" aria-labelledby="authTabBtnRegister" onsubmit="handleRegisterSubmit(event)" class="hidden space-y-3 px-2">
+            <p class="text-xs text-slate-700 text-center font-bold">Preencha os seus dados para fazer parte da comunidade</p>
+            
+            <div>
+              <label for="regName" class="block text-xs font-bold text-slate-800">Nome Completo ou Nome Social *</label>
+              <input type="text" id="regName" required placeholder="Ex: Maria Silva" class="figma-input text-xs text-slate-900 placeholder-slate-500 font-medium" />
+            </div>
+
+            <div class="grid grid-cols-2 gap-3">
+              <div>
+                <label for="regNick" class="block text-xs font-bold text-slate-800">Nickname *</label>
+                <input type="text" id="regNick" required placeholder="gamerx" class="figma-input text-xs text-slate-900 placeholder-slate-500 font-medium" />
+              </div>
+              <div>
+                <label for="regEmail" class="block text-xs font-bold text-slate-800">E-mail *</label>
+                <input type="email" id="regEmail" required placeholder="seu@email.com" class="figma-input text-xs text-slate-900 placeholder-slate-500 font-medium" />
+              </div>
+            </div>
+
+            <div class="grid grid-cols-2 gap-3">
+              <div>
+                <label for="regPass" class="block text-xs font-bold text-slate-800">Senha *</label>
+                <input type="password" id="regPass" required placeholder="••••••••" class="figma-input text-xs text-slate-900 placeholder-slate-500 font-medium" />
+              </div>
+              <div>
+                <label for="regBirthDate" class="block text-xs font-bold text-slate-800">Data de Nascimento *</label>
+                <input type="date" id="regBirthDate" required class="figma-input text-xs text-slate-900 font-medium" />
+              </div>
+            </div>
+
+            <div class="grid grid-cols-2 gap-3">
+              <div>
+                <label for="regGender" class="block text-xs font-bold text-slate-800">Gênero *</label>
+                <select id="regGender" class="figma-input text-xs text-slate-900 font-medium">
+                  <option value="Mulher Cis">Mulher Cis</option>
+                  <option value="Mulher Trans">Mulher Trans</option>
+                  <option value="Homem Cis">Homem Cis</option>
+                  <option value="Homem Trans">Homem Trans</option>
+                  <option value="Pessoa Não-Binária">Pessoa Não-Binária</option>
+                  <option value="Prefiro não informar">Prefiro não informar</option>
+                </select>
+              </div>
+              <div>
+                <label for="regRace" class="block text-xs font-bold text-slate-800">Raça / Etnia *</label>
+                <select id="regRace" class="figma-input text-xs text-slate-900 font-medium">
+                  <option value="Parda">Parda</option>
+                  <option value="Preta">Preta</option>
+                  <option value="Branca">Branca</option>
+                  <option value="Amarela">Amarela</option>
+                  <option value="Indígena">Indígena</option>
+                </select>
+              </div>
+            </div>
+
+            <div>
+              <label for="regCity" class="block text-xs font-bold text-slate-800">Cidade / Estado *</label>
+              <input type="text" id="regCity" required placeholder="Ex: São Paulo, SP" class="figma-input text-xs text-slate-900 placeholder-slate-500 font-medium" />
+            </div>
+
+            <div class="pt-3 text-center space-y-2">
+              <button type="submit" class="w-full py-3 bg-brand-purple hover:bg-brand-darkPurple text-white font-bold rounded-full shadow-lg transition text-xs uppercase tracking-wider focus:outline-none focus:ring-2 focus:ring-brand-purple">
+                Cadastrar e Entrar
+              </button>
+            </div>
+          </form>
+        </div>
+
+        <!-- Footer com Ondas e Link para Termos e Condições -->
+        <div class="relative mt-6 -mx-6 -mb-4 pt-12 pb-6 px-4 overflow-hidden rounded-b-[36px] min-h-[140px] flex items-end justify-center">
+          <svg class="absolute inset-0 w-full h-full object-cover pointer-events-none" viewBox="0 0 500 220" preserveAspectRatio="none" aria-hidden="true">
+            <path d="M 0,0 C 130,130 370,130 500,0 L 500,220 L 0,220 Z" fill="#F5F3FF" opacity="0.8"/>
+            <path d="M 0,25 C 140,140 360,140 500,25 L 500,220 L 0,220 Z" fill="#EDE9FE" opacity="0.9"/>
+            <path d="M 0,60 C 150,155 350,155 500,60 L 500,220 L 0,220 Z" fill="#DDD6FE"/>
+            <path d="M 0,95 C 170,170 330,170 500,95 L 500,220 L 0,220 Z" fill="#C4B5FD"/>
+            <path d="M 0,130 C 190,180 310,180 500,130 L 500,220 L 0,220 Z" fill="#A78BFA"/>
+          </svg>
+
+          <div class="relative z-10 text-center pb-2 px-4 py-2 bg-white/90 backdrop-blur-sm rounded-2xl border border-white/80 shadow-sm">
+            <p class="text-xs text-slate-900 font-bold leading-relaxed">
+              Ao inscrever-se concordará com os nossos <br/>
+              <a href="#" onclick="openTermsModal(); return false;" class="font-extrabold text-brand-darkPurple underline hover:text-brand-pinkVivid focus:outline-none focus:ring-2 focus:ring-brand-purple rounded">Termos e Condições</a>
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================= TELA INÍCIO ================= -->
+      <section id="viewHome" role="region" aria-label="Início e Últimas Notícias" class="hidden space-y-4" tabindex="-1">
+
+        <!-- Bloco de Resultados (Padrão Linear) -->
+        <div class="bg-slate-900 rounded-2xl p-3.5 shadow-md border border-purple-900/60 space-y-3 relative overflow-hidden">
+          <div class="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-brand-pinkVivid via-brand-purple to-brand-blue"></div>
+          
+          <div class="flex items-center justify-between border-b border-slate-800 pb-2.5">
+            <div class="flex items-center gap-2">
+              <span class="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-ping" aria-hidden="true"></span>
+              <h2 class="text-xs font-extrabold text-white uppercase tracking-wider flex items-center gap-1.5">
+                <i class="fa-solid fa-trophy text-amber-400" aria-hidden="true"></i> ÚLTIMOS RESULTADOS
+              </h2>
+            </div>
+            <span class="text-[11px] text-purple-300 font-bold bg-purple-950/80 px-2.5 py-0.5 rounded-full border border-purple-800/80">3 CBLOL • 3 VCT</span>
+          </div>
+
+          <!-- Carrossel com Padrão Linear de Cards -->
+          <div id="septemberResultsContainer" role="region" aria-label="Lista linear de resultados recentes das partidas" class="flex gap-3 overflow-x-auto custom-scrollbar pb-2 pt-1">
+            <!-- Preenchido via JS com os 6 jogos -->
+          </div>
+        </div>
+
+        <!-- Banner Destaque -->
+        <article id="featuredHero" role="button" tabindex="0" aria-label="Guia de Sobrevivência do Espectador de Fim de Semana: saiba onde assistir os jogos do seu time" class="relative rounded-2xl overflow-hidden shadow-lg border border-purple-200 cursor-pointer group focus:outline-none focus:ring-2 focus:ring-brand-purple" onclick="openArticle(1)" onkeydown="handleKeyDown(event, () => openArticle(1))">
+          <img src="https://noticias.maisesports.com.br/wp-content/uploads/2026/02/LOUD-Xyno.jpg" alt="Jogadoras comemorando vitória em campeonato de eSports" class="w-full h-48 object-cover group-hover:scale-105 transition duration-500"/>
+          <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/50 to-transparent p-4 flex flex-col justify-end">
+            <span class="bg-brand-pinkVivid text-white text-xs font-extrabold px-2.5 py-0.5 rounded-full w-max uppercase mb-1 shadow-sm">DESTAQUE</span>
+            <h2 id="heroTitle" class="text-white font-bold text-base leading-snug drop-shadow-md">
+              Guia de Sobrevivência do Espectador de Fim de Semana: saiba onde assistir os jogos do seu time
+            </h2>
+            <div class="flex items-center gap-3 text-slate-200 text-xs mt-2 font-medium">
+              <span><i class="fa-regular fa-clock mr-1" aria-hidden="true"></i> Há 2 horas</span>
+              <span><i class="fa-regular fa-eye mr-1" aria-hidden="true"></i></span>
+            </div>
+          </div>
+        </article>
+
+        <div class="flex items-center justify-between pt-2">
+          <h2 class="font-extrabold text-slate-900 text-sm tracking-wide uppercase flex items-center gap-2">
+            <span class="w-2 h-4 bg-brand-purple rounded-full" aria-hidden="true"></span>
+            Últimas Notícias
+          </h2>
+        </div>
+
+        <div id="newsFeedList" role="feed" aria-label="Lista de últimas notícias" class="space-y-3">
+          <!-- Inserido dinamicamente via JS -->
+        </div>
+      </section>
+
+      <!-- ================= TELA PRÓXIMOS JOGOS ================= -->
+      <section id="viewMatches" role="region" aria-label="Próximos Jogos e Calendário" class="hidden space-y-4" tabindex="-1">
+        <div class="bg-white p-4 rounded-2xl shadow-sm border border-slate-200">
+          <div class="flex items-center justify-between mb-3">
+            <div>
+              <h2 class="font-extrabold text-slate-900 text-lg">Próximos Jogos</h2>
+              <p class="text-xs text-slate-600 font-medium">Calendário da semana por campeonato</p>
+            </div>
+            <i class="fa-solid fa-calendar-alt text-2xl text-brand-purple" aria-hidden="true"></i>
+          </div>
+
+          <div role="tablist" aria-label="Filtros por Campeonato" class="flex items-center gap-2 overflow-x-auto pb-1 text-xs font-semibold custom-scrollbar">
+            <button onclick="filterUpcomingMatches('all')" id="tagFilterAll" aria-pressed="true" class="bg-brand-purple text-white px-3 py-1.5 rounded-full whitespace-nowrap transition shadow-sm font-extrabold flex items-center gap-1 focus:outline-none focus:ring-2 focus:ring-brand-purple">
+              <i class="fa-solid fa-check text-[10px]" aria-hidden="true"></i> Todos os Jogos
+            </button>
+            <button onclick="filterUpcomingMatches('CBLOL 2026')" id="tagFilterCBLOL" aria-pressed="true" class="bg-purple-700 text-white px-3 py-1.5 rounded-full whitespace-nowrap transition shadow-sm font-extrabold flex items-center gap-1.5 focus:outline-none focus:ring-2 focus:ring-brand-purple">
+              <i class="fa-solid fa-check text-[10px]" aria-hidden="true"></i> CBLOL
+            </button>
+            <button onclick="filterUpcomingMatches('VCT Américas')" id="tagFilterVCT" aria-pressed="true" class="bg-sky-600 text-white px-3 py-1.5 rounded-full whitespace-nowrap transition shadow-sm font-extrabold flex items-center gap-1.5 focus:outline-none focus:ring-2 focus:ring-brand-purple">
+              <i class="fa-solid fa-check text-[10px]" aria-hidden="true"></i> VCT Américas
+            </button>
+            <button onclick="filterUpcomingMatches('Game Changers BR')" id="tagFilterGC" aria-pressed="true" class="bg-brand-pinkVivid text-white px-3 py-1.5 rounded-full whitespace-nowrap transition shadow-sm font-extrabold flex items-center gap-1.5 focus:outline-none focus:ring-2 focus:ring-brand-purple">
+              <i class="fa-solid fa-check text-[10px]" aria-hidden="true"></i> Game Changers
+            </button>
+          </div>
+        </div>
+
+        <div id="matchesContainer" class="space-y-3">
+          <!-- Preenchido via JS -->
+        </div>
+      </section>
+
+      <!-- ================= TELA SOBRE NÓS ================= -->
+      <section id="viewAbout" role="region" aria-label="Sobre o CTRLGIRL" class="hidden space-y-4 font-serif-roboto" tabindex="-1">
+        
+        <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200 space-y-4">
+          <div class="text-center space-y-3 pb-2 border-b border-slate-100">
+            <div class="w-14 h-14 bg-purple-100 rounded-2xl flex items-center justify-center mx-auto border-2 border-brand-purple shadow-sm">
+              <i class="fa-solid fa-gamepad text-2xl text-brand-purple" aria-hidden="true"></i>
+            </div>
+            <div>
+              <span class="font-sans text-xs font-extrabold uppercase tracking-widest text-pink-700 bg-pink-100 px-2.5 py-1 rounded-full">
+                PLATAFORMA INCLUSIVA
+              </span>
+              <h2 class="font-sans font-extrabold text-slate-900 text-xl mt-2">Sobre o CTRLGIRL</h2>
+            </div>
+          </div>
+
+          <p class="text-xs text-slate-800 leading-relaxed text-justify font-medium font-serif-roboto">
+            <strong class="text-slate-900 font-extrabold">CTRLGIRL</strong> é um aplicativo de <span class="text-brand-purple font-bold">eSports</span> com conteúdos produzidos por mulheres cis e trans. Nosso objetivo é construir um ambiente saudável, acolhedor e seguro em um universo muitas vezes marcado por padrões heteronormativos.
+          </p>
+        </div>
+
+        <div class="bg-purple-50 p-4 rounded-2xl border border-purple-200 space-y-1.5 shadow-sm">
+          <h3 class="font-sans font-extrabold text-brand-darkPurple text-xs uppercase tracking-wider flex items-center gap-2">
+            <i class="fa-solid fa-eye text-brand-pinkVivid" aria-hidden="true"></i> Visão
+          </h3>
+          <p class="text-xs text-slate-800 leading-relaxed font-medium font-serif-roboto">
+            Ser referência na promoção da equidade de gênero no eSports, fortalecendo uma comunidade diversa, respeitosa e livre de preconceitos.
+          </p>
+        </div>
+
+        <div class="bg-white p-4 rounded-2xl border border-slate-200 space-y-2.5 shadow-sm">
+          <h3 class="font-sans font-bold text-slate-900 text-xs uppercase tracking-wider flex items-center gap-2">
+            <i class="fa-solid fa-shield-halved text-brand-purple" aria-hidden="true"></i> Nossos Valores
+          </h3>
+          <ul class="text-xs space-y-2 text-slate-800 font-serif-roboto">
+            <li class="flex items-start gap-2 bg-slate-50 p-2 rounded-xl border border-slate-200">
+              <span class="font-sans text-brand-pinkVivid font-extrabold shrink-0" aria-hidden="true">•</span>
+              <div>
+                <strong class="text-slate-900 font-extrabold font-sans">Inclusão:</strong> Celebrar todas as identidades de gênero que se identificam com o universo feminino.
+              </div>
+            </li>
+            <li class="flex items-start gap-2 bg-slate-50 p-2 rounded-xl border border-slate-200">
+              <span class="font-sans text-brand-pinkVivid font-extrabold shrink-0" aria-hidden="true">•</span>
+              <div>
+                <strong class="text-slate-900 font-extrabold font-sans">Respeito:</strong> Garantir um espaço livre de discursos de ódio e discriminação.
+              </div>
+            </li>
+            <li class="flex items-start gap-2 bg-slate-50 p-2 rounded-xl border border-slate-200">
+              <span class="font-sans text-brand-pinkVivid font-extrabold shrink-0" aria-hidden="true">•</span>
+              <div>
+                <strong class="text-slate-900 font-extrabold font-sans">Representatividade:</strong> Dar voz, visibilidade e protagonismo às jogadoras e criadoras de conteúdo.
+              </div>
+            </li>
+          </ul>
+        </div>
+
+        <!-- Mascote com fundo lilás claro -->
+        <div class="bg-gradient-to-r from-purple-950 to-slate-900 p-4 rounded-2xl border border-purple-800 text-white space-y-2 shadow-md">
+          <div class="flex items-center gap-3">
+            <div class="w-14 h-14 bg-purple-100 rounded-xl flex items-center justify-center shrink-0 border border-purple-300 shadow-inner p-0.5 overflow-hidden">
+              <svg viewBox="0 0 800 800" class="w-full h-full" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Mascote oficial Iu-Á">
+                <defs>
+                  <radialGradient id="bgGradAbout" cx="50%" cy="50%" r="50%">
+                    <stop offset="0%" stop-color="#F5F3FF"></stop>
+                    <stop offset="100%" stop-color="#EDE9FE"></stop>
+                  </radialGradient>
+                </defs>
+                <rect width="800" height="800" fill="url(#bgGradAbout)"></rect>
+                <g transform="translate(-18, -25)">
+                  <path d="M 220 320 C 120 300 80 400 110 480 C 130 520 160 520 180 560 C 200 600 240 680 320 670 C 370 660 380 600 360 540 C 350 510 320 480 320 440 C 320 380 280 330 220 320 Z" fill="#69b4e2" stroke="#000000" stroke-width="8" stroke-linejoin="round"></path>
+                  <path d="M 580 320 C 680 300 720 400 690 480 C 670 520 640 520 620 560 C 600 600 560 680 480 670 C 430 660 420 600 440 540 C 450 510 480 480 480 440 C 480 380 520 330 580 320 Z" fill="#7b4db5" stroke="#000000" stroke-width="8" stroke-linejoin="round"></path>
+                  <path d="M 260 430 C 260 320 330 290 400 290 C 470 290 540 320 540 430 C 540 540 500 620 400 620 C 300 620 260 540 260 430 Z" fill="#8d4e2a" stroke="#000000" stroke-width="8"></path>
+                  <ellipse cx="255" cy="450" rx="15" ry="25" fill="#8d4e2a" stroke="#000" stroke-width="6"></ellipse>
+                  <ellipse cx="545" cy="450" rx="15" ry="25" fill="#8d4e2a" stroke="#000" stroke-width="6"></ellipse>
+                  <path d="M 280 400 Q 320 370 370 390" fill="none" stroke="#e0bc24" stroke-width="8" stroke-linecap="round"></path>
+                  <path d="M 520 400 Q 480 370 430 390" fill="none" stroke="#e0bc24" stroke-width="8" stroke-linecap="round"></path>
+                  <path d="M 280 450 Q 330 420 380 450 Q 330 500 280 450 Z" fill="#ffffff" stroke="#000000" stroke-width="7"></path>
+                  <g fill="#2176ff" stroke="#000" stroke-width="1.5">
+                    <rect x="295" y="435" width="12" height="12"></rect>
+                    <rect x="312" y="438" width="10" height="10"></rect>
+                    <rect x="325" y="435" width="15" height="15" fill="#00b4d8"></rect>
+                    <rect x="300" y="452" width="14" height="14"></rect>
+                    <rect x="318" y="450" width="12" height="12" fill="#90e0ef"></rect>
+                    <rect x="335" y="455" width="10" height="10"></rect>
+                    <rect x="305" y="470" width="11" height="11" fill="#03045e"></rect>
+                    <rect x="320" y="468" width="13" height="13"></rect>
+                    <rect x="340" y="465" width="12" height="12" fill="#0077b6"></rect>
+                  </g>
+                  <path d="M 520 450 Q 470 420 420 450 Q 470 500 520 450 Z" fill="#ffffff" stroke="#000000" stroke-width="7"></path>
+                  <g transform="translate(435, 435) scale(0.6)" stroke="#000" stroke-width="3" fill="none" stroke-linejoin="round" stroke-linecap="round">
+                    <rect x="10" y="10" width="50" height="30" rx="15" fill="#fff"></rect>
+                    <circle cx="22" cy="25" r="5" fill="#ff3366"></circle>
+                    <line x1="42" y1="20" x2="42" y2="30"></line>
+                    <line x1="37" y1="25" x2="47" y2="25"></line>
+                  </g>
+                  <g transform="translate(490, 430) scale(0.55)" stroke="#000" stroke-width="3" fill="#fff" stroke-linejoin="round">
+                    <rect x="5" y="5" width="24" height="42" rx="4"></rect>
+                    <circle cx="17" cy="43" r="2" fill="#000"></circle>
+                    <rect x="9" y="10" width="16" height="26" fill="#00b4d8"></rect>
+                  </g>
+                  <path d="M 390 535 Q 400 515 410 535 Q 400 545 390 535 Z" fill="none" stroke="#000000" stroke-width="5" stroke-linecap="round"></path>
+                  <circle cx="400" cy="542" r="3.5" fill="#ffffff" stroke="#000000" stroke-width="2"></circle>
+                  <path d="M 370 575 Q 400 560 430 575 Q 400 610 370 575 Z" fill="#800080" stroke="#000000" stroke-width="6" stroke-linejoin="round"></path>
+                  <path d="M 485 550 L 493 570 L 513 575 L 493 580 L 485 600 L 477 580 L 457 575 L 477 570 Z" fill="#fef08a" stroke="#000000" stroke-width="4" stroke-linejoin="round"></path>
+                  <path d="M 230 450 C 200 250 600 250 570 450" fill="none" stroke="#fefae0" stroke-width="24" stroke-linecap="round"></path>
+                  <path d="M 230 450 C 200 250 600 250 570 450" fill="none" stroke="#000000" stroke-width="6" stroke-dasharray="8 12" stroke-linecap="round"></path>
+                  <g transform="translate(195, 410)">
+                    <rect x="0" y="0" width="65" height="90" rx="30" fill="#1b4332" stroke="#000000" stroke-width="8"></rect>
+                    <path d="M 35 25 C 20 25 15 45 35 65 C 25 55 25 35 35 25 Z" fill="#fefae0"></path>
+                  </g>
+                  <g transform="translate(540, 410)">
+                    <rect x="0" y="0" width="65" height="90" rx="30" fill="#1b4332" stroke="#000000" stroke-width="8"></rect>
+                    <path d="M 30 25 C 45 25 50 45 30 65 C 40 55 40 35 30 25 Z" fill="#fefae0"></path>
+                  </g>
+                  <path d="M 225 490 Q 280 620 380 615" fill="none" stroke="#1b4332" stroke-width="8" stroke-linecap="round"></path>
+                  <path d="M 225 490 Q 280 620 380 615" fill="none" stroke="#000000" stroke-width="2" stroke-linecap="round"></path>
+                  <circle cx="380" cy="615" r="9" fill="#000000"></circle>
+                  <g transform="translate(590, 470)">
+                    <path d="M 50 140 C 50 110 50 90 70 80 C 85 70 120 70 135 80 C 150 90 150 110 150 140 C 150 190 130 220 100 220 C 70 220 50 190 50 140 Z" fill="#8d4e2a" stroke="#000000" stroke-width="8" stroke-linejoin="round"></path>
+                    <path d="M 85 150 C 95 170 110 180 125 195" fill="none" stroke="#000" stroke-width="5" stroke-linecap="round"></path>
+                    <path d="M 100 150 C 100 170 85 190 75 205" fill="none" stroke="#000" stroke-width="5" stroke-linecap="round"></path>
+                    <path d="M 60 85 C 50 80 40 50 55 30 C 65 20 75 35 68 60" fill="#8d4e2a" stroke="#000000" stroke-width="7" stroke-linecap="round"></path>
+                    <circle cx="53" cy="40" r="5" fill="none" stroke="#000" stroke-width="2"></circle>
+                    <path d="M 78 72 C 75 50 68 20 85 10 C 98 5 103 30 90 60" fill="#8d4e2a" stroke="#000000" stroke-width="7" stroke-linecap="round"></path>
+                    <circle cx="85" cy="22" r="5" fill="none" stroke="#000" stroke-width="2"></circle>
+                    <path d="M 100 70 C 100 45 100 10 120 5 C 135 2 135 30 115 58" fill="#8d4e2a" stroke="#000000" stroke-width="7" stroke-linecap="round"></path>
+                    <circle cx="120" cy="18" r="5" fill="none" stroke="#000" stroke-width="2"></circle>
+                    <path d="M 122 75 C 128 50 135 20 155 25 C 168 30 160 60 140 75" fill="#8d4e2a" stroke="#000000" stroke-width="7" stroke-linecap="round"></path>
+                    <circle cx="153" cy="40" r="5" fill="none" stroke="#000" stroke-width="2"></circle>
+                    <path d="M 145 120 C 170 120 185 140 170 160 C 160 170 145 150 140 140" fill="#8d4e2a" stroke="#000000" stroke-width="7" stroke-linecap="round"></path>
+                    <circle cx="165" cy="148" r="4" fill="none" stroke="#000" stroke-width="2"></circle>
+                  </g>
+                </g>
+              </svg>
+            </div>
+            <div>
+              <span class="font-sans text-xs font-bold uppercase tracking-wider text-pink-200 bg-pink-950/80 px-2 py-0.5 rounded border border-pink-700">SÍMBOLO DE FORÇA</span>
+              <h4 class="font-sans font-extrabold text-sm text-white mt-1">Mascote Iu-Á</h4>
+            </div>
+          </div>
+          <p class="text-xs text-purple-100 leading-relaxed pt-1">
+            A nossa mascote é inspirada em uma jogadora real, simbolizando a força e a representatividade feminina no <strong class="text-pink-300 font-bold">eSports</strong>. O nome <strong class="text-white">Iu-Á</strong> remete à árvore Juazeiro, na língua tupi-guarani.
+          </p>
+        </div>
+
+      </section>
+
+      <!-- ================= TELA FÓRUM ================= -->
+      <section id="viewChat" role="region" aria-label="Fórum da Comunidade" class="hidden space-y-4" tabindex="-1">
+        <div class="bg-white p-4 rounded-2xl shadow-sm border border-slate-200 space-y-3">
+          <div class="flex items-center justify-between">
+            <div>
+              <h2 class="font-extrabold text-slate-900 text-lg flex items-center gap-2">
+                <i class="fa-solid fa-comments text-brand-purple" aria-hidden="true"></i> Fórum da Comunidade
+              </h2>
+              <p class="text-xs text-slate-600 font-medium">Debates e troca de experiências entre jogadoras</p>
+            </div>
+           
+          </div>
+
+          <div role="tablist" aria-label="Filtros de Tópicos" class="flex items-center gap-2 overflow-x-auto pb-1 text-xs font-semibold custom-scrollbar">
+            <button onclick="filterForumTopics('all')" id="forumTabAll" aria-pressed="true" class="bg-brand-purple text-white px-3 py-1.5 rounded-full whitespace-nowrap transition shadow-sm font-extrabold flex items-center gap-1 focus:outline-none focus:ring-2 focus:ring-brand-purple">
+              <i class="fa-solid fa-check text-[10px]" aria-hidden="true"></i> Todos os Tópicos
+            </button>
+            <button onclick="filterForumTopics('Campeonatos')" id="forumTabCamp" aria-pressed="true" class="bg-purple-700 text-white px-3 py-1.5 rounded-full whitespace-nowrap transition shadow-sm font-extrabold flex items-center gap-1.5 focus:outline-none focus:ring-2 focus:ring-brand-purple">
+              <i class="fa-solid fa-check text-[10px]" aria-hidden="true"></i> Campeonatos
+            </button>
+            <button onclick="filterForumTopics('Comunidade')" id="forumTabCom" aria-pressed="true" class="bg-emerald-600 text-white px-3 py-1.5 rounded-full whitespace-nowrap transition shadow-sm font-extrabold flex items-center gap-1.5 focus:outline-none focus:ring-2 focus:ring-brand-purple">
+              <i class="fa-solid fa-check text-[10px]" aria-hidden="true"></i> Comunidade
+            </button>
+            <button onclick="filterForumTopics('Dicas & Gameplay')" id="forumTabDicas" aria-pressed="true" class="bg-amber-600 text-white px-3 py-1.5 rounded-full whitespace-nowrap transition shadow-sm font-extrabold flex items-center gap-1.5 focus:outline-none focus:ring-2 focus:ring-brand-purple">
+              <i class="fa-solid fa-check text-[10px]" aria-hidden="true"></i> Dicas & Gameplay
+            </button>
+          </div>
+        </div>
+
+        <div id="newTopicForm" class="hidden bg-white p-4 rounded-2xl shadow-sm border border-purple-300 space-y-3">
+          <div class="flex items-center justify-between border-b pb-2">
+            <h3 class="font-bold text-slate-900 text-xs uppercase tracking-wide flex items-center gap-1.5">
+              <i class="fa-solid fa-pen-to-square text-brand-purple" aria-hidden="true"></i> Criar Nova Discussão
+            </h3>
+            <button onclick="toggleNewTopicForm()" aria-label="Fechar formulário de novo tópico" class="text-slate-500 hover:text-slate-800 p-1 focus:outline-none focus:ring-2 focus:ring-brand-purple rounded">
+              <i class="fa-solid fa-xmark text-sm" aria-hidden="true"></i>
+            </button>
+          </div>
+
+          <form onsubmit="handleCreateTopic(event)" class="space-y-3 text-xs">
+            <div>
+              <label for="topicTitle" class="block font-bold text-slate-800 mb-1">Título do Tópico / Pergunta *</label>
+              <input type="text" id="topicTitle" required placeholder="Ex: Qual o seu time favorito do VCT Game Changers?" class="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-xl text-slate-900 focus:outline-none focus:ring-2 focus:ring-brand-purple"/>
+            </div>
+
+            <div>
+              <label for="topicCategory" class="block font-bold text-slate-800 mb-1">Sessão / Categoria *</label>
+              <select id="topicCategory" class="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-xl text-slate-900 focus:outline-none focus:ring-2 focus:ring-brand-purple">
+                <option value="Campeonatos">Campeonatos</option>
+                <option value="Comunidade">Comunidade</option>
+                <option value="Dicas & Gameplay">Dicas & Gameplay</option>
+              </select>
+            </div>
+
+            <div>
+              <label for="topicBody" class="block font-bold text-slate-800 mb-1">Mensagem Inicial *</label>
+              <textarea id="topicBody" rows="3" required placeholder="Descreva sua dúvida, opinião ou ponto de debate..." class="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-xl text-slate-900 focus:outline-none focus:ring-2 focus:ring-brand-purple"></textarea>
+            </div>
+
+            <button type="submit" class="w-full py-2.5 bg-brand-purple hover:bg-brand-darkPurple text-white font-bold rounded-xl shadow-md transition focus:outline-none focus:ring-2 focus:ring-brand-purple">
+              <i class="fa-solid fa-paper-plane mr-1" aria-hidden="true"></i> Publicar no Fórum
+            </button>
+          </form>
+        </div>
+
+        <div id="forumTopicsContainer" class="space-y-3">
+          <!-- Inserido dinamicamente por JS -->
+        </div>
+      </section>
+
+      <!-- ================= TELA DETALHE DO TÓPICO ================= -->
+      <section id="viewTopicDetail" role="region" aria-label="Detalhes da Discussão" class="hidden space-y-4" tabindex="-1">
+        <button onclick="switchTab('chat')" class="text-xs text-brand-purple font-bold flex items-center gap-1.5 py-1 focus:outline-none focus:ring-2 focus:ring-brand-purple rounded">
+          <i class="fa-solid fa-arrow-left" aria-hidden="true"></i> Voltar ao Fórum
+        </button>
+
+        <div class="bg-white p-4 rounded-2xl shadow-sm border border-slate-200 space-y-4">
+          <div class="space-y-2 border-b border-slate-100 pb-3">
+            <div class="flex items-center justify-between">
+              <span id="topicDetailCategory" class="bg-purple-100 text-brand-purple font-extrabold text-xs px-2.5 py-0.5 rounded-full uppercase">Sessão</span>
+              <span id="topicDetailDate" class="text-xs text-slate-600 font-medium">Há 2 horas</span>
+            </div>
+            <h1 id="topicDetailTitle" class="text-base font-extrabold text-slate-900 leading-snug">
+              Título da Pergunta ou Tópico
+            </h1>
+            <div class="flex items-center gap-2 text-xs text-slate-600">
+              <span id="topicDetailAuthor" class="font-bold text-slate-800">Por @JuGabs</span>
+            </div>
+            <p id="topicDetailContent" class="text-xs text-slate-800 leading-relaxed pt-1 font-medium">
+              Conteúdo da mensagem inicial...
+            </p>
+          </div>
+
+          <div class="space-y-3">
+            <h2 class="font-bold text-slate-900 text-xs flex items-center gap-2">
+              <i class="fa-solid fa-reply text-brand-purple" aria-hidden="true"></i> Respostas (<span id="topicRepliesCount">0</span>)
+            </h2>
+
+            <div id="replyInputContainer">
+              <!-- Renderizado por JS -->
+            </div>
+
+            <div id="topicRepliesList" class="space-y-2.5 pt-2">
+              <!-- Renderizado por JS -->
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================= TELA PESQUISAR ================= -->
+      <section id="viewSearch" role="region" aria-label="Pesquisa de Conteúdos" class="hidden space-y-4" tabindex="-1">
+        <div class="bg-white p-4 rounded-2xl shadow-sm border border-slate-200 space-y-3">
+          <div>
+            <label for="searchInput" class="block text-xs font-bold text-slate-800 mb-1">Pesquisar matérias e jogos</label>
+            <div class="relative">
+              <i class="fa-solid fa-magnifying-glass absolute left-3 top-3.5 text-slate-500 text-xs" aria-hidden="true"></i>
+              <input type="text" id="searchInput" oninput="filterSearch()" placeholder="Digite para pesquisar..." class="w-full pl-9 pr-3 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-xs text-slate-900 focus:outline-none focus:ring-2 focus:ring-brand-purple"/>
+            </div>
+          </div>
+
+          <div class="flex flex-wrap items-center gap-1.5">
+            <div class="flex items-center justify-between w-full mb-1">
+              <span class="text-xs text-slate-800 font-extrabold">CATEGORIAS ATIVAS:</span>
+              <button onclick="selectAllSearchCategories()" class="text-xs text-brand-purple hover:underline font-extrabold focus:outline-none focus:ring-2 focus:ring-brand-purple rounded">Ativar Todas</button>
+            </div>
+            <button id="catTagLol" onclick="setSearchCategory('League of Legends')" aria-pressed="true" class="text-xs bg-brand-purple text-white px-3 py-1.5 rounded-xl font-extrabold shadow-sm flex items-center gap-1.5 transition focus:outline-none focus:ring-2 focus:ring-brand-purple">
+              <i class="fa-solid fa-check text-[10px]" aria-hidden="true"></i> League of Legends
+            </button>
+            <button id="catTagVal" onclick="setSearchCategory('Valorant')" aria-pressed="true" class="text-xs bg-sky-600 text-white px-3 py-1.5 rounded-xl font-extrabold shadow-sm flex items-center gap-1.5 transition focus:outline-none focus:ring-2 focus:ring-brand-purple">
+              <i class="fa-solid fa-check text-[10px]" aria-hidden="true"></i> Valorant
+            </button>
+            <button id="catTagInc" onclick="setSearchCategory('Inclusivo')" aria-pressed="true" class="text-xs bg-brand-pinkVivid text-white px-3 py-1.5 rounded-xl font-extrabold shadow-sm flex items-center gap-1.5 transition focus:outline-none focus:ring-2 focus:ring-brand-purple">
+              <i class="fa-solid fa-check text-[10px]" aria-hidden="true"></i> Torneios Inclusivos
+            </button>
+          </div>
+        </div>
+
+        <div id="searchResults" class="space-y-3">
+          <!-- Resultados dinâmicos -->
+        </div>
+      </section>
+
+      <!-- ================= TELA PERFIL ================= -->
+      <section id="viewProfile" role="region" aria-label="Perfil do Usuário" class="hidden space-y-4" tabindex="-1">
+        <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200 text-center space-y-3">
+          <div class="relative w-24 h-24 mx-auto">
+            <img id="profileAvatar" src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=300&q=80" alt="Foto de Perfil da Usuária" class="w-24 h-24 rounded-full object-cover border-4 border-brand-purple shadow-md"/>
+            <button onclick="triggerAvatarUpload()" aria-label="Alterar foto de perfil" title="Alterar foto de perfil" class="absolute bottom-0 right-0 bg-brand-purple hover:bg-brand-darkPurple text-white w-8 h-8 rounded-full border-2 border-white shadow-md transition-transform hover:scale-110 focus:outline-none focus:ring-2 focus:ring-brand-purple flex items-center justify-center">
+              <i class="fa-solid fa-camera text-xs" aria-hidden="true"></i>
+            </button>
+            <input type="file" id="avatarFileInput" accept="image/*" class="hidden" onchange="handleAvatarChange(event)" />
+          </div>
+
+        <div>
+  <h1 id="profileNickname" class="font-extrabold text-slate-900 text-lg">@nick</h1>
+  <p id="profileEmailContainer" class="hidden"><!-- e-mail oculto --></p>
+</div>
+
+          <div id="guestNotice" class="hidden bg-amber-50 border border-amber-300 p-3 rounded-xl text-xs text-amber-900 font-medium">
+            Você está navegando como <strong>Visitante</strong>. Faça login para curtir, comentar e participar dos tópicos.
+            <button onclick="switchTab('auth')" class="block w-full mt-2 py-2 bg-brand-purple text-white font-bold rounded-lg text-xs focus:outline-none focus:ring-2 focus:ring-brand-purple">Ir para Login / Cadastro</button>
+          </div>
+
+          
+          <div class="pt-2 flex gap-2">
+            <button onclick="logout()" class="w-full py-2.5 bg-rose-100 hover:bg-rose-200 text-rose-900 rounded-xl font-bold text-xs flex items-center justify-center gap-2 focus:outline-none focus:ring-2 focus:ring-rose-500">
+              <i class="fa-solid fa-right-from-bracket" aria-hidden="true"></i> Sair do App
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================= TELA DETALHE DA MATÉRIA ================= -->
+      <section id="viewArticleDetail" role="region" aria-label="Leitura da Matéria" class="hidden space-y-4 font-serif-roboto" tabindex="-1">
+        <button onclick="switchTab('home')" class="text-xs text-brand-purple font-bold flex items-center gap-1.5 py-1 focus:outline-none focus:ring-2 focus:ring-brand-purple rounded font-sans">
+          <i class="fa-solid fa-arrow-left" aria-hidden="true"></i> Voltar para as Notícias
+        </button>
+
+        <article class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200 space-y-4">
+          <span id="artCategory" class="bg-purple-100 text-brand-purple font-extrabold text-xs px-2.5 py-0.5 rounded-full uppercase font-sans">Categoria</span>
+          
+          <h1 id="artTitle" class="text-xl font-extrabold text-slate-900 leading-tight font-serif-roboto">
+            Título da Matéria
+          </h1>
+
+          <div class="flex items-center gap-3 text-xs text-slate-600 font-medium pb-2 border-b font-sans">
+            <span id="artAuthor"><i class="fa-regular fa-user text-brand-purple mr-1" aria-hidden="true"></i> Por Julia Ribeiro</span>
+            <span id="artDate"><i class="fa-regular fa-calendar mr-1" aria-hidden="true"></i> 26/08/2026</span>
+          </div>
+
+          <img id="artImage" src="" alt="Imagem ilustrativa da matéria" class="w-full h-48 object-cover rounded-xl shadow-sm"/>
+
+          <div id="artBody" class="text-xs text-slate-800 leading-relaxed space-y-3 font-medium font-serif-roboto">
+            <!-- Texto da notícia -->
+          </div>
+
+          <div class="pt-4 border-t border-slate-100 space-y-3 font-sans">
+            <div class="flex items-center justify-between">
+              <button id="btnLikeArticle" onclick="handleLikeArticle()" aria-label="Curtir matéria. Total de curtidas: 128" class="flex items-center gap-2 px-4 py-2.5 bg-pink-100 text-pink-900 rounded-xl font-bold text-xs hover:bg-pink-200 transition focus:outline-none focus:ring-2 focus:ring-brand-purple">
+                <i id="likeIcon" class="fa-regular fa-heart text-base" aria-hidden="true"></i>
+                <span id="likeCount">128</span> Curtidas
+              </button>
+
+              <button onclick="openShareModal()" aria-label="Abrir opções de compartilhamento da matéria" class="flex items-center gap-2 px-4 py-2.5 bg-sky-100 text-sky-900 rounded-xl font-bold text-xs hover:bg-sky-200 transition focus:outline-none focus:ring-2 focus:ring-brand-purple">
+                <i class="fa-solid fa-share-nodes text-base" aria-hidden="true"></i> Compartilhar
+              </button>
+            </div>
+          </div>
+
+          <div class="pt-4 border-t border-slate-100 space-y-3">
+            <h2 class="font-extrabold text-slate-900 text-sm flex items-center gap-2">
+              <i class="fa-regular fa-comments text-brand-purple" aria-hidden="true"></i> Comentários (<span id="commentCount">2</span>)
+            </h2>
+
+            <div id="commentInputSection">
+              <!-- Renderizado via JS -->
+            </div>
+
+            <div id="commentList" class="space-y-3 pt-2">
+              <!-- Renderizado via JS -->
+            </div>
+          </div>
+        </article>
+      </section>
+
+    </main>
+
+    <!-- Navigation Footer -->
+    <nav id="mainFooter" role="navigation" aria-label="Navegação Inferior do Aplicativo" class="bg-white border-t border-slate-200 px-2 py-2 justify-around items-center shrink-0 z-30 hidden flex">
+      <button onclick="switchTab('home')" id="navHome" aria-label="Início" class="flex flex-col items-center text-brand-purple focus:outline-none focus:ring-2 focus:ring-brand-purple rounded-lg p-1">
+        <div class="w-7 h-7 rounded-full bg-purple-100 flex items-center justify-center">
+          <i class="fa-solid fa-house text-xs" aria-hidden="true"></i>
+        </div>
+        <span class="text-xs font-bold mt-0.5">Início</span>
+      </button>
+
+      <button onclick="switchTab('search')" id="navSearch" aria-label="Pesquisar" class="flex flex-col items-center text-slate-600 hover:text-brand-purple focus:outline-none focus:ring-2 focus:ring-brand-purple rounded-lg p-1">
+        <div class="w-7 h-7 rounded-full flex items-center justify-center">
+          <i class="fa-solid fa-magnifying-glass text-xs" aria-hidden="true"></i>
+        </div>
+        <span class="text-xs font-bold mt-0.5">Pesquisar</span>
+      </button>
+
+      <button onclick="switchTab('matches')" id="navMatches" aria-label="Jogos" class="flex flex-col items-center text-slate-600 hover:text-brand-purple focus:outline-none focus:ring-2 focus:ring-brand-purple rounded-lg p-1">
+        <div class="w-7 h-7 rounded-full flex items-center justify-center">
+          <i class="fa-solid fa-calendar-days text-xs" aria-hidden="true"></i>
+        </div>
+        <span class="text-xs font-bold mt-0.5">Jogos</span>
+      </button>
+
+      <button onclick="switchTab('chat')" id="navChat" aria-label="Fórum" class="flex flex-col items-center text-slate-600 hover:text-brand-purple focus:outline-none focus:ring-2 focus:ring-brand-purple rounded-lg p-1">
+        <div class="w-7 h-7 rounded-full flex items-center justify-center">
+          <i class="fa-solid fa-comments text-xs" aria-hidden="true"></i>
+        </div>
+        <span class="text-xs font-bold mt-0.5">Fórum</span>
+      </button>
+
+      <button onclick="switchTab('about')" id="navAbout" aria-label="Sobre Nós" class="flex flex-col items-center text-slate-600 hover:text-brand-purple focus:outline-none focus:ring-2 focus:ring-brand-purple rounded-lg p-1">
+        <div class="w-7 h-7 rounded-full flex items-center justify-center">
+          <i class="fa-solid fa-circle-info text-xs" aria-hidden="true"></i>
+        </div>
+        <span class="text-xs font-bold mt-0.5">Sobre</span>
+      </button>
+
+      <button onclick="switchTab('profile')" id="navProfile" aria-label="Perfil" class="flex flex-col items-center text-slate-600 hover:text-brand-purple focus:outline-none focus:ring-2 focus:ring-brand-purple rounded-lg p-1">
+        <div class="w-7 h-7 rounded-full flex items-center justify-center">
+          <i class="fa-solid fa-user text-xs" aria-hidden="true"></i>
+        </div>
+        <span class="text-xs font-bold mt-0.5">Perfil</span>
+      </button>
+    </nav>
+
+    <!-- Modal de Termos de Uso e Política de Privacidade (LGPD) -->
+    <div id="termsModal" role="dialog" aria-modal="true" aria-labelledby="termsModalTitle" class="absolute inset-0 z-50 bg-slate-900/70 backdrop-blur-sm hidden flex items-center justify-center p-3">
+      <div class="w-full max-w-sm bg-white rounded-3xl p-5 shadow-2xl flex flex-col max-h-[85%] border border-purple-200">
+        
+        <!-- Header do Modal -->
+        <div class="flex items-center justify-between border-b pb-3 shrink-0">
+          <div class="flex items-center gap-2">
+            <div class="w-8 h-8 rounded-xl bg-purple-100 text-brand-purple flex items-center justify-center font-bold text-sm">
+              <i class="fa-solid fa-shield-halved" aria-hidden="true"></i>
+            </div>
+            <div>
+              <h2 id="termsModalTitle" class="font-extrabold text-slate-900 text-sm leading-tight">Termos & Privacidade</h2>
+              <p class="text-[10px] text-slate-500 font-medium">LGPD • Leis 13.709/2018</p>
+            </div>
+          </div>
+          <button onclick="closeTermsModal()" aria-label="Fechar janela de Termos e Privacidade" class="text-slate-400 hover:text-slate-800 p-1.5 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-purple">
+            <i class="fa-solid fa-xmark text-lg" aria-hidden="true"></i>
+          </button>
+        </div>
+
+        <!-- Conteúdo do Documento Completo -->
+        <div class="flex-1 overflow-y-auto custom-scrollbar my-3 pr-1 text-xs text-slate-700 space-y-4 font-serif-roboto leading-relaxed">
+          
+          <div class="bg-purple-50 p-3 rounded-2xl border border-purple-200 text-[11px] font-sans">
+            <strong class="text-brand-darkPurple block font-extrabold mb-1">TERMOS DE USO E POLÍTICA DE PRIVACIDADE</strong>
+            <p class="text-slate-700">Ecossistema CTRLGIRL • Portal e eSports Inclusivo</p>
+          </div>
+
+          <!-- CAPÍTULO I -->
+          <div class="space-y-2 border-b pb-3">
+            <h3 class="font-sans font-extrabold text-slate-900 text-xs uppercase tracking-wider text-brand-purple">
+              CAPÍTULO I - TERMOS DE USO
+            </h3>
+
+            <div class="space-y-1.5">
+              <h4 class="font-sans font-bold text-slate-900 text-xs">1. Aceite das Regras e Objeto do Ecossistema</h4>
+              <p class="text-[11px]">Seja muito bem-vindo, bem-vinda e bem-vinde ao ecossistema da <strong>CTRLGIRL</strong>! Ao acessar ou utilizar nosso aplicativo e serviços digitais voltados ao cenário competitivo de eSports (com foco especial no CBLOL e VCT Américas), você concorda com estes Termos de Uso e com a nossa Política de Privacidade. Caso não concorde com qualquer disposição, recomendamos que interrompa a navegação e o uso da plataforma.</p>
+            </div>
+
+            <div class="space-y-1.5">
+              <h4 class="font-sans font-bold text-slate-900 text-xs">2. Conduta da Comunidade (Player Conduct) e Tolerância Zero à Toxicidade</h4>
+              <p class="text-[11px]">O espaço da CTRLGIRL é pautado pelo respeito, inclusão e apoio mútuo. Para garantir um ambiente seguro e saudável, aplicam-se as seguintes regras fundamentais de conduta:</p>
+              <ul class="list-disc pl-4 space-y-1 text-[11px]">
+                <li><strong>Veracidade dos Dados de Cadastro:</strong> O usuário compromete-se a fornecer informações verdadeiras e a manter a confidencialidade de seu login e senha, responsabilizando-se por todas as atividades realizadas em sua conta.</li>
+                <li><strong>Ambiente Livre de Toxicidade:</strong> É estritamente proibido qualquer conteúdo ou interação que contenha discurso de ódio, machismo, racismo, lgbtfobia, capacitismo, assédio ou comportamento tóxico prejudicial à comunidade e ao ambiente competitivo.</li>
+                <li><strong>Sanções Aplicáveis:</strong> O descumprimento das diretrizes de conduta resultará em advertência, suspensão temporária ou banimento permanente da conta, a critério da administração da CTRLGIRL.</li>
+              </ul>
+            </div>
+
+            <div class="space-y-1.5">
+              <h4 class="font-sans font-bold text-slate-900 text-xs">3. Propriedade Intelectual e Licença Limitada</h4>
+              <p class="text-[11px]">Todo o conteúdo do aplicativo incluindo marca, logotipos, identidade visual, textos, ilustrações, fotos, vídeos e códigos-fonte é de propriedade intelectual exclusiva da CTRLGIRL ou de terceiros licenciantes. O usuário recebe uma licença pessoal, limitada, não exclusiva, revogável e intransferível exclusivamente para visualização e uso pessoal não comercial.</p>
+            </div>
+
+            <div class="space-y-1.5">
+              <h4 class="font-sans font-bold text-slate-900 text-xs">4. Links Externos e Isenção de Responsabilidade</h4>
+              <p class="text-[11px]">O aplicativo pode conter links para portais externos e redes de parceiros. A CTRLGIRL não se responsabiliza pelo conteúdo ou práticas de privacidade desses sites de terceiros, cabendo ao usuário consultar os respectivos termos de uso.</p>
+            </div>
+          </div>
+
+          <!-- CAPÍTULO II -->
+          <div class="space-y-3 pt-1">
+            <h3 class="font-sans font-extrabold text-slate-900 text-xs uppercase tracking-wider text-brand-purple">
+              CAPÍTULO II - POLÍTICA DE PRIVACIDADE E PROTEÇÃO DE DADOS (LGPD)
+            </h3>
+            <p class="text-[11px]">Esta Política de Privacidade regula o tratamento de dados pessoais realizado pela CTRLGIRL, em estrita observância à Lei Geral de Proteção de Dados (Lei nº 13.709/2018 - LGPD) e aos princípios de finalidade, adequação, necessidade, transparência e segurança (Art. 6º da LGPD).</p>
+
+            <div class="space-y-1.5">
+              <h4 class="font-sans font-bold text-slate-900 text-xs">5. Agentes de Tratamento e Canal do Encarregado (DPO)</h4>
+              <p class="text-[11px]">A CTRLGIRL atua como Controladora do tratamento dos dados pessoais. Em cumprimento ao Artigo 41 da LGPD, disponibilizamos o contato direto e ostensivo do nosso Encarregado pelo Tratamento de Dados Pessoais (DPO):</p>
+              <div class="bg-purple-100 p-2.5 rounded-xl border border-purple-300 font-sans text-[11px]">
+                <strong class="block text-brand-darkPurple">E-mail Oficial do DPO / Privacidade:</strong>
+                <a href="mailto:ctrlgirlesports@gmail.com" class="text-brand-purple font-extrabold underline">ctrlgirlesports@gmail.com</a>
+              </div>
+              <p class="text-[11px]"><strong>Atribuições do DPO:</strong> Receber requisições dos titulares de dados, prestar esclarecimentos, adotar providências e atuar como canal de comunicação com a Autoridade Nacional de Proteção de Dados (ANPD).</p>
+            </div>
+
+            <div class="space-y-2">
+              <h4 class="font-sans font-bold text-slate-900 text-xs">6. Mapeamento de Dados Pessoais, Finalidades e Bases Legais</h4>
+              <p class="text-[11px]">A coleta de dados é limitada ao estritamente necessário para cada finalidade operacional (princípio da necessidade - Art. 6º, III da LGPD).</p>
+
+              <!-- Tabela do Mapeamento de Dados -->
+              <div class="overflow-x-auto rounded-xl border border-slate-200 font-sans my-2">
+                <table class="w-full text-left text-[10px]">
+                  <thead class="bg-purple-100 text-slate-900 font-extrabold">
+                    <tr>
+                      <th class="p-2 border-b">Categoria de Dados</th>
+                      <th class="p-2 border-b">Finalidade do Tratamento</th>
+                      <th class="p-2 border-b">Base Legal (LGPD)</th>
+                    </tr>
+                  </thead>
+                  <tbody class="divide-y divide-slate-200 bg-white">
+                    <tr>
+                      <td class="p-2 font-bold text-slate-900">Dados de Cadastro e Login (Nome, e-mail, username, senha criptografada)</td>
+                      <td class="p-2">Criar e gerenciar a conta de usuário, autenticar acessos e viabilizar os recursos logados do aplicativo.</td>
+                      <td class="p-2 font-medium text-purple-900">Execução de Contrato (Art. 7º, V)</td>
+                    </tr>
+                    <tr>
+                      <td class="p-2 font-bold text-slate-900">Dados de Perfil e Comunidade (Preferências CBLOL/VCT, avatar, comentários e fóruns)</td>
+                      <td class="p-2">Personalizar a experiência no aplicativo, viabilizar a interação na comunidade e realizar a moderação contra discurso de ódio.</td>
+                      <td class="p-2 font-medium text-purple-900">Legítimo Interesse e Segurança (Art. 7º, IX e Art. 10)</td>
+                    </tr>
+                    <tr>
+                      <td class="p-2 font-bold text-slate-900">Dados de Pedidos/Loja (Endereço de entrega, dados fiscais e de pagamento)</td>
+                      <td class="p-2">Processar compras de produtos na loja oficial, viabilizar transporte/entrega e emitir documentos fiscais obrigatórios.</td>
+                      <td class="p-2 font-medium text-purple-900">Execução de Contrato e Obrigação Legal (Art. 7º, V e II)</td>
+                    </tr>
+                    <tr>
+                      <td class="p-2 font-bold text-slate-900">Dados de Navegação (IP, logs de acesso, geolocalização aproximada, cookies, e-mail)</td>
+                      <td class="p-2">Segurança da informação, prevenção a fraudes e envio de comunicações sobre novidades/torneios (quando autorizado).</td>
+                      <td class="p-2 font-medium text-purple-900">Obrigação Legal e Consentimento (Art. 7º, II, I ou IX)</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <div class="space-y-1.5">
+              <h4 class="font-sans font-bold text-slate-900 text-xs">7. Tratamento de Dados Pessoais de Crianças e Adolescentes (Art. 14 da LGPD)</h4>
+              <p class="text-[11px]">Em estrito cumprimento ao Artigo 14 da LGPD, o tratamento de dados de menores de idade observará precipuamente o seu melhor interesse:</p>
+              <ul class="list-disc pl-4 space-y-1 text-[11px]">
+                <li><strong>Consentimento dos Pais para Crianças (&lt; 12 anos):</strong> O tratamento de dados de crianças exige obrigatoriamente o consentimento específico e em destaque fornecido por pelo menos um dos pais ou responsável legal (Art. 14, § 1º).</li>
+                <li><strong>Não Condicionamento de Coleta:</strong> A participação em jogos, enquetes ou atividades interativas não será condicionada ao fornecimento de informações pessoais além das estritamente necessárias (Art. 14, § 4º).</li>
+                <li><strong>Comunicação Clara e Acessível:</strong> As informações sobre o tratamento de dados são prestadas em linguagem simples, transparente e adequada ao entendimento do público jovem (Art. 14, § 6º).</li>
+              </ul>
+            </div>
+
+            <div class="space-y-1.5">
+              <h4 class="font-sans font-bold text-slate-900 text-xs">8. Compartilhamento Restrito de Dados Pessoais</h4>
+              <p class="text-[11px]">A CTRLGIRL não comercializa nem vende dados pessoais sob nenhuma hipótese. O compartilhamento ocorre unicamente nas seguintes condições necessárias:</p>
+              <ul class="list-disc pl-4 space-y-1 text-[11px]">
+                <li><strong>Prestadores de Serviços (Operadores):</strong> Empresas de hospedagem de servidores, infraestrutura de tecnologia, gateways de pagamento e parceiros logísticos, mediante cláusulas contratuais rigorosas de privacidade.</li>
+                <li><strong>Autoridades Públicas:</strong> Cumprimento de ordens judiciais, obrigações legais ou regulatórias (Art. 7º, II e Art. 23).</li>
+              </ul>
+            </div>
+
+            <div class="space-y-1.5">
+              <h4 class="font-sans font-bold text-slate-900 text-xs">9. Gestão Transparente de Cookies e Tecnologias de Rastreamento</h4>
+              <p class="text-[11px]">Utilizamos cookies para assegurar o funcionamento do aplicativo e otimizar a experiência da comunidade:</p>
+              <ul class="list-disc pl-4 space-y-1 text-[11px]">
+                <li><strong>Cookies Estritamente Necessários:</strong> Essenciais para autenticação de login, segurança e navegação.</li>
+                <li><strong>Cookies Analíticos e de Desempenho (Opcionais):</strong> Coletam dados estatísticos de acesso para entender as preferências da comunidade.</li>
+              </ul>
+            </div>
+
+            <div class="space-y-1.5">
+              <h4 class="font-sans font-bold text-slate-900 text-xs">10. Direitos do Titular de Dados e Procedimento de Atendimento (Art. 18 da LGPD)</h4>
+              <p class="text-[11px]">Nos termos do Artigo 18 da LGPD, o titular possui o direito de requerer, a qualquer momento e gratuitamente, mediante solicitação encaminhada ao e-mail <strong class="text-brand-purple">ctrlgirlesports@gmail.com</strong>:</p>
+              <ol class="list-decimal pl-4 space-y-0.5 text-[11px]">
+                <li>Confirmação da existência de tratamento.</li>
+                <li>Acesso aos dados mantidos pela CTRLGIRL.</li>
+                <li>Correção de dados incompletos, inexatos ou desatualizados.</li>
+                <li>Anonimização, bloqueio ou eliminação de dados desnecessários ou excessivos.</li>
+                <li>Portabilidade dos dados a outro fornecedor de serviço.</li>
+                <li>Eliminação dos dados pessoais tratados com o consentimento do titular (Art. 16 da LGPD).</li>
+                <li>Informação das entidades públicas e privadas com as quais o controlador realizou uso compartilhado.</li>
+                <li>Revogação do consentimento, de forma simples e gratuita.</li>
+              </ol>
+            </div>
+
+            <div class="space-y-1.5">
+              <h4 class="font-sans font-bold text-slate-900 text-xs">11. Segurança da Informação, Retenção de Dados e Comunicação de Incidentes</h4>
+              <p class="text-[11px]">Adotamos medidas técnicas e administrativas rigorosas de segurança (criptografia de senhas com Bcrypt, protocolos SSL/TLS e controles restritos de acesso). Em caso de ocorrência de qualquer incidente de segurança, a CTRLGIRL comunicará formalmente a Autoridade Nacional de Proteção de Dados (ANPD) e os titulares afetados (Art. 48).</p>
+            </div>
+
+            <div class="space-y-1.5">
+              <h4 class="font-sans font-bold text-slate-900 text-xs">12. Alterações nos Termos e Procedimento de Notificação</h4>
+              <p class="text-[11px]">Esta Política e Termos de Uso poderão ser atualizados periodicamente. Caso ocorram alterações significativas, a CTRLGIRL notificará os usuários de forma destacada e prévia (Art. 8º, § 6º da LGPD).</p>
+            </div>
+
+            <div class="space-y-1.5">
+              <h4 class="font-sans font-bold text-slate-900 text-xs">13. Legislação Aplicável e Foro</h4>
+              <p class="text-[11px]">Estes Termos são regidos e interpretados segundo a legislação da República Federativa do Brasil, em especial a LGPD e o Marco Civil da Internet. Fica eleito o Foro da Comarca de domicílio do usuário para dirimir quaisquer controvérsias.</p>
+            </div>
+
+          </div>
+
+        </div>
+
+        <!-- Footer do Modal com Ação de Aceite -->
+        <div class="pt-3 border-t shrink-0 flex gap-2">
+          <button onclick="closeTermsModal()" class="w-full py-2.5 bg-brand-purple hover:bg-brand-darkPurple text-white font-bold rounded-2xl text-xs transition shadow-md uppercase tracking-wider focus:outline-none focus:ring-2 focus:ring-brand-purple">
+            Entendi e Concordo
+          </button>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- Modal de Compartilhamento -->
+    <div id="shareModal" role="dialog" aria-modal="true" aria-labelledby="shareModalTitle" class="absolute inset-0 z-50 bg-slate-900/60 backdrop-blur-sm hidden flex items-center justify-center p-4">
+      <div class="w-full max-w-xs bg-white rounded-2xl p-5 space-y-4 shadow-2xl text-center">
+        <div class="flex items-center justify-between border-b pb-2">
+          <h2 id="shareModalTitle" class="font-extrabold text-slate-900 text-sm">Compartilhar Matéria</h2>
+          <button onclick="closeShareModal()" aria-label="Fechar janela de compartilhamento" class="text-slate-500 hover:text-slate-800 p-1 focus:outline-none focus:ring-2 focus:ring-brand-purple rounded">
+            <i class="fa-solid fa-xmark text-sm" aria-hidden="true"></i>
+          </button>
+        </div>
+
+        <p id="shareModalArticleName" class="text-xs font-bold text-slate-800 line-clamp-2 text-left bg-slate-50 p-2.5 rounded-lg border border-slate-200">
+          Título da Notícia
+        </p>
+
+        <div class="grid grid-cols-3 gap-2">
+          <button onclick="shareSocial('whatsapp')" aria-label="Compartilhar via WhatsApp" class="flex flex-col items-center p-2.5 bg-emerald-50 text-emerald-900 rounded-xl font-bold text-xs hover:bg-emerald-100 transition focus:outline-none focus:ring-2 focus:ring-emerald-500">
+            <i class="fa-brands fa-whatsapp text-2xl mb-1 text-emerald-600" aria-hidden="true"></i> WhatsApp
+          </button>
+          <button onclick="shareSocial('twitter')" aria-label="Compartilhar no X ou Twitter" class="flex flex-col items-center p-2.5 bg-sky-50 text-sky-900 rounded-xl font-bold text-xs hover:bg-sky-100 transition focus:outline-none focus:ring-2 focus:ring-sky-500">
+            <i class="fa-brands fa-x-twitter text-2xl mb-1 text-sky-600" aria-hidden="true"></i> X / Twitter
+          </button>
+          <button onclick="shareSocial('telegram')" aria-label="Compartilhar via Telegram" class="flex flex-col items-center p-2.5 bg-blue-50 text-blue-900 rounded-xl font-bold text-xs hover:bg-blue-100 transition focus:outline-none focus:ring-2 focus:ring-blue-500">
+            <i class="fa-brands fa-telegram text-2xl mb-1 text-blue-600" aria-hidden="true"></i> Telegram
+          </button>
+          <button onclick="shareSocial('facebook')" aria-label="Compartilhar no Facebook" class="flex flex-col items-center p-2.5 bg-indigo-50 text-indigo-900 rounded-xl font-bold text-xs hover:bg-indigo-100 transition focus:outline-none focus:ring-2 focus:ring-indigo-500">
+            <i class="fa-brands fa-facebook text-2xl mb-1 text-indigo-700" aria-hidden="true"></i> Facebook
+          </button>
+          <button onclick="shareSocial('copy')" aria-label="Copiar link para área de transferência" class="flex flex-col items-center p-2.5 bg-purple-50 text-brand-purple rounded-xl font-bold text-xs hover:bg-purple-100 transition focus:outline-none focus:ring-2 focus:ring-brand-purple">
+            <i class="fa-solid fa-link text-2xl mb-1 text-brand-purple" aria-hidden="true"></i> Copiar Link
+          </button>
+          <button onclick="shareSocial('native')" aria-label="Abrir mais opções do sistema" class="flex flex-col items-center p-2.5 bg-slate-100 text-slate-800 rounded-xl font-bold text-xs hover:bg-slate-200 transition focus:outline-none focus:ring-2 focus:ring-brand-purple">
+            <i class="fa-solid fa-share-nodes text-2xl mb-1 text-slate-700" aria-hidden="true"></i> Mais...
+          </button>
+        </div>
+
+        <button onclick="closeShareModal()" class="w-full py-2 bg-slate-200 text-slate-800 font-bold rounded-xl text-xs hover:bg-slate-300 transition focus:outline-none focus:ring-2 focus:ring-brand-purple">
+          Fechar
+        </button>
+      </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div id="toast" role="status" aria-live="polite" aria-atomic="true" class="absolute top-16 left-1/2 -translate-x-1/2 z-50 bg-slate-900 text-white text-xs px-4 py-2.5 rounded-full shadow-lg border border-purple-500/30 hidden flex items-center gap-2">
+      <i id="toastIcon" class="fa-solid fa-circle-check text-green-400" aria-hidden="true"></i>
+      <span id="toastMsg" class="font-semibold">Alerta</span>
+    </div>
+
+  </div>
+
+  <script>
+    let currentUser = {
+      isLogged: false,
+      isGuest: false,
+      role: "ProPlayer",
+      name: "",
+      nickname: "",
+      tag: "",
+      email: "",
+      gender: "",
+      age: "",
+      city: "",
+      race: "",
+      avatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=300&q=80"
+    };
+
+    // 6 Jogos mais recentes de Setembro de 2026 (3 CBLOL e 3 VCT Américas)
+    let septemberResults = [
+        {
+        tournament: "CBLOL",
+        stage: "Final Chave Inferior",
+        date: "03/10/2026",
+        teamA: "LOUD",
+        codeA: "LLL",
+        teamB: "FURIA",
+        codeB: "FUR",
+        scoreA: 3,
+        scoreB: 0,
+        badgeBg: "bg-purple-950/90 text-purple-200 border border-purple-700/80",
+        linearBorder: "border-l-4 border-l-brand-purple",
+        colorA: "text-emerald-300",
+        colorB: "text-rose-300"
+      },
+      {
+        tournament: "VALORANT Champions 2026",
+        stage: "Fase de Grupos",
+        date: "30/09/2026",
+        teamA: "LOUD",
+        codeA: "LLL",
+        teamB: "VIT",
+        codeB: "VIT",
+        scoreA: 0,
+        scoreB: 2,
+        badgeBg: "bg-sky-950/90 text-sky-200 border border-sky-700/80",
+        linearBorder: "border-l-4 border-l-sky-500",
+        colorA: "text-sky-300",
+        colorB: "text-rose-300"
+      },
+      {
+        tournament: "CBLOL",
+        stage: "Final da Chave Superior",
+        date: "27/09/2026",
+        teamA: "LOUD",
+        codeA: "LLL",
+        teamB: "LOS",
+        codeB: "LOS",
+        scoreA: 2,
+        scoreB: 3,
+        badgeBg: "bg-purple-950/90 text-purple-200 border border-purple-700/80",
+        linearBorder: "border-l-4 border-l-brand-purple",
+        colorA: "text-emerald-300",
+        colorB: "text-rose-300"
+      },
+      {
+        tournament: "CBLOL",
+        stage: "Playoffs",
+        date: "26/09/2026",
+        teamA: "RED",
+        codeA: "RED",
+        teamB: "FURIA",
+        codeB: "FUR",
+        scoreA: 2,
+        scoreB: 3,
+        badgeBg: "bg-purple-950/90 text-purple-200 border border-purple-700/80",
+        linearBorder: "border-l-4 border-l-brand-purple",
+        colorA: "text-esmerald-300",
+        colorB: "text-rose-300"
+      },
+      {
+        tournament: "VCT AMÉRICAS",
+        stage: "Final",
+        date: "06/09/2026",
+        teamA: "100Thieves",
+        codeA: "100T",
+        teamB: "LOUD",
+        codeB: "LLL",
+        scoreA: 3,
+        scoreB: 2,
+        badgeBg: "bg-sky-950/90 text-sky-200 border border-sky-700/80",
+        linearBorder: "border-l-4 border-l-sky-500",
+        colorA: "text-pink-300",
+        colorB: "text-slate-300"
+      },
+      {
+        tournament: "VCT Americas",
+        stage: "Playoffs",
+        date: "05/09/2026",
+        teamA: "LOUD",
+        codeA: "LLL",
+        teamB: "NRG",
+        codeB: "NRG",
+        scoreA: 3,
+        scoreB: 2,
+        badgeBg: "bg-sky-950/90 text-sky-200 border border-sky-700/80",
+        linearBorder: "border-l-4 border-l-sky-500",
+        colorA: "text-pink300",
+        colorB: "text-slate-300"
+      }
+    ];
+
+    let articles = [
+       {
+        id: 3,
+        title: "VALORANT: entenda a diferença entre VCT, Masters e Champions ",
+        category: "VALORANT",
+        author: "Julia Gabriela Ribeiro",
+        date: "03/10/2026",
+        image: "https://static1-br.millenium.gg/articles/8/12/34/8/@/140392-loud-valorant-champions-article_cover_bd-1.jpg",
+        summary: "A LOUD é o único time brasileiro a ganhar a Champeions, em 2022",
+        content: `
+          <p>Desde 2020 a Riot Games tem investido em campeonatos de VALORANT. Entre "VCT Américas", "Masters" e "Champions", os torneios de VALORANT passaram por uma reformulação em 2023 e hoje possuem esses três campeonatos como os principais do jogo.</p>
+          <p>O primeiro campeonato mundial aconteceu em dezembro, conhecido como First Strike. Em seguida, o torneio VALORANT Champions Tour (VCT) foi o Masters Reykjavík, que ocorreu em 2021 na Islândia. No mesmo ano foi realizado o primeiro VALORANT Champions, em Berlim, na Alemanha. Mas foi a partir de 2023 que os torneios de VALORANT passaram por uma reformulação e criou-se o VARALORANT Champions Tour, incluindo a Liga das Américas.<p>
+          <p>Mas qual a diferença entre esses campeonatos e quais times brasileiros promovem campanhas?<p>
+          <h3 class="font-bold text-lg mt-4 mb-2">VALORANT Champions Tour (VCT) </h3>
+          <p>O VCT é o circuito competitivo oficial do jogo. Este circuito reúne as ligas regionais, com torneios classificatórios e competições internacionais ao longo do ano. Sendo também o sistema que organiza a disputa e define quais equipes avançam para os campeonatos principais.<p>
+          <p>Assim, o VCT é dividido em quatro ligas, sendo elas:<p>
+          <p>VCT Américas: Equipes da América do Norte e América Latina. Os times brasileiros que disputam as ligas internacionais são: LOUD, FURIA e MIBR;<p>
+          <p>VCT EMEA: Equipes da Europa, Oriente Médio e África;<p>
+          <p>VCT Pacific: Reúne equipes de países e territórios da região Ásia-Pacífico, incluindo Coreia do Sul, Japão e Indonésia;<p>
+          <p>VCT China: Liga que reúne as principais equipes da China.<p>
+          <h3 class="font-bold text-lg mt-4 mb-2">Masters </h3>
+          <p>O Masters é o torneio internacional que reúne as melhores equipes classificadas nas ligas regionais. Esse torneio possibilita os times a conquista do título e pontos importantes para a classificação da Champions.<p>
+          <p>Mesmo sendo uma oportunidade dos times enfrentarem outras regiões, ainda não é o campeonato internacional principal de VALORANT. Vale destacar que a FURIA foi a única equipe brasileiro no Masters Santiago, após conquistar o seed 1 da região.<p>
+          <h3 class="font-bold text-lg mt-4 mb-2">VALORANT Champions</h3>
+          <p>O VALORANT Champions é o campeonato mundial e o principal torneio do circuito, reunindo equipes que conquistaram a vaga ao longo da temporada, disputando o título de campeão mundial. Ao todo são 16 equipes na disputa, em 2026, a Champions está sendo realizada em Xangai, China.<p>
+          <p>No ano de 2022, a LOUD, time brasileiro, conquistou a Champions contra a OpTic Gaming, por 3x1. Esse foi o primeiro título mundial do Brasil no VALORANT. Em 2026, a LOUD conquistou a vaga na Champions e segue na disputa pela taça.<p>
+          <p>A final da Champions 2026 acontece no dia 18 de outubro, às 4h no horário de Brasília (BRT).<p>
+          <p>Créditos de Imagem: Colin Young-Wolff/Divugação: Riot Games<p>
+        `,
+        likes: 0,
+        liked: false,
+        comments: []
+        },
+      {
+        id: 1,
+        title: "Guia de sobrevivência: onde assistir aos principais jogos",
+        category: "CBLOL e VALORANT Champions 2026",
+        author: "Julia Gabriela Ribeiro",
+        date: "30/09/2026",
+        image: "https://noticias.maisesports.com.br/wp-content/uploads/2026/02/LOUD-Xyno.jpg",
+        imageAlt: "Jogador da LOS durante o CBLOL 2026",
+        imageCredit: "Foto: Riot Games / Bruno Alvares",
+        summary: "Saiba como e onde assistir a Grande Final do CBLOL e os jogos do VALORANT Champions 2026",
+        content: `
+          <p>Entre os campeonatos nacionais e os internacionais, muitos jogos estão batendo na telinha e você nem imagina. O CBLOL está chegando ao fim, mas abre espaço para o Worlds 2026, e o Brasil embala dois times para representar o país. Já o VALORANT está a todo vapor com a Champions, que acontece em Xangai, na China, com final agendada para o dia 18 de outubro.</p>
+          <h3 class="font-bold text-lg mt-4 mb-2">A final do CBLOL acontece no dia 10 de outubro</h3>
+          <p>O split do nosso querido CBLOL acaba no dia 10 de outubro, mas a jornada de dois times ainda continua no Worlds 2026. A LOS conquistou a primeira vaga no campeonato internacional após a vitória contra a LOUD na Chave Superior e chega a Grande Final, que será realizada no dia 10 de outubro, no Rio de Janeiro.</p>
+          <p>Enquanto isso, a LOUD ainda busca pela segunda chance na Grande Final, e no dia 3 de outubro joga contra a FURIA, pela final da Chave Inferior. Ambos os times buscam ser o segundo representante do Brasil no Worlds 2026.<p>
+          <p>Confira a agenda da reta final do CBLOL e quais dias você pode torcer (ou não) por algum desses times.<p>
+          <p>FURIA x LOUD - Sábado (3), a partir das 13h, nos canais oficiais do CBLOL, pela Twitch e Youtube.<p>
+          <p>Grande Final - Sábado (10), a partir das 13h, nos canais oficiais do CBLOL, pela Twitch e Youtube.<p>
+          <h3 class="font-bold text-lg mt-4 mb-2">A LOUD representa as Américas na Champions</h3>
+          <p>O VALORANT Champions 2026 teve início no dia de 24 de setembro, e ocorre até o dia 18 de outubro. Sendo o principal torneio do circuito competitivo do VALORANT, a Champions define o Campeão Mundial de 2026.<p>
+          <p>O torneio conta com 16 equipes das regiões: Américas, EMEA, Pacific e China. O time da LOUD está representando a região Américas e em sua estreia, o time brasileiro venceu a EDward Gaming por 2x0. No entanto, a LOUD emplacou uma derrota contra a Team Vitality (VT).<p>
+          <p>Ainda devemos manter as esperanças na LOUD, o nosso representante permanece na Champions e o próximo jogo será no domingo (4), às 6h. Você pode acompanhar a Champions pelos canais oficiais do VALORANT Esports, incluindo a transmissão oficial na Twitch.<p>
+          <p>Como o torneio está sendo realizado em Xangai, China, os horários convertidos para Brasílita (BRT) são às 6h e 9h. Enquanto os jogos do dia 17 de outubro acontecem às 3h e 6h da manhã e a Final (18) às 4h.<p>
+          <p>Crédito de capa: Bruno Alvares/CBLOL<p>
+        `,
+        likes: 0,
+        liked: false,
+        comments: []
+      },
+      {
+        id: 2,
+        title: "CBLOL: entenda como funciona a disputa pela vaga de Equipe Convidada",
+        category: "League of Legends",
+        author: "Julia Gabriela Ribeiro",
+        date: "30/09/2026",
+        image: "https://www.pichauarena.com.br/wp-content/uploads/2026/09/los-lol.webp",
+        summary: "LOS segue na disputa pela vaga de Equipe Convidada no CBLOL 2027",
+        content: `
+          <p>Cinco times estão na disputa pela vaga na liga principal do CBLOL, participando da etapa competitiva nas Classificatórias Regionais do Campeonato Brasileiro de League of Legends. Estral Sports, KaBum! Esports, 9z Globant, Golden Lions e LOS buscam chegar ao campeonato principal.</p>
+          <p>Ao todo, 8 times participam do Campeonato Brasileiro de League of Legends, sendo 7 times já garantidos e uma equipe convidada que participa de uma Classificatória Regional. Em 2026, a LOS é a equipe convidada da liga principal, completando o quadro com a FURIA, LOUD, paiN Gaming, Fluxo W7M, LEVIATÁN, RED Kalunga e Vivo Keyd Stars.<p>
+          <p>A LOS precisa defender a sua vaga para o split de 2027, apesar do time ter conquistado a vaga na Grande Final do 2 split do CBLOL, a equipe não tem a renovação automática.<p>
+          <p>Serão 7 dias de competição com chave de eliminação dupla, em formato de MD5, Fearless Draft (os campeões que foram escolhidos na partida anterior não estão habilitados para a próxima partida) e Direito de Escolha (uma equipe escolhe se começa pelo blue side ou red side; e difnir se será a primeira ou a segunda equipe a escolher os campeões no draft).<p>
+          <p>Esta competição é uma ponte entre o Tier 2 e o campeonato principal, ao qual, o time vencedor garantirá a vaga no CBLOL 2027 como a equipe convidada. As partidas estão acontecendo às 18h pelos canais principais do CBLOL. A final acontece no dia 12 de outubro.<p>
+          <p>Créditos de capa: Bruno Alvares/Riot Games<p>
+        `,
+        likes: 0,
+        liked: false,
+        comments: []
+      },
+      {
+        id: 3,
+        title: "Atualização 13.06: confira as novidades que chegam ao VALORANT",
+        category: "VALORANT",
+        author: "Julia Gabriela Ribeiro",
+        date: "29/09/2026",
+        image: "https://cmsassets.rgpub.io/sanity/images/dsfx7636/news_live/4854460e10c1dcdab319c6ab9e7136af7e0310d6-1920x1080.png?accountingTag=VAL",
+        summary: "VALORANT: novo modo, arma inédita e mais novidades chegam no patch 13.06",
+        content: `
+          <p>A Riot Games revelou diversas novidades no VALORANT com a atualização 13.06. Os jogadores poderão testar o novo modo 2x2 com novas arenas, além de exibir a Maestria de Agente e mostrar qual Agente é o seu mono.</p>
+          <p>A nova atualização também propõe melhorias na Qualidade de Vida e no Menu. Uma das novidades está na Estande de Tiro, ao qual o jogador poderá treinar a mira ao mesmo tempo que está na fila para iniciar uma nova partida.<p>
+          <p>A Pontuação de Desempenho irá substituir o antigo ACS no Competitivo, operando em uma escala de 0 a 500, medindo com uma maior precisão o impacto individual do jogador na partida. Enquanto isso, o menu principal e o lobby também chegam em novos ares. Ambos agora foram unificados em um único hub com navegação global aprimorada.<p>
+          <h3 class="font-bold text-lg mt-4 mb-2">Novo Modo: Oito duplas em uma disputa de 2x2</h3>
+          <p>“Contenda Bugada” é o novo modo de jogo do VALORANT. Nesse modo os jogadores irão enfrentar se enfrentar em 8 duplas em batalhas 2x2, com habilidades de diferentes Agentes, que podem ser aprimoradas conforme a partida avança.<p>
+          <p>Vale se atentar que conforme as duplas perdem o confronto, elas vão perdendo a vida até chegar ao zero. Com a vida zerada, a dupla é eliminada, até chegar aos campeões da partida. Como também a seleção de habilidades é fundamental nesse modo, por uma estratégia que chegue à vitória com mais facilidade.<p>
+          <p>É necessário escolher as opções de habilidades aleatórias entre as rodadas e montar o kit de habilidade de diferentes Agentes. Também será possível aprimorar uma habilidade já obtida do nível 1 ao nível 3. Além disso, o modo também disponibiliza novas arenas, transformando em um ambiente ideal para o 2x2.<p>
+          <h3 class="font-bold text-lg mt-4 mb-2">Exibir a Maestria de Agente</h3>
+          <p>Entre as novidades estão a Maestria de Agente, que dá ao jogador novas formas de demonstrar que é mono. Cada Agente tem seus próprios níveis de Ato; níveis Vitalícios; uma Trilha de Recompensa e um ID de Agente.<p>
+          <p>Todos os jogadores irão começar com nenhum progresso no Nível de Ato e no Nível Vitalício de cada Agente, e assim, progredindo em cada Ato e Agente. Para obter os pontos de Maestria é importante jogar partidas nos modos de jogo válidos com o Agente, destacando com vitórias e bom desempenho, que concedem mais Pontos de Maestria. Mostre o porque aquele Agente é seu mono.<p>
+          <h3 class="font-bold text-lg mt-4 mb-2">Warden: novo fúzil</h3>
+          <p>Um novo fuzil chega com tudo na Atualização 13.06, a Warden se junta à Vandal e à Phantom. A Warden busca oferecer uma nova escolha tática, como uma opção a longo alcance.<p>
+          <p>Especificações<p>
+          <p>Classe de arma: fuzil<p>
+          <p>Preço: 2.900 créditos<p>
+          <p>Tipo de projétil: bala<p>
+          <p>Acessórios: mira<p>
+          <p>Ampliação de 2x<p>
+          <p>Balas por carregador: 18<p>
+          <p>Dano por bala: 50 a qualquer distância<p>
+          <p>200 na cabeça<p>
+          <p>42 na perna<p>
+          <p>Cadência de tiro: 6,5<p>
+          <p>Reserva de munição: 36<p>
+          <p>Velocidade ao recarregar: 2,5<p>  
+          <p>Velocidade ao equipar:<p>
+          <p>Normal: 1,0<p>
+          <p>Rápida: 0,6<p>
+          <p>Instantânea: 0,2<p>
+          <p>Penetração de parede: média<p>
+          <p>Mais detalhes sobre a Atualização 13.06 estão disponíveis no site da Riot Games.<p>
+          <p>Créditos de Imagem: Riot Games/VALORANT<p>
+        `,
+        likes: 0,
+        liked: false,
+        comments: []
+        },
+    ];
+
+    let upcomingMatches = [
+      {
+        id: 101,
+        tournament: "CBLOL 2026",
+        date: "Sábado, 03/10",
+        time: "13:00",
+        teamA: "FURIA",
+        teamB: "LOUD",
+        tagColor: "bg-purple-100 text-purple-900 border border-purple-300"
+      },
+        {
+        id: 101,
+        tournament: "CBLOL 2026",
+        date: "Sábado, 10/10",
+        time: "13:00",
+        teamA: "FURIA",
+        teamB: "LOS",
+        tagColor: "bg-purple-100 text-purple-900 border border-purple-300"
+      },
+      {
+        id: 102,
+        tournament: "VCT Américas",
+        date: "Domingo, 06/09",
+        time: "14:00",
+        teamA: "100Thieves",
+        teamB: "LOUD",
+        tagColor: "bg-sky-100 text-sky-900 border border-sky-300"
+      },
+      {
+        id: 103,
+        tournament: "VALORANT Champions",
+        date: "Domingo, 04/10",
+        time: "06:00",
+        teamA: "GE",
+        teamB: "LOUD",
+        tagColor: "bg-pink-100 text-pink-900 border border-pink-300"
+      }
+    ];
+
+    let activeMatchesFilters = ['CBLOL 2026', 'VCT Américas', 'VALORANT Champions'];
+
+    let forumTopics = [
+      {
+        id: 1,
+        title: "Dicas para melhorar a comunicação em duo sem toxicidade?",
+        category: "Dicas & Gameplay",
+        author: "BiaGamer",
+        date: "Há 5 horas",
+        content: "Como vocês lidam quando encontram jogadores tóxicos nas partidas ranqueadas?",
+        replies: []
+      },
+      {
+        id: 2,
+        title: "Expectativas para a fase de grupos do VCT Américas?",
+        category: "Campeonatos",
+        author: "CarolPro",
+        date: "Há 1 dia",
+        content: "Quais times vocês acham que garantem vaga nos playoffs neste ano?",
+        replies: []
+      },
+    ];
+
+    let activeForumFilters = ['Campeonatos', 'Comunidade', 'Dicas & Gameplay'];
+    let activeTopicId = 1;
+    let activeArticleId = 1;
+    let activeSearchCategories = ['League of Legends', 'Valorant', 'Inclusivo'];
+
+    function handleKeyDown(event, callback) {
+      if (event.key === 'Enter' || event.key === ' ') {
+        event.preventDefault();
+        callback();
+      }
+    }
+
+    window.onload = function() {
+      switchTab('auth');
+
+      setTimeout(() => {
+        const splash = document.getElementById('splashScreen');
+        if (splash) {
+          splash.classList.add('opacity-0');
+          setTimeout(() => {
+            splash.style.display = 'none';
+          }, 700);
+        }
+      }, 1500);
+
+      renderSeptemberResults();
+      renderFeed();
+      updateMatchesTagStyles();
+      renderMatches();
+      updateForumTagStyles();
+      renderForumTopics();
+      updateProfileUI();
+
+      const savedDyslexia = localStorage.getItem('ctrlgirl_dyslexia_font') === 'true';
+      if (savedDyslexia) {
+        document.body.classList.add('dyslexia-mode');
+        updateDyslexiaUI(true);
+      }
+
+      const btnOpen = document.getElementById('btnOpenMenu');
+      const btnClose = document.getElementById('btnCloseMenu');
+      const drawer = document.getElementById('sideDrawer');
+
+      if (btnOpen) btnOpen.onclick = openMenu;
+      if (btnClose) btnClose.onclick = closeMenu;
+      if (drawer) {
+        drawer.onclick = function(e) {
+          if (e.target.id === 'sideDrawer') closeMenu();
+        };
+      }
+
+      document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') {
+          closeMenu();
+          closeShareModal();
+          closeTermsModal();
+        }
+      });
+    };
+
+    function openTermsModal() {
+      const modal = document.getElementById('termsModal');
+      if (modal) {
+        modal.classList.remove('hidden');
+        document.getElementById('termsModalTitle')?.focus();
+      }
+    }
+
+    function closeTermsModal() {
+      const modal = document.getElementById('termsModal');
+      if (modal) {
+        modal.classList.add('hidden');
+      }
+    }
+
+    function renderSeptemberResults() {
+      const container = document.getElementById('septemberResultsContainer');
+      if (!container) return;
+      container.innerHTML = '';
+
+      septemberResults.forEach(r => {
+        const card = document.createElement('div');
+        card.className = `shrink-0 w-72 bg-gradient-to-r from-slate-900 via-slate-800 to-slate-900 rounded-xl p-3 border border-slate-700/70 shadow-sm space-y-2.5 ${r.linearBorder}`;
+        card.setAttribute('role', 'article');
+        card.setAttribute('aria-label', `Resultado: ${r.tournament}, ${r.stage}, ${r.date}: ${r.teamA} ${r.scoreA} contra ${r.scoreB} ${r.teamB}`);
+
+        card.innerHTML = `
+          <div class="flex items-center justify-between text-[11px] text-slate-300 border-b border-slate-800/80 pb-1.5">
+            <span class="font-extrabold px-2.5 py-0.5 rounded-full text-[10px] uppercase ${r.badgeBg}">${r.tournament}</span>
+            <span class="text-slate-400 font-semibold text-[11px]"><i class="fa-regular fa-calendar-days mr-1" aria-hidden="true"></i>${r.date}</span>
+          </div>
+
+          <div class="text-[10px] font-bold text-slate-400 tracking-wider uppercase">${r.stage}</div>
+
+          <div class="flex items-center justify-between bg-slate-950/90 px-3 py-2 rounded-lg border border-slate-800/90 text-xs">
+            <div class="flex items-center gap-2 font-extrabold ${r.colorA}">
+              <span class="w-6 h-6 rounded bg-slate-800 text-slate-200 text-[10px] flex items-center justify-center font-black border border-slate-700">${r.codeA}</span>
+              <span class="truncate max-w-[70px] text-[11px]">${r.teamA}</span>
+            </div>
+
+            <div class="bg-gradient-to-r from-purple-950 to-slate-900 border border-purple-500/50 text-emerald-400 font-black px-2.5 py-1 rounded text-xs shadow-inner">
+              ${r.scoreA} - ${r.scoreB}
+            </div>
+
+            <div class="flex items-center gap-2 font-extrabold ${r.colorB} justify-end">
+              <span class="truncate max-w-[70px] text-[11px] text-right">${r.teamB}</span>
+              <span class="w-6 h-6 rounded bg-slate-800 text-slate-200 text-[10px] flex items-center justify-center font-black border border-slate-700">${r.codeB}</span>
+            </div>
+          </div>
+        `;
+        container.appendChild(card);
+      });
+    }
+
+    function renderFeed() {
+      const feed = document.getElementById('newsFeedList');
+      if (!feed) return;
+      feed.innerHTML = '';
+
+      articles.forEach(art => {
+        const item = document.createElement('article');
+        item.className = "bg-white p-3 rounded-2xl shadow-sm border border-slate-200 flex items-center gap-3 cursor-pointer hover:border-purple-300 transition focus:outline-none focus:ring-2 focus:ring-brand-purple";
+        item.setAttribute('tabindex', '0');
+        item.setAttribute('role', 'button');
+        item.setAttribute('aria-label', `Ler matéria: ${art.title}`);
+        item.onclick = () => openArticle(art.id);
+        item.onkeydown = (e) => handleKeyDown(e, () => openArticle(art.id));
+
+        item.innerHTML = `
+          <img src="${art.image}" alt="" class="w-20 h-20 rounded-xl object-cover shrink-0"/>
+          <div class="flex-1 min-w-0">
+            <span class="text-[10px] font-extrabold text-brand-purple bg-purple-50 px-2 py-0.5 rounded uppercase">${art.category}</span>
+            <h3 class="font-bold text-slate-900 text-xs leading-snug line-clamp-2 mt-1">${art.title}</h3>
+            <div class="flex items-center gap-3 text-[11px] text-slate-500 font-medium mt-1.5">
+              <span><i class="fa-regular fa-clock mr-1" aria-hidden="true"></i>${art.date}</span>
+              <span><i class="fa-regular fa-heart text-brand-pinkVivid mr-1" aria-hidden="true"></i>${art.likes}</span>
+            </div>
+          </div>
+        `;
+        feed.appendChild(item);
+      });
+    }
+
+    function switchTab(tabName) {
+      if (!currentUser.isLogged && !currentUser.isGuest && tabName !== 'auth') {
+        tabName = 'auth';
+      }
+
+      const views = ['viewAuth', 'viewHome', 'viewMatches', 'viewAbout', 'viewChat', 'viewTopicDetail', 'viewSearch', 'viewProfile', 'viewArticleDetail'];
+      views.forEach(v => {
+        const el = document.getElementById(v);
+        if (el) {
+          el.classList.add('hidden');
+          el.setAttribute('aria-hidden', 'true');
+        }
+      });
+
+      const isAuthView = (tabName === 'auth');
+      
+      const header = document.getElementById('mainHeader');
+      const footer = document.getElementById('mainFooter');
+      
+      if (header) header.style.display = isAuthView ? 'none' : 'flex';
+      if (footer) footer.style.display = isAuthView ? 'none' : 'flex';
+
+      const targetId = 'view' + tabName.charAt(0).toUpperCase() + tabName.slice(1);
+      const targetView = document.getElementById(targetId);
+      
+      if (targetView) {
+        targetView.classList.remove('hidden');
+        targetView.setAttribute('aria-hidden', 'false');
+        targetView.focus();
+      }
+
+      if (tabName === 'home') {
+        renderSeptemberResults();
+        renderFeed();
+      }
+
+      if (tabName === 'matches') {
+        updateMatchesTagStyles();
+        renderMatches();
+      }
+
+      if (tabName === 'chat') {
+        updateForumTagStyles();
+        renderForumTopics();
+      }
+
+      if (tabName === 'search') {
+        updateCategoryTagStyles();
+        filterSearch();
+      }
+
+      if (!isAuthView) {
+        updateBottomNav(tabName);
+      }
+    }
+
+    function updateBottomNav(tabName) {
+      const navItems = ['Home', 'Search', 'Matches', 'Chat', 'About', 'Profile'];
+      navItems.forEach(item => {
+        const btn = document.getElementById('nav' + item);
+        if (btn) {
+          if (item.toLowerCase() === tabName.toLowerCase()) {
+            btn.className = "flex flex-col items-center text-brand-purple focus:outline-none focus:ring-2 focus:ring-brand-purple rounded-lg p-1";
+            const iconDiv = btn.querySelector('div');
+            if (iconDiv) iconDiv.className = "w-7 h-7 rounded-full bg-purple-100 flex items-center justify-center";
+          } else {
+            btn.className = "flex flex-col items-center text-slate-600 hover:text-brand-purple focus:outline-none focus:ring-2 focus:ring-brand-purple rounded-lg p-1";
+            const iconDiv = btn.querySelector('div');
+            if (iconDiv) iconDiv.className = "w-7 h-7 rounded-full flex items-center justify-center";
+          }
+        }
+      });
+    }
+
+    function switchAuthPage(page) {
+      const btnLogin = document.getElementById('authTabBtnLogin');
+      const btnRegister = document.getElementById('authTabBtnRegister');
+      const pageLogin = document.getElementById('authPageLogin');
+      const pageRegister = document.getElementById('authPageRegister');
+
+      if (page === 'login') {
+        if (btnLogin) {
+          btnLogin.setAttribute('aria-selected', 'true');
+          btnLogin.className = "flex-1 py-2.5 rounded-xl bg-white shadow-sm text-brand-purple font-extrabold focus:outline-none focus:ring-2 focus:ring-brand-purple";
+        }
+        if (btnRegister) {
+          btnRegister.setAttribute('aria-selected', 'false');
+          btnRegister.className = "flex-1 py-2.5 rounded-xl text-slate-700 hover:text-brand-purple font-bold focus:outline-none focus:ring-2 focus:ring-brand-purple";
+        }
+        if (pageLogin) pageLogin.classList.remove('hidden');
+        if (pageRegister) pageRegister.classList.add('hidden');
+      } else {
+        if (btnLogin) {
+          btnLogin.setAttribute('aria-selected', 'false');
+          btnLogin.className = "flex-1 py-2.5 rounded-xl text-slate-700 hover:text-brand-purple font-bold focus:outline-none focus:ring-2 focus:ring-brand-purple";
+        }
+        if (btnRegister) {
+          btnRegister.setAttribute('aria-selected', 'true');
+          btnRegister.className = "flex-1 py-2.5 rounded-xl bg-white shadow-sm text-brand-purple font-extrabold focus:outline-none focus:ring-2 focus:ring-brand-purple";
+        }
+        if (pageLogin) pageLogin.classList.add('hidden');
+        if (pageRegister) pageRegister.classList.remove('hidden');
+      }
+    }
+
+    function filterUpcomingMatches(cat) {
+      if (cat === 'all') {
+        activeMatchesFilters = ['CBLOL 2026', 'VCT Américas', 'VALORANT Champions'];
+      } else {
+        if (activeMatchesFilters.includes(cat)) {
+          if (activeMatchesFilters.length > 1) {
+            activeMatchesFilters = activeMatchesFilters.filter(c => c !== cat);
+          } else {
+            showToast('Ao menos uma categoria de jogo deve permanecer ativa', 'error');
+          }
+        } else {
+          activeMatchesFilters.push(cat);
+        }
+      }
+      updateMatchesTagStyles();
+      renderMatches();
+    }
+
+    function updateMatchesTagStyles() {
+      const allActive = activeMatchesFilters.length === 3;
+      const btnAll = document.getElementById('tagFilterAll');
+      const btnCblol = document.getElementById('tagFilterCBLOL');
+      const btnVct = document.getElementById('tagFilterVCT');
+      const btnGc = document.getElementById('tagFilterGC');
+
+      if (btnAll) {
+        btnAll.setAttribute('aria-pressed', allActive ? 'true' : 'false');
+        btnAll.className = allActive
+          ? "bg-brand-purple text-white px-3 py-1.5 rounded-full whitespace-nowrap transition shadow-sm font-extrabold flex items-center gap-1 focus:outline-none focus:ring-2 focus:ring-brand-purple"
+          : "bg-slate-200 text-slate-700 hover:bg-slate-300 px-3 py-1.5 rounded-full whitespace-nowrap transition font-bold focus:outline-none focus:ring-2 focus:ring-brand-purple";
+        btnAll.innerHTML = allActive ? `<i class="fa-solid fa-check text-[10px]" aria-hidden="true"></i> Todos os Jogos` : `Todos os Jogos`;
+      }
+
+      if (btnCblol) {
+        const active = activeMatchesFilters.includes('CBLOL 2026');
+        btnCblol.setAttribute('aria-pressed', active ? 'true' : 'false');
+        btnCblol.className = active
+          ? "bg-purple-700 text-white px-3 py-1.5 rounded-full whitespace-nowrap transition shadow-sm font-extrabold flex items-center gap-1.5 focus:outline-none focus:ring-2 focus:ring-brand-purple"
+          : "bg-slate-200 text-slate-700 hover:bg-slate-300 px-3 py-1.5 rounded-full whitespace-nowrap transition font-semibold focus:outline-none focus:ring-2 focus:ring-brand-purple";
+        btnCblol.innerHTML = active ? `<i class="fa-solid fa-check text-[10px]" aria-hidden="true"></i> CBLOL` : `CBLOL`;
+      }
+
+      if (btnVct) {
+        const active = activeMatchesFilters.includes('VCT Américas');
+        btnVct.setAttribute('aria-pressed', active ? 'true' : 'false');
+        btnVct.className = active
+          ? "bg-sky-600 text-white px-3 py-1.5 rounded-full whitespace-nowrap transition shadow-sm font-extrabold flex items-center gap-1.5 focus:outline-none focus:ring-2 focus:ring-brand-purple"
+          : "bg-slate-200 text-slate-700 hover:bg-slate-300 px-3 py-1.5 rounded-full whitespace-nowrap transition font-semibold focus:outline-none focus:ring-2 focus:ring-brand-purple";
+        btnVct.innerHTML = active ? `<i class="fa-solid fa-check text-[10px]" aria-hidden="true"></i> VCT Américas` : `VCT Américas`;
+      }
+
+      if (btnGc) {
+        const active = activeMatchesFilters.includes('VALORANT Champions');
+        btnGc.setAttribute('aria-pressed', active ? 'true' : 'false');
+        btnGc.className = active
+          ? "bg-brand-pinkVivid text-white px-3 py-1.5 rounded-full whitespace-nowrap transition shadow-sm font-extrabold flex items-center gap-1.5 focus:outline-none focus:ring-2 focus:ring-brand-purple"
+          : "bg-slate-200 text-slate-700 hover:bg-slate-300 px-3 py-1.5 rounded-full whitespace-nowrap transition font-semibold focus:outline-none focus:ring-2 focus:ring-brand-purple";
+        btnGc.innerHTML = active ? `<i class="fa-solid fa-check text-[10px]" aria-hidden="true"></i> VALORANT Champions` : `VALORANT Champions`;
+      }
+    }
+
+    function renderMatches() {
+      const container = document.getElementById('matchesContainer');
+      if (!container) return;
+      container.innerHTML = '';
+
+      let filteredMatches = upcomingMatches.filter(m => 
+        activeMatchesFilters.some(f => m.tournament.toLowerCase().includes(f.toLowerCase()) || (f.includes('GC') && m.tournament.toLowerCase().includes('game changers')))
+      );
+
+      if (filteredMatches.length === 0) {
+        container.innerHTML = `<div class="bg-white p-6 rounded-2xl text-center text-xs text-slate-600 font-bold border border-slate-200">Nenhum jogo agendado para as categorias ativas.</div>`;
+        return;
+      }
+
+      filteredMatches.forEach(m => {
+        const card = document.createElement('article');
+        card.className = "bg-white p-4 rounded-2xl shadow-sm border border-slate-200 space-y-3";
+        card.setAttribute('aria-label', `Jogo: ${m.teamA} contra ${m.teamB}, ${m.tournament}, ${m.date}`);
+        card.innerHTML = `
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-extrabold px-2.5 py-0.5 rounded-full ${m.tagColor}">${m.tournament}</span>
+            <span class="text-xs font-bold text-slate-700"><i class="fa-regular fa-clock mr-1" aria-hidden="true"></i> ${m.date} - ${m.time}</span>
+          </div>
+
+          <div class="flex items-center justify-between bg-slate-50 p-3 rounded-xl border border-slate-200">
+            <div class="flex items-center gap-2 flex-1">
+              <div class="w-8 h-8 rounded-full bg-slate-300 flex items-center justify-center font-extrabold text-slate-900 text-xs" aria-hidden="true">${m.teamA.substring(0,2)}</div>
+              <span class="font-extrabold text-slate-900 text-xs">${m.teamA}</span>
+            </div>
+
+            <span class="font-black text-slate-400 text-sm px-2" aria-hidden="true">VS</span>
+
+            <div class="flex items-center justify-end gap-2 flex-1 text-right">
+              <span class="font-extrabold text-slate-900 text-xs">${m.teamB}</span>
+              <div class="w-8 h-8 rounded-full bg-slate-300 flex items-center justify-center font-extrabold text-slate-900 text-xs" aria-hidden="true">${m.teamB.substring(0,2)}</div>
+            </div>
+          </div>
+
+          <div class="flex justify-between items-center text-xs">
+            <span class="text-slate-600 text-xs font-medium">Transmissão Twitch / YouTube</span>
+            <button onclick="showToast('Lembrete ativado para a partida!')" aria-label="Ativar lembrete para a partida entre ${m.teamA} e ${m.teamB}" class="text-brand-purple font-bold hover:underline flex items-center gap-1 focus:outline-none focus:ring-2 focus:ring-brand-purple rounded">
+              <i class="fa-regular fa-bell" aria-hidden="true"></i> Lembrar-me
+            </button>
+          </div>
+        `;
+        container.appendChild(card);
+      });
+    }
+
+    function filterForumTopics(cat) {
+      if (cat === 'all') {
+        activeForumFilters = ['Campeonatos', 'Comunidade', 'Dicas & Gameplay'];
+      } else {
+        if (activeForumFilters.includes(cat)) {
+          if (activeForumFilters.length > 1) {
+            activeForumFilters = activeForumFilters.filter(c => c !== cat);
+          } else {
+            showToast('Ao menos uma categoria de fórum deve permanecer ativa', 'error');
+          }
+        } else {
+          activeForumFilters.push(cat);
+        }
+      }
+      updateForumTagStyles();
+      renderForumTopics();
+    }
+
+    function updateForumTagStyles() {
+      const allActive = activeForumFilters.length === 3;
+      const btnAll = document.getElementById('forumTabAll');
+      const btnCamp = document.getElementById('forumTabCamp');
+      const btnCom = document.getElementById('forumTabCom');
+      const btnDicas = document.getElementById('forumTabDicas');
+
+      if (btnAll) {
+        btnAll.setAttribute('aria-pressed', allActive ? 'true' : 'false');
+        btnAll.className = allActive
+          ? "bg-brand-purple text-white px-3 py-1.5 rounded-full whitespace-nowrap transition shadow-sm font-extrabold flex items-center gap-1 focus:outline-none focus:ring-2 focus:ring-brand-purple"
+          : "bg-slate-200 text-slate-700 hover:bg-slate-300 px-3 py-1.5 rounded-full whitespace-nowrap transition font-bold focus:outline-none focus:ring-2 focus:ring-brand-purple";
+        btnAll.innerHTML = allActive ? `<i class="fa-solid fa-check text-[10px]" aria-hidden="true"></i> Todos os Tópicos` : `Todos os Tópicos`;
+      }
+
+      if (btnCamp) {
+        const active = activeForumFilters.includes('Campeonatos');
+        btnCamp.setAttribute('aria-pressed', active ? 'true' : 'false');
+        btnCamp.className = active
+          ? "bg-purple-700 text-white px-3 py-1.5 rounded-full whitespace-nowrap transition shadow-sm font-extrabold flex items-center gap-1.5 focus:outline-none focus:ring-2 focus:ring-brand-purple"
+          : "bg-slate-200 text-slate-700 hover:bg-slate-300 px-3 py-1.5 rounded-full whitespace-nowrap transition font-semibold focus:outline-none focus:ring-2 focus:ring-brand-purple";
+        btnCamp.innerHTML = active ? `<i class="fa-solid fa-check text-[10px]" aria-hidden="true"></i> Campeonatos` : `Campeonatos`;
+      }
+
+      if (btnCom) {
+        const active = activeForumFilters.includes('Comunidade');
+        btnCom.setAttribute('aria-pressed', active ? 'true' : 'false');
+        btnCom.className = active
+          ? "bg-emerald-600 text-white px-3 py-1.5 rounded-full whitespace-nowrap transition shadow-sm font-extrabold flex items-center gap-1.5 focus:outline-none focus:ring-2 focus:ring-brand-purple"
+          : "bg-slate-200 text-slate-700 hover:bg-slate-300 px-3 py-1.5 rounded-full whitespace-nowrap transition font-semibold focus:outline-none focus:ring-2 focus:ring-brand-purple";
+        btnCom.innerHTML = active ? `<i class="fa-solid fa-check text-[10px]" aria-hidden="true"></i> Comunidade` : `Comunidade`;
+      }
+
+      if (btnDicas) {
+        const active = activeForumFilters.includes('Dicas & Gameplay');
+        btnDicas.setAttribute('aria-pressed', active ? 'true' : 'false');
+        btnDicas.className = active
+          ? "bg-amber-600 text-white px-3 py-1.5 rounded-full whitespace-nowrap transition shadow-sm font-extrabold flex items-center gap-1.5 focus:outline-none focus:ring-2 focus:ring-brand-purple"
+          : "bg-slate-200 text-slate-700 hover:bg-slate-300 px-3 py-1.5 rounded-full whitespace-nowrap transition font-semibold focus:outline-none focus:ring-2 focus:ring-brand-purple";
+        btnDicas.innerHTML = active ? `<i class="fa-solid fa-check text-[10px]" aria-hidden="true"></i> Dicas & Gameplay` : `Dicas & Gameplay`;
+      }
+    }
+
+    function renderForumTopics() {
+      const container = document.getElementById('forumTopicsContainer');
+      if (!container) return;
+      container.innerHTML = '';
+
+      let list = forumTopics.filter(t => activeForumFilters.includes(t.category));
+
+      if (list.length === 0) {
+        container.innerHTML = `<div class="bg-white p-6 rounded-2xl text-center text-xs text-slate-600 font-bold border border-slate-200">Nenhum tópico encontrado para os filtros selecionados.</div>`;
+        return;
+      }
+
+      list.forEach(t => {
+        const card = document.createElement('article');
+        card.className = "p-4 rounded-2xl shadow-sm border transition cursor-pointer hover:border-purple-300 bg-white border-slate-200 space-y-2.5 focus:outline-none focus:ring-2 focus:ring-brand-purple";
+        card.setAttribute('tabindex', '0');
+        card.setAttribute('role', 'button');
+        card.setAttribute('aria-label', `Tópico de discussão: ${t.title}`);
+        card.onclick = () => openTopicThread(t.id);
+        card.onkeydown = (e) => handleKeyDown(e, () => openTopicThread(t.id));
+
+        card.innerHTML = `
+          <div class="flex items-center justify-between text-xs">
+            <span class="font-extrabold px-2.5 py-0.5 rounded-full uppercase bg-purple-100 text-brand-purple">
+              ${t.category}
+            </span>
+            <span class="text-slate-600 font-medium">${t.date}</span>
+          </div>
+
+          <h3 class="font-extrabold text-slate-900 text-sm leading-snug">${t.title}</h3>
+          <p class="text-xs text-slate-700 font-medium line-clamp-2">${t.content}</p>
+
+          <div class="flex items-center justify-between pt-1 text-xs text-slate-600 font-medium border-t border-slate-200">
+            <span class="flex items-center gap-1">
+              <i class="fa-regular fa-user text-brand-purple" aria-hidden="true"></i> ${t.author}
+            </span>
+            <span class="bg-slate-100 px-2 py-0.5 rounded-full text-slate-800 font-bold flex items-center gap-1">
+              <i class="fa-regular fa-comment" aria-hidden="true"></i> ${t.replies.length} respostas
+            </span>
+          </div>
+        `;
+        container.appendChild(card);
+      });
+    }
+
+    function handleLoginSubmit(e) {
+      e.preventDefault();
+      const userVal = document.getElementById('loginUser')?.value || "Usuária";
+
+      currentUser.isLogged = true;
+      currentUser.isGuest = false;
+      currentUser.nickname = userVal.includes('#') ? userVal.split('#')[0] : userVal;
+      currentUser.name = currentUser.nickname;
+      currentUser.tag = "#" + Math.floor(1000 + Math.random() * 9000);
+      currentUser.email = userVal.includes('@') ? userVal : userVal.toLowerCase() + "@ctrlgirl.com";
+      currentUser.role = "ProPlayer";
+      currentUser.gender = "Mulher Cis";
+      currentUser.age = 22;
+      currentUser.city = "São Paulo, SP";
+      currentUser.race = "Parda";
+
+      updateProfileUI();
+      switchTab('home');
+      showToast(`Bem-vinda ao CTRLGIRL, ${currentUser.nickname}!`);
+    }
+async function handleRegisterSubmit(e) {
+  e.preventDefault();
+
+  // Apanha os IDs exatos descobertos na consola
+  const name = document.getElementById('regName')?.value.trim() || 'Usuária';
+  const nickname = document.getElementById('regNick')?.value.trim() || 'Gamer';
+  const email = document.getElementById('regEmail')?.value.trim() || '';
+  const password = document.getElementById('regPass')?.value.trim() || ''; // ID corrigido para regPass!
+  const birthDateVal = document.getElementById('regBirthDate')?.value || '';
+  const city = document.getElementById('regCity')?.value || 'São Paulo, SP';
+  const gender = document.getElementById('regGender')?.value || 'Mulher Cis';
+  const race = document.getElementById('regRace')?.value || 'Parda';
+
+  console.log("📋 Valores detetados:", { name, nickname, email, password: password ? 'PREENCHIDO' : 'VAZIO', birthDateVal });
+
+  if (!email || !password || !birthDateVal) {
+    alert('Preenche todos os campos obrigatórios (E-mail, Nickname, Senha e Data de Nascimento)!');
+    return;
+  }
+
+  try {
+    // Envia os dados para o backend unificado na porta 3000
+    const response = await fetch('http://localhost:3000/api/auth/register', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        name,
+        nickname,
+        email,
+        password,
+        birthDate: birthDateVal,
+        gender,
+        race,
+        city
+      })
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      // Se o backend bloquear por idade (< 16) ou e-mail duplicado, mostra a mensagem aqui!
+      alert(data.error || 'Erro ao realizar o registo.');
+      return;
+    }
+
+    // Sucesso!
+    alert('Usuária cadastrada com sucesso!');
+    localStorage.setItem('token', data.token);
+    if (data.user && data.user.role) {
+    localStorage.setItem('userRole', data.user.role);
+}
+    window.location.reload();
+
+  } catch (error) {
+    console.error('Erro de conexão:', error);
+    alert('Erro ao conectar com o servidor na porta 3000. Verifica se o servidor está ligado.');
+  }
+}
+      currentUser = {
+        isLogged: true,
+        isGuest: false,
+        role: "ProPlayer",
+        name: document.getElementById('regName')?.value || "Usuária",
+        nickname: document.getElementById('regNick')?.value || "Gamer",
+        tag: "#" + Math.floor(1000 + Math.random() * 9000),
+        email: document.getElementById('regEmail')?.value || "user@ctrlgirl.com",
+        gender: document.getElementById('regGender')?.value || "Mulher Cis",
+        age: 18,
+        birthDate: "2004-01-01",
+        city: document.getElementById('regCity')?.value || "São Paulo, SP",
+        race: document.getElementById('regRace')?.value || "Parda",
+        avatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=300&q=80"
+      };
+
+      updateProfileUI();
+      switchTab('home');
+      showToast("Conta cadastrada! Bem-vinda ao CTRLGIRL!");
+
+    function loginAsGuest() {
+      currentUser.isLogged = false;
+      currentUser.isGuest = true;
+      currentUser.role = "Visitante";
+      currentUser.nickname = "Visitante";
+      currentUser.name = "Visitante";
+      updateProfileUI();
+      switchTab('home');
+      showToast("Entrou como Visitante");
+    }
+
+    function logout() {
+      currentUser.isGuest = false;
+      currentUser.isLogged = false;
+      currentUser.role = "Visitante";
+      currentUser.nickname = "";
+      currentUser.name = "";
+      updateProfileUI();
+      switchTab('auth');
+      showToast("Sua sessão foi encerrada");
+    }
+
+    function triggerAvatarUpload() {
+      if (!currentUser.isLogged) {
+        showToast("Faça login para alterar sua foto de perfil", "error");
+        switchTab('auth');
+        return;
+      }
+      const fileInput = document.getElementById('avatarFileInput');
+      if (fileInput) fileInput.click();
+    }
+
+    function handleAvatarChange(e) {
+      const file = e.target.files && e.target.files[0];
+      if (!file) return;
+
+      if (!file.type.startsWith('image/')) {
+        showToast("Selecione um arquivo de imagem válido.", "error");
+        return;
+      }
+
+      const reader = new FileReader();
+      reader.onload = function(event) {
+        const newAvatarUrl = event.target.result;
+        currentUser.avatar = newAvatarUrl;
+
+        const pAvatar = document.getElementById('profileAvatar');
+        if (pAvatar) pAvatar.src = newAvatarUrl;
+
+        showToast("Foto de perfil atualizada com sucesso!");
+      };
+      reader.readAsDataURL(file);
+    }
+
+    function updateProfileUI() {
+      const badge = document.getElementById('headerUserBadge');
+      const drawerStatus = document.getElementById('drawerUserStatus');
+      const drawerBtn = document.getElementById('btnDrawerLogin');
+      const guestNotice = document.getElementById('guestNotice');
+      const detailsBox = document.getElementById('profileDetails');
+
+      const pName = document.getElementById('profileName');
+      const pNick = document.getElementById('profileNickname');
+      const pAvatar = document.getElementById('profileAvatar');
+      const pEmail = document.getElementById('pEmail');
+      const pGender = document.getElementById('pGender');
+      const pAge = document.getElementById('pAge');
+      const pCity = document.getElementById('pCity');
+      const pRace = document.getElementById('pRace');
+
+      if (currentUser.isGuest) {
+        if (badge) badge.innerHTML = `<i class="fa-solid fa-user-secret" aria-hidden="true"></i>`;
+        if (drawerStatus) drawerStatus.innerHTML = `Status: <b>Visitante</b>`;
+        if (drawerBtn) drawerBtn.innerText = "Sair e Fazer Login";
+        if (guestNotice) guestNotice.classList.remove('hidden');
+        if (detailsBox) detailsBox.classList.add('hidden');
+        if (pName) pName.innerText = "Visitante";
+        if (pNick) pNick.innerText = "@visitante";
+        if (pAvatar) pAvatar.src = "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=300&q=80";
+      } else if (currentUser.isLogged) {
+        if (badge) badge.innerHTML = currentUser.nickname.substring(0,2).toUpperCase();
+        if (drawerStatus) drawerStatus.innerHTML = `Logada como <b>${currentUser.nickname}</b>`;
+        if (drawerBtn) drawerBtn.innerText = "Sair do App";
+        if (guestNotice) guestNotice.classList.add('hidden');
+        if (detailsBox) detailsBox.classList.remove('hidden');
+
+        if (pName) pName.innerText = currentUser.name || currentUser.nickname;
+ if (pNick) {
+    let finalNick = currentUser.nickname || '';
+    
+    // Se por acaso o nickname salvo for um e-mail, limpa e pega só a parte antes do @
+    if (finalNick.includes('@')) {
+        finalNick = finalNick.split('@')[0];
+    }
+    
+    // Exibe apenas o nickname puro com o @ na frente, sem tags numéricas
+    pNick.innerText = `@${finalNick}`;
+}
+        if (pAvatar && currentUser.avatar) pAvatar.src = currentUser.avatar;
+       
+      }
+    }
+
+    function openArticle(id) {
+      activeArticleId = id;
+      const art = articles.find(a => a.id === id);
+      if (!art) return;
+
+      const catEl = document.getElementById('artCategory');
+      const titleEl = document.getElementById('artTitle');
+      const authorEl = document.getElementById('artAuthor');
+      const dateEl = document.getElementById('artDate');
+      const imgEl = document.getElementById('artImage');
+      const bodyEl = document.getElementById('artBody');
+      const countEl = document.getElementById('likeCount');
+      const iconEl = document.getElementById('likeIcon');
+
+      if (catEl) catEl.innerText = art.category;
+      if (titleEl) titleEl.innerText = art.title;
+      if (authorEl) authorEl.innerHTML = `<i class="fa-regular fa-user text-brand-purple mr-1" aria-hidden="true"></i> Por ${art.author}`;
+      if (dateEl) dateEl.innerHTML = `<i class="fa-regular fa-calendar mr-1" aria-hidden="true"></i> ${art.date}`;
+      if (imgEl) {
+        imgEl.src = art.image;
+        imgEl.alt = art.title;
+      }
+      if (bodyEl) bodyEl.innerHTML = art.content;
+      if (countEl) countEl.innerText = art.likes;
+      if (iconEl) {
+        iconEl.className = art.liked ? "fa-solid fa-heart text-base text-brand-pinkVivid" : "fa-regular fa-heart text-base";
+      }
+
+      renderArticleComments(art);
+      switchTab('articleDetail');
+    }
+
+    function renderArticleComments(art) {
+      const container = document.getElementById('commentList');
+      const inputContainer = document.getElementById('commentInputSection');
+      const countSpan = document.getElementById('commentCount');
+      if (countSpan) countSpan.innerText = art.comments.length;
+
+      if (inputContainer) {
+        if (currentUser.isLogged) {
+          inputContainer.innerHTML = `
+            <form onsubmit="handleAddComment(event)" class="flex gap-2">
+              <input type="text" id="newCommentInput" required placeholder="Escreva um comentário..." class="flex-1 p-2 bg-slate-50 border border-slate-300 rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-brand-purple"/>
+              <button type="submit" class="px-3 py-2 bg-brand-purple text-white text-xs font-bold rounded-xl hover:bg-brand-darkPurple focus:outline-none focus:ring-2 focus:ring-brand-purple">
+                Enviar
+              </button>
+            </form>
+          `;
+        } else {
+          inputContainer.innerHTML = `
+            <div class="bg-slate-100 p-2.5 rounded-xl text-xs text-slate-600 font-medium text-center">
+              Faça <button onclick="switchTab('auth')" class="text-brand-purple font-bold underline">login</button> para comentar.
+            </div>
+          `;
+        }
+      }
+
+      if (container) {
+        container.innerHTML = '';
+        if (art.comments.length === 0) {
+          container.innerHTML = `<p class="text-xs text-slate-500 italic">Seja a primeira a comentar!</p>`;
+          return;
+        }
+        art.comments.forEach(c => {
+          const div = document.createElement('div');
+          div.className = "bg-slate-50 p-2.5 rounded-xl border border-slate-200 text-xs space-y-1";
+          div.innerHTML = `
+            <div class="flex items-center justify-between font-bold text-slate-900">
+              <span>@${c.author}</span>
+              <span class="text-[10px] text-slate-400 font-normal">${c.date}</span>
+            </div>
+            <p class="text-slate-700">${c.text}</p>
+          `;
+          container.appendChild(div);
+        });
+      }
+    }
+
+    function handleAddComment(e) {
+      e.preventDefault();
+      if (!currentUser.isLogged) {
+        showToast("Faça login para comentar", "error");
+        switchTab('auth');
+        return;
+      }
+      const input = document.getElementById('newCommentInput');
+      if (!input || !input.value.trim()) return;
+
+      const art = articles.find(a => a.id === activeArticleId);
+      if (!art) return;
+
+      art.comments.unshift({
+        author: currentUser.nickname || "Usuária",
+        text: input.value.trim(),
+        date: "Agora mesmo"
+      });
+
+      input.value = '';
+      renderArticleComments(art);
+      showToast("Comentário adicionado!");
+    }
+
+    function handleLikeArticle() {
+      if (!currentUser.isLogged) {
+        showToast("Faça login para curtir matérias", "error");
+        switchTab('auth');
+        return;
+      }
+
+      const art = articles.find(a => a.id === activeArticleId);
+      if (!art) return;
+
+      if (art.liked) {
+        art.likes--;
+        art.liked = false;
+      } else {
+        art.likes++;
+        art.liked = true;
+      }
+
+      const countEl = document.getElementById('likeCount');
+      const iconEl = document.getElementById('likeIcon');
+      if (countEl) countEl.innerText = art.likes;
+      if (iconEl) {
+        iconEl.className = art.liked ? "fa-solid fa-heart text-base text-brand-pinkVivid" : "fa-regular fa-heart text-base";
+      }
+    }
+
+    function openShareModal() {
+      const modal = document.getElementById('shareModal');
+      const modalArticleName = document.getElementById('shareModalArticleName');
+      const art = articles.find(a => a.id === activeArticleId);
+      if (modalArticleName && art) {
+        modalArticleName.innerText = art.title;
+      }
+      if (modal) {
+        modal.classList.remove('hidden');
+        document.getElementById('shareModalTitle')?.focus();
+      }
+    }
+
+    function closeShareModal() {
+      const modal = document.getElementById('shareModal');
+      if (modal) modal.classList.add('hidden');
+    }
+
+    function updateCategoryTagStyles() {
+      const tagLol = document.getElementById('catTagLol');
+      const tagVal = document.getElementById('catTagVal');
+      const tagInc = document.getElementById('catTagInc');
+
+      if (tagLol) {
+        const active = activeSearchCategories.includes('League of Legends');
+        tagLol.setAttribute('aria-pressed', active ? 'true' : 'false');
+        tagLol.className = active 
+          ? "text-xs bg-brand-purple text-white px-3 py-1.5 rounded-xl font-extrabold shadow-sm flex items-center gap-1.5 transition focus:outline-none focus:ring-2 focus:ring-brand-purple"
+          : "text-xs bg-slate-100 text-slate-600 border border-slate-300 px-3 py-1.5 rounded-xl font-semibold hover:bg-slate-200 transition focus:outline-none focus:ring-2 focus:ring-brand-purple";
+        tagLol.innerHTML = active ? `<i class="fa-solid fa-check text-[10px]" aria-hidden="true"></i> League of Legends` : `League of Legends`;
+      }
+
+      if (tagVal) {
+        const active = activeSearchCategories.includes('Valorant');
+        tagVal.setAttribute('aria-pressed', active ? 'true' : 'false');
+        tagVal.className = active 
+          ? "text-xs bg-sky-600 text-white px-3 py-1.5 rounded-xl font-extrabold shadow-sm flex items-center gap-1.5 transition focus:outline-none focus:ring-2 focus:ring-brand-purple"
+          : "text-xs bg-slate-100 text-slate-600 border border-slate-300 px-3 py-1.5 rounded-xl font-semibold hover:bg-slate-200 transition focus:outline-none focus:ring-2 focus:ring-brand-purple";
+        tagVal.innerHTML = active ? `<i class="fa-solid fa-check text-[10px]" aria-hidden="true"></i> Valorant` : `Valorant`;
+      }
+
+      if (tagInc) {
+        const active = activeSearchCategories.includes('Inclusivo');
+        tagInc.setAttribute('aria-pressed', active ? 'true' : 'false');
+        tagInc.className = active 
+          ? "text-xs bg-brand-pinkVivid text-white px-3 py-1.5 rounded-xl font-extrabold shadow-sm flex items-center gap-1.5 transition focus:outline-none focus:ring-2 focus:ring-brand-purple"
+          : "text-xs bg-slate-100 text-slate-600 border border-slate-300 px-3 py-1.5 rounded-xl font-semibold hover:bg-slate-200 transition focus:outline-none focus:ring-2 focus:ring-brand-purple";
+        tagInc.innerHTML = active ? `<i class="fa-solid fa-check text-[10px]" aria-hidden="true"></i> VALORANT Champions` : `VALORANT Champions`;
+      }
+    }
+
+    function setSearchCategory(cat) {
+      if (activeSearchCategories.includes(cat)) {
+        if (activeSearchCategories.length > 1) {
+          activeSearchCategories = activeSearchCategories.filter(c => c !== cat);
+        } else {
+          showToast('Ao menos uma categoria deve permanecer ativa', 'error');
+        }
+      } else {
+        activeSearchCategories.push(cat);
+      }
+      updateCategoryTagStyles();
+      filterSearch();
+    }
+
+    function selectAllSearchCategories() {
+      activeSearchCategories = ['League of Legends', 'Valorant', 'Inclusivo'];
+      updateCategoryTagStyles();
+      filterSearch();
+    }
+
+    function filterSearch() {
+      const query = (document.getElementById('searchInput')?.value || '').toLowerCase().trim();
+      const resultsContainer = document.getElementById('searchResults');
+      if (!resultsContainer) return;
+
+      resultsContainer.innerHTML = '';
+
+      const matchedArticles = articles.filter(art => {
+        const matchesCat = activeSearchCategories.some(cat => 
+          art.category.toLowerCase().includes(cat.toLowerCase()) ||
+          (cat === 'Inclusivo' && (art.category.toLowerCase().includes('ignis') || art.category.toLowerCase().includes('inclusiv')))
+        );
+        const matchesQuery = !query || art.title.toLowerCase().includes(query) || art.summary.toLowerCase().includes(query);
+        return matchesCat && matchesQuery;
+      });
+
+      const matchedGames = upcomingMatches.filter(m => {
+        const matchesCat = activeSearchCategories.some(cat => 
+          m.tournament.toLowerCase().includes(cat.toLowerCase()) ||
+          (cat === 'League of Legends' && m.tournament.toLowerCase().includes('cblol')) ||
+          (cat === 'Valorant' && m.tournament.toLowerCase().includes('vct')) ||
+          (cat === 'Inclusivo' && m.tournament.toLowerCase().includes('gc'))
+        );
+        const matchesQuery = !query || m.teamA.toLowerCase().includes(query) || m.teamB.toLowerCase().includes(query) || m.tournament.toLowerCase().includes(query);
+        return matchesCat && matchesQuery;
+      });
+
+      if (matchedArticles.length === 0 && matchedGames.length === 0) {
+        resultsContainer.innerHTML = `
+          <div class="bg-white p-6 rounded-2xl text-center space-y-2 border border-slate-200">
+            <i class="fa-solid fa-magnifying-glass text-3xl text-slate-300" aria-hidden="true"></i>
+            <p class="text-xs text-slate-700 font-bold">Nenhum resultado encontrado.</p>
+            <p class="text-xs text-slate-500">Tente buscar por outro termo ou ative mais categorias.</p>
+          </div>
+        `;
+        return;
+      }
+
+      if (matchedArticles.length > 0) {
+        const artHeader = document.createElement('h3');
+        artHeader.className = "text-xs font-extrabold text-slate-800 uppercase tracking-wider pt-1";
+        artHeader.innerText = `Matérias Encontradas (${matchedArticles.length})`;
+        resultsContainer.appendChild(artHeader);
+
+        matchedArticles.forEach(art => {
+          const item = document.createElement('article');
+          item.className = "bg-white p-3 rounded-2xl shadow-sm border border-slate-200 flex items-center gap-3 cursor-pointer hover:border-purple-300 transition focus:outline-none focus:ring-2 focus:ring-brand-purple";
+          item.setAttribute('tabindex', '0');
+          item.setAttribute('role', 'button');
+          item.setAttribute('aria-label', `Ler matéria: ${art.title}`);
+          item.onclick = () => openArticle(art.id);
+          item.onkeydown = (e) => handleKeyDown(e, () => openArticle(art.id));
+
+          item.innerHTML = `
+            <img src="${art.image}" alt="" class="w-16 h-16 rounded-xl object-cover shrink-0"/>
+            <div class="flex-1 min-w-0">
+              <span class="text-xs font-extrabold text-brand-purple bg-purple-50 px-2 py-0.5 rounded uppercase">${art.category}</span>
+              <h4 class="font-bold text-slate-900 text-xs leading-snug line-clamp-2 mt-0.5">${art.title}</h4>
+              <span class="text-xs text-slate-500 font-medium block mt-1"><i class="fa-regular fa-clock" aria-hidden="true"></i> ${art.date}</span>
+            </div>
+          `;
+          resultsContainer.appendChild(item);
+        });
+      }
+
+      if (matchedGames.length > 0) {
+        const matchHeader = document.createElement('h3');
+        matchHeader.className = "text-xs font-extrabold text-slate-800 uppercase tracking-wider pt-3";
+        matchHeader.innerText = `Próximos Jogos (${matchedGames.length})`;
+        resultsContainer.appendChild(matchHeader);
+
+        matchedGames.forEach(m => {
+          const card = document.createElement('article');
+          card.className = "bg-white p-3 rounded-2xl shadow-sm border border-slate-200 space-y-2";
+          card.innerHTML = `
+            <div class="flex items-center justify-between text-xs">
+              <span class="font-extrabold px-2 py-0.5 rounded-full ${m.tagColor}">${m.tournament}</span>
+              <span class="font-bold text-slate-600">${m.date} - ${m.time}</span>
+            </div>
+            <div class="flex items-center justify-between font-extrabold text-xs text-slate-900 bg-slate-50 p-2 rounded-xl">
+              <span>${m.teamA}</span>
+              <span class="text-slate-400">VS</span>
+              <span>${m.teamB}</span>
+            </div>
+          `;
+          resultsContainer.appendChild(card);
+        });
+      }
+    }
+
+    function toggleNewTopicForm() {
+      if (!currentUser.isLogged) {
+        showToast("Faça login para criar um tópico", "error");
+        switchTab('auth');
+        return;
+      }
+      const form = document.getElementById('newTopicForm');
+      if (form) form.classList.toggle('hidden');
+    }
+
+    function handleCreateTopic(e) {
+      e.preventDefault();
+      const title = document.getElementById('topicTitle')?.value;
+      const category = document.getElementById('topicCategory')?.value;
+      const body = document.getElementById('topicBody')?.value;
+
+      if (!title || !body) return;
+
+      const newTopic = {
+        id: forumTopics.length + 1,
+        title: title.trim(),
+        category: category || "Comunidade",
+        author: currentUser.nickname || "Usuária",
+        date: "Agora mesmo",
+        content: body.trim(),
+        replies: []
+      };
+
+      forumTopics.unshift(newTopic);
+      renderForumTopics();
+      toggleNewTopicForm();
+      showToast("Tópico publicado no fórum!");
+    }
+
+    function openTopicThread(id) {
+      activeTopicId = id;
+      const topic = forumTopics.find(t => t.id === id);
+      if (!topic) return;
+
+      const cat = document.getElementById('topicDetailCategory');
+      const date = document.getElementById('topicDetailDate');
+      const title = document.getElementById('topicDetailTitle');
+      const author = document.getElementById('topicDetailAuthor');
+      const content = document.getElementById('topicDetailContent');
+      const count = document.getElementById('topicRepliesCount');
+
+      if (cat) cat.innerText = topic.category;
+      if (date) date.innerText = topic.date;
+      if (title) title.innerText = topic.title;
+      if (author) author.innerText = `Por @${topic.author}`;
+      if (content) content.innerText = topic.content;
+      if (count) count.innerText = topic.replies.length;
+
+      renderTopicReplies(topic);
+      switchTab('topicDetail');
+    }
+
+    function renderTopicReplies(topic) {
+      const container = document.getElementById('topicRepliesList');
+      const inputContainer = document.getElementById('replyInputContainer');
+      if (!container) return;
+
+      if (inputContainer) {
+        if (currentUser.isLogged) {
+          inputContainer.innerHTML = `
+            <form onsubmit="handleSendReply(event)" class="space-y-2">
+              <textarea id="replyTextarea" rows="2" required placeholder="Escreva sua resposta para a comunidade..." class="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-brand-purple"></textarea>
+              <button type="submit" class="py-2 px-4 bg-brand-purple hover:bg-brand-darkPurple text-white font-bold rounded-xl text-xs transition">
+                Responder Tópico
+              </button>
+            </form>
+          `;
+        } else {
+          inputContainer.innerHTML = `
+            <div class="bg-slate-100 p-3 rounded-xl text-xs text-slate-600 font-medium text-center">
+              Faça <button onclick="switchTab('auth')" class="text-brand-purple font-bold underline">login</button> para participar desta discussão.
+            </div>
+          `;
+        }
+      }
+
+      container.innerHTML = '';
+      if (topic.replies.length === 0) {
+        container.innerHTML = `<p class="text-xs text-slate-500 italic p-2">Nenhuma resposta ainda. Seja a primeira a responder!</p>`;
+        return;
+      }
+
+      topic.replies.forEach(r => {
+        const div = document.createElement('div');
+        div.className = "bg-slate-50 p-3 rounded-xl border border-slate-200 text-xs space-y-1";
+        div.innerHTML = `
+          <div class="flex items-center justify-between font-bold text-slate-900">
+            <span>@${r.author}</span>
+            <span class="text-[10px] text-slate-400 font-normal">${r.date}</span>
+          </div>
+          <p class="text-slate-700 leading-relaxed">${r.content}</p>
+        `;
+        container.appendChild(div);
+      });
+    }
+
+    function handleSendReply(e) {
+      e.preventDefault();
+      const textarea = document.getElementById('replyTextarea');
+      if (!textarea || !textarea.value.trim()) return;
+
+      const topic = forumTopics.find(t => t.id === activeTopicId);
+      if (!topic) return;
+
+      topic.replies.push({
+        author: currentUser.nickname || "Usuária",
+        content: textarea.value.trim(),
+        date: "Agora mesmo"
+      });
+
+      const count = document.getElementById('topicRepliesCount');
+      if (count) count.innerText = topic.replies.length;
+
+      textarea.value = '';
+      renderTopicReplies(topic);
+      showToast("Resposta enviada com sucesso!");
+    }
+
+    function openMenu() {
+      const drawer = document.getElementById('sideDrawer');
+      const drawerContent = document.getElementById('drawerContent');
+      const btn = document.getElementById('btnOpenMenu');
+      if (drawer && drawerContent) {
+        drawer.classList.remove('hidden');
+        setTimeout(() => {
+          drawerContent.classList.remove('-translate-x-full');
+        }, 10);
+        if (btn) btn.setAttribute('aria-expanded', 'true');
+      }
+    }
+
+    function closeMenu() {
+      const drawer = document.getElementById('sideDrawer');
+      const drawerContent = document.getElementById('drawerContent');
+      const btn = document.getElementById('btnOpenMenu');
+      if (drawer && drawerContent) {
+        drawerContent.classList.add('-translate-x-full');
+        setTimeout(() => {
+          drawer.classList.add('hidden');
+        }, 300);
+        if (btn) btn.setAttribute('aria-expanded', 'false');
+      }
+    }
+
+    function shareSocial(platform) {
+      closeShareModal();
+      showToast("Link pronto para compartilhamento!");
+    }
+
+    function toggleDyslexiaFont() {
+      const isDyslexic = document.body.classList.toggle('dyslexia-mode');
+      localStorage.setItem('ctrlgirl_dyslexia_font', isDyslexic ? 'true' : 'false');
+      updateDyslexiaUI(isDyslexic);
+      showToast(isDyslexic ? "Fonte OpenDyslexic ativada!" : "Fonte padrão restaurada!");
+    }
+
+    function updateDyslexiaUI(isDyslexic) {
+      const btnHeader = document.getElementById('btnDyslexiaToggle');
+      const badgeDrawer = document.getElementById('dyslexiaBadge');
+
+      if (btnHeader) {
+        btnHeader.setAttribute('aria-pressed', isDyslexic ? 'true' : 'false');
+        btnHeader.className = isDyslexic
+          ? "text-brand-purple bg-purple-100 p-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-purple flex items-center justify-center font-extrabold shadow-inner"
+          : "text-slate-700 hover:text-brand-purple p-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-purple flex items-center justify-center";
+      }
+
+      if (badgeDrawer) {
+        badgeDrawer.innerText = isDyslexic ? "ATIVADA" : "DESATIVADA";
+        badgeDrawer.className = isDyslexic
+          ? "text-[10px] font-extrabold px-2 py-0.5 rounded-full bg-brand-purple text-white"
+          : "text-[10px] font-extrabold px-2 py-0.5 rounded-full bg-slate-200 text-slate-700";
+      }
+    }
+
+    function showToast(msg, type = "success") {
+      const toast = document.getElementById('toast');
+      const toastMsg = document.getElementById('toastMsg');
+      const toastIcon = document.getElementById('toastIcon');
+
+      if (!toast || !toastMsg || !toastIcon) return;
+
+      toastMsg.innerText = msg;
+      if (type === "error") {
+        toastIcon.className = "fa-solid fa-circle-exclamation text-rose-400";
+      } else {
+        toastIcon.className = "fa-solid fa-circle-check text-green-400";
+      }
+
+      toast.classList.remove('hidden');
+      setTimeout(() => {
+        toast.classList.add('hidden');
+      }, 3500);
+    }
+    // Verifica se a utilizadora é SUPER_ADMIN ao carregar o site
+const currentRole = localStorage.getItem('userRole');
+if (currentRole === 'SUPER_ADMIN') {
+    // Mostra todos os elementos marcados como exclusivos para admin
+    document.querySelectorAll('.admin-only').forEach(el => {
+        el.style.display = 'block'; // ou 'flex', dependendo do teu design
+    });
+}
+
+function openSubjectModal() {
+    const modal = document.getElementById('modalCreateSubject');
+    if (modal) {
+        modal.style.display = 'flex';
+    } else {
+        alert("O HTML do modal ainda não foi encontrado na página.");
+    }
+}
+
+function closeSubjectModal() {
+    const modal = document.getElementById('modalCreateSubject');
+    if (modal) {
+        modal.style.display = 'none';
+        document.getElementById('formCreateSubject').reset();
+    }
+}
+
+async function handleCreateSubject(event) {
+    event.preventDefault();
+    const payload = {
+        title: document.getElementById('subjectTitle').value,
+        coverUrl: document.getElementById('subjectCoverUrl').value,
+        coverAlt: document.getElementById('subjectCoverAlt').value,
+        content: document.getElementById('subjectContent').value,
+        bodyImgUrl: document.getElementById('subjectBodyImgUrl').value,
+        bodyImgAlt: document.getElementById('subjectBodyImgAlt').value
+    };
+    
+    console.log("Matéria pronta com acessibilidade (alt):", payload);
+    alert("Matéria validada com sucesso!");
+    closeSubjectModal();
+}
+  </script>
+</body>
+</html>
