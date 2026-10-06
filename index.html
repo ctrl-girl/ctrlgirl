@@ -2260,7 +2260,11 @@ async function handleRegisterSubmit(e) {
 
   try {
     // Envia os dados para o backend unificado na porta 3000
-    const response = await fetch('http://localhost:3000/api/auth/register', {
+    const API_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+      ? 'http://localhost:3000'
+      : window.location.origin;
+
+    const response = await fetch(`${API_URL}/api/register`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
