@@ -14,6 +14,9 @@ const MASTER_EMAIL = (process.env.MASTER_EMAIL || 'seu-email@exemplo.com').toLow
 
 app.use(cors());
 app.use(express.json());
+app.get('/', (req, res) => {
+  res.send('Servidor a funcionar!');
+});
 
 // ==========================================
 // FUNÇÃO DE CÁLCULO DE IDADE (Regra 16+)
