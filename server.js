@@ -14,8 +14,13 @@ const MASTER_EMAIL = (process.env.MASTER_EMAIL || 'seu-email@exemplo.com').toLow
 
 app.use(cors());
 app.use(express.json());
+
+// Serve os ficheiros estáticos do PWA (index.html, manifest.json, sw.js, etc.) que estão na raiz
+app.use(express.static(__dirname));
+
+// Rota principal para abrir a interface do PWA
 app.get('/', (req, res) => {
-  res.send('Servidor a funcionar!');
+  res.sendFile(__dirname + '/index.html');
 });
 
 // ==========================================
