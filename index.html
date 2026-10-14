@@ -784,8 +784,8 @@
             <button onclick="filterUpcomingMatches('VCT Américas')" id="tagFilterVCT" aria-pressed="true" class="bg-sky-600 text-white px-3 py-1.5 rounded-full whitespace-nowrap transition shadow-sm font-extrabold flex items-center gap-1.5 focus:outline-none focus:ring-2 focus:ring-brand-purple">
               <i class="fa-solid fa-check text-[10px]" aria-hidden="true"></i> VCT Américas
             </button>
-            <button onclick="filterUpcomingMatches('Game Changers BR')" id="tagFilterGC" aria-pressed="true" class="bg-brand-pinkVivid text-white px-3 py-1.5 rounded-full whitespace-nowrap transition shadow-sm font-extrabold flex items-center gap-1.5 focus:outline-none focus:ring-2 focus:ring-brand-purple">
-              <i class="fa-solid fa-check text-[10px]" aria-hidden="true"></i> Game Changers
+            <button onclick="filterUpcomingMatches('VALORANT Champions')" id="tagFilterGC" aria-pressed="true" class="bg-brand-pinkVivid text-white px-3 py-1.5 rounded-full whitespace-nowrap transition shadow-sm font-extrabold flex items-center gap-1.5 focus:outline-none focus:ring-2 focus:ring-brand-purple">
+              <i class="fa-solid fa-check text-[10px]" aria-hidden="true"></i> VALORANT Champions
             </button>
           </div>
         </div>
@@ -1468,11 +1468,41 @@
       avatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=300&q=80"
     };
 
-    // 6 Jogos mais recentes de Setembro de 2026 (3 CBLOL e 3 VCT Américas)
+    // 6 Jogos mais recentes de 2026 (3 CBLOL e 3 VCT Américas)
     let septemberResults = [
         {
         tournament: "CBLOL",
-        stage: "Final Chave Inferior",
+        stage: "Grande Final",
+        date: "10/10/2026",
+        teamA: "LOS",
+        codeA: "LOS",
+        teamB: "FURIA",
+        codeB: "FUR",
+        scoreA: 3,
+        scoreB: 2,
+        badgeBg: "bg-purple-950/90 text-purple-200 border border-purple-700/80",
+        linearBorder: "border-l-4 border-l-brand-purple",
+        colorA: "text-emerald-300",
+        colorB: "text-rose-300"
+      },
+      {
+        tournament: "VALORANT Champions 2026",
+        stage: "Playoffs",
+        date: "10/10/2026",
+        teamA: "LOUD",
+        codeA: "LLL",
+        teamB: "NRG",
+        codeB: "NRG",
+        scoreA: 2,
+        scoreB: 1,
+        badgeBg: "bg-sky-950/90 text-sky-200 border border-sky-700/80",
+        linearBorder: "border-l-4 border-l-sky-500",
+        colorA: "text-sky-300",
+        colorB: "text-rose-300"
+      },
+      {
+        tournament: "CBLOL",
+        stage: "Final da Chave Inferior",
         date: "03/10/2026",
         teamA: "LOUD",
         codeA: "LLL",
@@ -1486,21 +1516,6 @@
         colorB: "text-rose-300"
       },
       {
-        tournament: "VALORANT Champions 2026",
-        stage: "Fase de Grupos",
-        date: "30/09/2026",
-        teamA: "LOUD",
-        codeA: "LLL",
-        teamB: "VIT",
-        codeB: "VIT",
-        scoreA: 0,
-        scoreB: 2,
-        badgeBg: "bg-sky-950/90 text-sky-200 border border-sky-700/80",
-        linearBorder: "border-l-4 border-l-sky-500",
-        colorA: "text-sky-300",
-        colorB: "text-rose-300"
-      },
-      {
         tournament: "CBLOL",
         stage: "Final da Chave Superior",
         date: "27/09/2026",
@@ -1508,21 +1523,6 @@
         codeA: "LLL",
         teamB: "LOS",
         codeB: "LOS",
-        scoreA: 2,
-        scoreB: 3,
-        badgeBg: "bg-purple-950/90 text-purple-200 border border-purple-700/80",
-        linearBorder: "border-l-4 border-l-brand-purple",
-        colorA: "text-emerald-300",
-        colorB: "text-rose-300"
-      },
-      {
-        tournament: "CBLOL",
-        stage: "Playoffs",
-        date: "26/09/2026",
-        teamA: "RED",
-        codeA: "RED",
-        teamB: "FURIA",
-        codeB: "FUR",
         scoreA: 2,
         scoreB: 3,
         badgeBg: "bg-purple-950/90 text-purple-200 border border-purple-700/80",
@@ -1564,7 +1564,59 @@
 
     let articles = [
        {
-        id: 3,
+        id: 0,
+        title: "CBLOL | LOS conquista o título e se torna a Grande Campeã",
+        category: "CBLOL",
+        author: "Julia Gabriela Ribeiro",
+        date: "10/10/2026",
+        image: "https://geekpopnews.com.br/wp-content/uploads/2026/10/CBLOL-LOS-1200x640.jpg",
+        summary: "Com o placar 3x2, a LOS derrota a FURIA e levanta a Taça do CBLOL Split 2",
+        content: `
+          <p>Neste sábado (10) aconteceu a Grande Final do segundo split do CBLOL, entre LOS x FURIA. Em uma MD5 de tirar o fôlego, a LOS amassou a FURIA e garantiu o título de Grande Campeã. Além da série emocionante, a final também teve um showmatch entre o time do Ilha das Lendas x Sucata e o grande show da rapper Ebony.</p>
+          <p>Com a vitória da LOS, eles garantiram a vaga no Worlds 2026, representando o Brasil na Fase Suíça. Mas não para por aí, a FURIA também está classificada para representar o Brasil no Mundial, com a Fase de Entrada. Com a mudança que ocorreu neste ano, a Riot Games estendeu e garantiu duas vagas no Mundial para o CBLOL. O Worlds 2026 acontece nos dias 15 de outubro a 14 de novembro.<p>
+          <h3 class="font-bold text-lg mt-4 mb-2">LOS abre o placar na série</h3>
+          <p>O primeiro game da série, a FURIA estava pelo blue side, enquanto a LOS defendia o red side. A partida começou controlada mas com boas oportunidades de iniciativas de ambos os times. Rolaram muitos flashes até sair o first blood, que aconteceu na rota inferior. Em um troca necessária, o time da LOS parecia ter o controle e sair na frente, porém a FURIA encaixou o combo, saiu com o primeiro abate na mão da Karma e a LOS devolveu na mesma moeda, pegando o abate em seguida, que ficou com a Seraphine.<p>
+          <p>Quase aos 13min, a luta estourou na rota superior, o time da FURIA cresce para cima da LOS e garante abates importantes para a partida. A LOS precisou se recuperar de um 5x4 que não trouxe nenhum retorno positivo para o time.<p>
+          <p>Ao longo da partida, a FURIA estava dominando a partida, com bons abates, domínio de mapa e lutas sendo decididas pelo momento certo do Guigo com o K'Sante. No entanto, ao tentarem realizar o barão, a FURIA buscou por mais abates e acabou sendo obliterada pela LOS. Com essa virada de abates, a LOS conseguiu dar a volta por cima e ganhar todo o gás para derrotar o nexus da FURIA. Assim, o placar ficou 1×0.<p>
+          <p>A comp da FURIA era: K'Sante, Pantheon, Twisted Fate, Ezreal e Karma<p>
+          <p>Enquanto a comp da LOS era: Ambessa, Cho'Gath, Ryze, Ashe e Seraphine<p>
+          <h3 class="font-bold text-lg mt-4 mb-2">FURIA empata a série</h3>
+          <img src="https://media.maisesports.com.br/uploads/2026/01/FURIA-Guigo-1.jpg" alt="Duduhh, jogador da LOS" class="w-full max-h-80 object-cover rounded-xl my-4 border border-zinc-700" />
+          <p>A segunda partida do dia, a LOS estava defendendo o blue side, enquanto a FURIA estava pelo red side. O início esteve dominado pela FURIA, que aplicou uma boa pressão contra a LOS. Porém, em determinado momentos a LOS revidava e demonstrava que a vida da FURIA não seria tão fácil nessa série. Mesmo com as dificuldades encontradas pela LOS, eles conseguiu roubar um dragão e respirar por um curto intervalo.<p>
+          <p>A LOS defendia o bluse side com: Jayce, Maokai, Viktor, Yunnara e Lulu<p>
+          <p>FURIA jogava pelo red side: Sion, Trundle, Syndra, Kalista e Renata Glasc.<p>
+          <p>Com toda a pressão aplicada pela FURIA, mesmo com alguns deslizes que dava a esperança a LOS, quase aos 30min de partida a FURIA conquista a alma do dragão e oblitera a LOS. Dessa forma, o time dos “furiosos” abraça o gg com 60.6k de ouro e 15 abates, empatando a série, 1x1.<p>
+          <p>No jogo 3, a LOS dominou a FURIA. Apesar de um início meio duvidoso para a “mecânica laranja”, eles conseguiram recuperar o fôlego cedo e reverter os erros da segunda partida. A LOS buscou pelo objetivos a todo instante, procurou os melhores posicionamentos para as lutas e ganhou a vantagem no game.<p>
+          <p>Enquanto isso, a FURIA ficou apagada, deixando a LOS mais perto de levantar a taça, com o placar LOS 2x1 FURIA.<p>
+          <p>FURIA estava pelo blue side: Jax, Naafire, Annie, Zeri e Yummi.<p>
+          <p>Pelo red side estava a LOS: Varus, Wukong, Galio, Yasuo e Alistar.<p>
+          <h3 class="font-bold text-lg mt-4 mb-2">FURIA leva a série para o quinto jogo</h3>
+          <p>No quarto jogo, a LOS tinha tudo para levantar a taça, mas a FURIA mostrou que nesta partida tudo seria diferente. Uma partida que começou calma e calculada, acabou se transformando em um mapa da FURIA. Eles conseguiram encontrar boas lutas, que garantiram abates importantes ao longo da partida, além de abrir uma vantagem muito alta contra a LOS.<p>
+          <p>Chegando aos 30min, a FURIA finaliza a partida com a alma do dragão, buff do barão, 57k de ouro e 14 abates. Essa vitória trouxe reacendeu a esperança do time com o título, e empurrou a série para o quinto e último jogo. Com o placar empatado, 2×2, a LOS precisa amenizar os erros que foram cruciais para a derrota deles.<p>
+          <p>A LOS defendia o blue side: Rumble, Jarvan IV, Lissandra, Sivir e Bardo.<p>
+          <p>Pelo red side estava a FURIA: Ornn, Vi, Akali, Xayah e Rakan.<p>
+          <h3 class="font-bold text-lg mt-4 mb-2">LOS levanta a taça e torna a Grande Campeã do CBLOL 2026</h3>
+          <p>O quinto e último jogo da série ficou tomado pela emoção, com uma grande virada da LOS. O início da partida estava com o domínio total da FURIA e um grande destaque para o atirador Ayu. A LOS até então chegou na última partida um pouco apagada, mas a virada aconteceu na luta necessária na rota inferior. Mesmo com o abate do Ayu, a virada estava com o Dudduuh e a Jinx, que conseguiu um abate e colocar os jogadores da FURIA para correr.<p>
+          <p>A partir disso, a LOS acordou no game, demonstrou maturidade dentro da partida e voltou com tudo. Dessa forma, a LOS surpreende e ganha a partida, se tornando a Grande Campeão do split 2 do CBLOL. Além disso, a jungle tem dono e ele é o Curse! O jogador se tornou o MVP da final.</p>
+          <p>FURIA defendia o blue side: Aatrox, Xhin Zao, Sylas, Kai'Sa e Rell.</p>
+          <p>A LOS estava pelo red side: Renekton, Qyanna, Orianna, Jinx e Shen.</p>
+          <p>Com a vitória, a LOS se torna a representante do CBLOL na Fase Suíça do Worlds 2026. Durante a Coletiva do CBLOL, o atirador do time, Duduhh, respondeu ao GeekPop News sobre a responsabilidade em representar o Brasil nessa fase e a importância em fazer uma boa campanha no campeonato internacional.</p>
+          <p>"É uma responsabilidade muito grande, principalmente com essa rotina muito corrida. Mas é bom, porque estamos tendo muita experiência e meio que aquecidos. Mas ao mesmo tempo, também é um pouco mais difícil, porque no Worlds vamos jogar em um patch diferente, o que pode ser um pouco estranho para acostumar. Sinto que todos aqui estão com a cabeça no lugar para fazer o que precisamos fazer lá fora."</p>
+          <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSZvhb_mRSxUzPJpM6j96T6Che8TMyZacPWbG88Jwzllwzct6qe4Wcshb_Y&s=10" alt="Duduhh, jogador da LOS" class="w-full max-h-80 object-cover rounded-xl my-4 border border-zinc-700" />
+          <h3 class="font-bold text-lg mt-4 mb-2">Sorteio da Fase de Entrada no Worlds 2026</h3>
+          <p>Também aconteceu o sorteio da Fase de Entrada no Worlds 2026, em que a FURIA irá buscar a vaga na Fase Suíça. Os confrontos ficaram:</p>
+          <p>FURIA (CBLOL) x MVK (LCP)</p>
+          <p>C9 (LCS) x KC (LEC)</p>
+          <p>O Mundial começa no dia 15 de outubro, com a Fase de Entrada, nos Estados Unidos. Os horários e datas dos confrontos ainda serão definidos.</p>
+          <p>Créditos de Imagem: Bruno Alvares & Pedro Pavanato/Riot Games</p>
+          <p>Este texto é uma colaboração com o Portal GeekPop News.</p>
+        `,
+        likes: 0,
+        liked: false,
+        comments: []
+        },
+      {
+        id: 1,
         title: "VALORANT: entenda a diferença entre VCT, Masters e Champions ",
         category: "VALORANT",
         author: "Julia Gabriela Ribeiro",
@@ -1596,7 +1648,7 @@
         comments: []
         },
       {
-        id: 1,
+        id: 2,
         title: "Guia de sobrevivência: onde assistir aos principais jogos",
         category: "CBLOL e VALORANT Champions 2026",
         author: "Julia Gabriela Ribeiro",
@@ -1625,7 +1677,7 @@
         comments: []
       },
       {
-        id: 2,
+        id: 3,
         title: "CBLOL: entenda como funciona a disputa pela vaga de Equipe Convidada",
         category: "League of Legends",
         author: "Julia Gabriela Ribeiro",
@@ -1645,7 +1697,7 @@
         comments: []
       },
       {
-        id: 3,
+        id: 4,
         title: "Atualização 13.06: confira as novidades que chegam ao VALORANT",
         category: "VALORANT",
         author: "Julia Gabriela Ribeiro",
@@ -1695,11 +1747,11 @@
     let upcomingMatches = [
       {
         id: 101,
-        tournament: "CBLOL 2026",
-        date: "Sábado, 03/10",
-        time: "13:00",
+        tournament: "Worlds 2026",
+        date: "Quinta-feira, 15/10",
+        time: "20:00",
         teamA: "FURIA",
-        teamB: "LOUD",
+        teamB: "MVK",
         tagColor: "bg-purple-100 text-purple-900 border border-purple-300"
       },
         {
@@ -1723,10 +1775,10 @@
       {
         id: 103,
         tournament: "VALORANT Champions",
-        date: "Domingo, 04/10",
-        time: "06:00",
-        teamA: "GE",
-        teamB: "LOUD",
+        date: "Sexta-feira, 16/10",
+        time: "03:00",
+        teamA: "LOUD",
+        teamB: "VIT",
         tagColor: "bg-pink-100 text-pink-900 border border-pink-300"
       }
     ];
