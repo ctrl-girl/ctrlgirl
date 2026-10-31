@@ -1,0 +1,272 @@
+@font-face {
+  font-family: 'Inter';
+  src: url('/vendor/fonts/inter-latin-wght-normal.woff2') format('woff2');
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Roboto Serif';
+  src: url('/vendor/fonts/roboto-serif-latin-wght-normal.woff2') format('woff2');
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'OpenDyslexic';
+  src: url('/vendor/opendyslexic/OpenDyslexic-Regular.otf') format('opentype');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'OpenDyslexic';
+  src: url('/vendor/opendyslexic/OpenDyslexic-Bold.otf') format('opentype');
+  font-weight: bold;
+  font-style: normal;
+  font-display: swap;
+}
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html,
+  body {
+    height: 100%;
+  }
+  body {
+    font-family: 'Inter', sans-serif;
+  }
+  input,
+  select,
+  textarea {
+    font-size: 1rem;
+  }
+  /* Alvo mínimo de toque nos controles principais. */
+  button,
+  select,
+  textarea,
+  input:not([type='checkbox']):not([type='file']) {
+    min-height: 2.75rem;
+  }
+  input::placeholder,
+  textarea::placeholder {
+    color: #475569;
+    opacity: 1;
+  }
+  :focus-visible {
+    outline: 3px solid #6b46c1;
+    outline-offset: 2px;
+  }
+  dialog::backdrop {
+    background: rgb(15 23 42 / 0.6);
+    backdrop-filter: blur(4px);
+  }
+}
+
+@layer components {
+  .font-serif-roboto {
+    font-family: 'Roboto Serif', serif;
+  }
+  .custom-scrollbar::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+  .custom-scrollbar::-webkit-scrollbar-track {
+    background: #e2e8f0;
+  }
+  .custom-scrollbar::-webkit-scrollbar-thumb {
+    background: #7c6bb5;
+    border-radius: 10px;
+  }
+  .figma-input {
+    border: none;
+    border-bottom: 2px solid #64748b;
+    background: transparent;
+    border-radius: 0;
+    padding: 10px 0;
+    width: 100%;
+  }
+  .figma-input:focus {
+    border-bottom-color: #6b46c1;
+  }
+  .figma-input[aria-invalid='true'] {
+    border-bottom-color: #be123c;
+  }
+  .box-input {
+    width: 100%;
+    padding: 0.625rem;
+    background: #f8fafc;
+    border: 1px solid #64748b;
+    border-radius: 0.75rem;
+    color: #0f172a;
+  }
+  .box-input[aria-invalid='true'] {
+    border-color: #be123c;
+  }
+  .field-label {
+    display: block;
+    margin-bottom: 0.25rem;
+    font-size: 0.875rem;
+    line-height: 1.25rem;
+    font-weight: 700;
+    color: #1e293b;
+  }
+  .field-hint {
+    margin-top: 0.25rem;
+    font-size: 0.875rem;
+    line-height: 1.25rem;
+    color: #475569;
+  }
+  .field-error,
+  .form-error {
+    font-size: 0.875rem;
+    line-height: 1.25rem;
+    font-weight: 600;
+    color: #9f1239;
+  }
+  .field-error {
+    margin-top: 0.25rem;
+  }
+  .form-error {
+    padding: 0.625rem 0.75rem;
+    background: #fff1f2;
+    border: 1px solid #fda4af;
+    border-radius: 0.75rem;
+  }
+  /* Link que cobre o cartão inteiro, mantendo o título como título de verdade. */
+  .card-link {
+    outline: none;
+  }
+  .card-link::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+  }
+  .card-link:focus-visible::after {
+    outline: 3px solid #6b46c1;
+    outline-offset: 2px;
+  }
+  .article-body p {
+    margin-bottom: 0.75rem;
+  }
+  .on-dark :focus-visible {
+    outline-color: #fff;
+  }
+  /* Menu lateral alinhado à coluna do app. */
+  .drawer {
+    position: fixed;
+    inset: 0 auto 0 0;
+    margin: 0;
+    width: min(280px, 80vw);
+    max-width: none;
+    height: auto;
+    max-height: none;
+    padding: 0;
+    background: #fff;
+    box-shadow: 0 25px 50px -12px rgb(0 0 0 / 0.25);
+  }
+  .drawer[open] {
+    animation: drawer-in 0.2s ease-out;
+  }
+  @media (min-width: 768px) {
+    .drawer {
+      left: calc(50% - 14rem + 4px);
+      top: max(calc(1rem + 4px), calc(50% - 418px));
+      bottom: max(calc(1rem + 4px), calc(50% - 418px));
+      border-radius: 36px 0 0 36px;
+    }
+    .drawer[open] {
+      animation: none;
+    }
+  }
+}
+
+.spinner {
+  width: 3rem;
+  height: 3rem;
+  border: 4px solid #e9d5ff;
+  border-top-color: #6b46c1;
+  border-radius: 9999px;
+  animation: spin 1s linear infinite;
+}
+.animate-logo-reveal {
+  animation: logoReveal 0.5s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+@keyframes logoReveal {
+  0% { opacity: 0; transform: translateY(15px) scale(0.9); }
+  100% { opacity: 1; transform: translateY(0) scale(1); }
+}
+@keyframes drawer-in {
+  from { transform: translateX(-100%); }
+  to { transform: translateX(0); }
+}
+
+/* Modo de leitura com a fonte OpenDyslexic: os ícones continuam com a própria fonte. */
+body.dyslexia-mode,
+body.dyslexia-mode *:not(i):not([class*='fa-']) {
+  font-family: 'OpenDyslexic', 'Inter', sans-serif !important;
+  letter-spacing: 0.04em;
+  word-spacing: 0.08em;
+}
+body.dyslexia-mode p,
+body.dyslexia-mode span,
+body.dyslexia-mode h1,
+body.dyslexia-mode h2,
+body.dyslexia-mode h3,
+body.dyslexia-mode a,
+body.dyslexia-mode button,
+body.dyslexia-mode input,
+body.dyslexia-mode select,
+body.dyslexia-mode textarea,
+body.dyslexia-mode li {
+  line-height: 1.7;
+}
+/* A barra inferior precisa caber em celulares estreitos mesmo com a fonte mais larga. */
+body.dyslexia-mode #mainFooter a span {
+  letter-spacing: 0;
+  word-spacing: 0;
+  font-size: 0.8125rem;
+}
+@media (max-width: 374px) {
+  body.dyslexia-mode #mainFooter a span {
+    font-size: 0.75rem;
+  }
+}
+
+/* Com zoom alto ou celular deitado, a página inteira rola e as barras não tomam a tela. */
+@media (max-height: 520px) {
+  html,
+  body {
+    height: auto;
+  }
+  body {
+    align-items: flex-start;
+  }
+  #appShell {
+    height: auto !important;
+    min-height: 100dvh;
+    overflow: visible;
+  }
+  #mainContent {
+    flex: none;
+    overflow: visible;
+  }
+  .drawer {
+    overflow-y: auto;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
