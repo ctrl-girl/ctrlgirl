@@ -1,7 +1,8 @@
 const { test, before, after, describe } = require('node:test');
 const assert = require('node:assert/strict');
-const { execSync, spawnSync } = require('node:child_process');
+const { execSync, spawn, spawnSync } = require('node:child_process');
 const fs = require('node:fs');
+const net = require('node:net');
 const path = require('node:path');
 const jwt = require('jsonwebtoken');
 
@@ -103,8 +104,8 @@ describe('arquivos públicos (C2)', () => {
 
 describe('configuração do servidor (C1)', () => {
   test('não sobe sem JWT_SECRET', () => {
-    const env = { ...process.env, PORT: '0' };
-    delete env.JWT_SECRET;
+    // Vazio, e não ausente: o cliente do Prisma carregaria o .env local, se ele existir, por cima de uma variável ausente.
+    const env = { ...process.env, PORT: '0', JWT_SECRET: '' };
     const result = spawnSync(process.execPath, [path.join(ROOT, 'server.js')], { env, cwd: TMP, timeout: 8000, encoding: 'utf8' });
     assert.equal(result.status, 1);
     assert.match(result.stderr, /JWT_SECRET/);
@@ -114,6 +115,66 @@ describe('configuração do servidor (C1)', () => {
     const env = { ...process.env, PORT: '0', JWT_SECRET: 'curto' };
     const result = spawnSync(process.execPath, [path.join(ROOT, 'server.js')], { env, cwd: TMP, timeout: 8000, encoding: 'utf8' });
     assert.equal(result.status, 1);
+  });
+
+  test('sobe de verdade e responde, com a atualização automática desligada', async () => {
+    const free = await new Promise((resolve) => {
+      const probe = net.createServer().listen(0, '127.0.0.1', () => {
+        const { port } = probe.address();
+        probe.close(() => resolve(port));
+      });
+    });
+    const env = { ...process.env, PORT: String(free), JWT_SECRET, RESULTS_SYNC_MINUTES: '0' };
+    const child = spawn(process.execPath, [path.join(ROOT, 'server.js')], { env, cwd: TMP, stdio: ['ignore', 'pipe', 'pipe'] });
+    try {
+      await new Promise((resolve, reject) => {
+        const limit = setTimeout(() => reject(new Error('o servidor não subiu a tempo')), 20000);
+        child.stdout.on('data', (data) => {
+          if (String(data).includes(`porta ${free}`)) {
+            clearTimeout(limit);
+            resolve();
+          }
+        });
+        child.once('exit', (code) => {
+          clearTimeout(limit);
+          reject(new Error(`o servidor saiu com código ${code}`));
+        });
+      });
+      const response = await call('GET', '/api/jogos/atualizacao', { base: `http://127.0.0.1:${free}` });
+      assert.equal(response.status, 200, response.text);
+      assert.deepEqual(response.body, { updatedAt: null, games: [] });
+    } finally {
+      child.removeAllListeners('exit');
+      child.kill();
+    }
+  });
+
+  test('com a porta ocupada, avisa e sai com erro, sem fingir que subiu', async () => {
+    // Sem endereço, como o servidor: ocupar só 127.0.0.1 não impediria o outro processo de escutar.
+    const blocker = net.createServer();
+    await new Promise((resolve) => { blocker.listen(0, resolve); });
+    const busy = String(blocker.address().port);
+    const env = { ...process.env, PORT: busy, JWT_SECRET, RESULTS_SYNC_MINUTES: '0' };
+    const child = spawn(process.execPath, [path.join(ROOT, 'server.js')], { env, cwd: TMP, stdio: ['ignore', 'pipe', 'pipe'] });
+    let stdout = '';
+    let stderr = '';
+    child.stdout.on('data', (data) => { stdout += data; });
+    child.stderr.on('data', (data) => { stderr += data; });
+    try {
+      const code = await new Promise((resolve, reject) => {
+        const limit = setTimeout(() => reject(new Error(`o servidor não saiu a tempo: ${stdout}`)), 20000);
+        child.once('exit', (exitCode) => {
+          clearTimeout(limit);
+          resolve(exitCode);
+        });
+      });
+      assert.equal(code, 1, stdout);
+      assert.doesNotMatch(stdout, /rodando na porta/);
+      assert.match(stderr, new RegExp(busy));
+    } finally {
+      child.kill();
+      blocker.close();
+    }
   });
 
   test('recusa token assinado com outro segredo', async () => {
@@ -551,6 +612,60 @@ describe('jogos (A2, US14)', () => {
     const { token } = await register();
     assert.equal((await call('POST', '/api/jogos/nao-existe/lembrete', { token })).status, 404);
   });
+
+  test('jogo ao vivo vem antes dos resultados, com o placar', async () => {
+    const live = await prisma.match.create({
+      data: { tournament: 'VCT Américas', date: new Date('2019-01-01T20:00:00Z'), teamA: 'G', teamB: 'H', scoreA: 1, scoreB: 0, status: 'LIVE', externalId: 'teste:ao-vivo', syncedAt: new Date() },
+    });
+    const response = await call('GET', '/api/jogos/resultados');
+    await prisma.match.delete({ where: { id: live.id } });
+    assert.equal(response.body[0].id, live.id);
+    assert.equal(response.body[0].scoreA, 1);
+  });
+
+  test('jogo ao vivo que a fonte parou de confirmar não aparece como ao vivo', async () => {
+    const stale = await prisma.match.create({
+      data: { tournament: 'VCT Américas', date: new Date(), teamA: 'I', teamB: 'J', scoreA: 1, scoreB: 0, status: 'LIVE', externalId: 'teste:parado', syncedAt: new Date(Date.now() - 31 * 60 * 1000) },
+    });
+    const response = await call('GET', '/api/jogos/resultados');
+    await prisma.match.delete({ where: { id: stale.id } });
+    assert.equal(response.body.some((match) => match.id === stale.id), false);
+  });
+
+  test('jogo cancelado sai das duas listas', async () => {
+    const canceled = await prisma.match.create({
+      data: { tournament: 'CBLOL 2099', date: new Date('2099-01-02T20:00:00Z'), teamA: 'K', teamB: 'L', status: 'CANCELED', externalId: 'teste:cancelado' },
+    });
+    const upcoming = await call('GET', '/api/jogos/proximos');
+    const results = await call('GET', '/api/jogos/resultados');
+    await prisma.match.delete({ where: { id: canceled.id } });
+    assert.equal(upcoming.body.some((match) => match.id === canceled.id), false);
+    assert.equal(results.body.some((match) => match.id === canceled.id), false);
+  });
+
+  test('próximos jogos têm limite, mesmo com muitos jogos vindos da fonte', async () => {
+    const data = Array.from({ length: 205 }, (_, index) => ({
+      tournament: 'Limite', date: new Date(Date.UTC(2098, 0, 1, 0, index)), teamA: 'M', teamB: 'N', status: 'UPCOMING',
+    }));
+    await prisma.match.createMany({ data });
+    const response = await call('GET', '/api/jogos/proximos');
+    await prisma.match.deleteMany({ where: { tournament: 'Limite' } });
+    assert.equal(response.status, 200, response.text);
+    assert.ok(response.body.length <= 200, `${response.body.length} jogos`);
+  });
+
+  test('sem sincronização, a atualização responde vazia', async () => {
+    const response = await call('GET', '/api/jogos/atualizacao');
+    assert.equal(response.status, 200, response.text);
+    assert.deepEqual(response.body, { updatedAt: null, games: [] });
+  });
+
+  test('informa quando os resultados foram atualizados', async () => {
+    const base = await listen({ matchSync: { status: () => ({ updatedAt: new Date('2026-11-01T12:00:00Z'), games: ['VALORANT'] }) } });
+    const response = await call('GET', '/api/jogos/atualizacao', { base });
+    assert.deepEqual(response.body, { updatedAt: '2026-11-01T12:00:00.000Z', games: ['VALORANT'] });
+    assert.match(response.headers.get('cache-control'), /no-store/);
+  });
 });
 
 describe('matérias (US7)', () => {
@@ -703,5 +818,8 @@ describe('carga inicial (C4)', () => {
     assert.ok(topics > 0);
     const results = await call('GET', '/api/jogos/resultados');
     assert.ok(results.body.some((match) => match.teamA === 'LOS' && match.scoreA === 3));
+    // Conferido com a PandaScore: a FURIA venceu a final inferior e foi à Grande Final.
+    const lowerFinal = await prisma.match.findUnique({ where: { id: 'cblol-2026-final-inferior' } });
+    assert.deepEqual([lowerFinal.scoreA, lowerFinal.scoreB], [0, 3]);
   });
 });

@@ -99,6 +99,52 @@ describe('busca e filtros (US6, US8, US24)', () => {
     const results = [{ tournament: 'CBLOL' }, { tournament: 'CBLOL' }, { tournament: 'VCT Américas' }, { tournament: 'VALORANT Champions 2026' }];
     assert.equal(summarizeResults(results), '2 CBLOL, 1 VCT Américas, 1 VALORANT Champions 2026');
   });
+
+  test('Game Changers e Masters contam como Valorant', async () => {
+    const { gameOfTournament } = await logic();
+    assert.equal(gameOfTournament('Game Changers 2026'), 'valorant');
+    assert.equal(gameOfTournament('VALORANT Masters London 2026'), 'valorant');
+    assert.equal(gameOfTournament('Worlds 2026'), 'lol');
+  });
+});
+
+describe('aviso de atualização dos resultados', () => {
+  const NOW = new Date('2026-11-01T18:00:00Z');
+
+  test('sem atualização confirmada, não afirma nada', async () => {
+    const { resultsUpdatedLabel } = await logic();
+    assert.equal(resultsUpdatedLabel({ updatedAt: null, games: [] }, NOW), '');
+    assert.equal(resultsUpdatedLabel(null, NOW), '');
+  });
+
+  test('no mesmo dia mostra só a hora, no fuso de Brasília', async () => {
+    const { resultsUpdatedLabel } = await logic();
+    assert.equal(resultsUpdatedLabel({ updatedAt: '2026-11-01T17:32:00Z', games: ['VALORANT'] }, NOW), 'VALORANT atualizado às 14:32');
+  });
+
+  test('em outro dia mostra a data, para não parecer atual', async () => {
+    const { resultsUpdatedLabel } = await logic();
+    assert.equal(resultsUpdatedLabel({ updatedAt: '2026-10-30T17:32:00Z', games: ['VALORANT'] }, NOW), 'VALORANT atualizado em 30/10 às 14:32');
+  });
+
+  test('com os dois jogos, concorda no plural', async () => {
+    const { resultsUpdatedLabel } = await logic();
+    const label = resultsUpdatedLabel({ updatedAt: '2026-11-01T17:32:00Z', games: ['League of Legends', 'VALORANT'] }, NOW);
+    assert.equal(label, 'League of Legends e VALORANT atualizados às 14:32');
+  });
+
+  test('a lista só é redesenhada quando muda algo que aparece no cartão', async () => {
+    const { resultsKey } = await logic();
+    const match = { id: 'a', status: 'LIVE', tournament: 'VCT Américas', stage: 'Final', date: '2026-11-01T18:00:00Z', teamA: 'LOUD', teamB: 'NRG', scoreA: 1, scoreB: 0, syncedAt: '2026-11-01T18:00:00Z' };
+    assert.equal(resultsKey([match]), resultsKey([{ ...match, syncedAt: '2026-11-01T18:05:00Z' }]));
+    assert.notEqual(resultsKey([match]), resultsKey([{ ...match, scoreB: 1 }]));
+    assert.notEqual(resultsKey([match]), resultsKey([{ ...match, status: 'FINISHED' }]));
+    assert.notEqual(resultsKey([match]), resultsKey([]));
+  });
+
+  test('a tela inicial tem onde mostrar o aviso', () => {
+    assert.match(read('public/index.html'), /id="resultsUpdated"/);
+  });
 });
 
 describe('rotas (US11)', () => {
@@ -256,5 +302,16 @@ describe('repositório (C3, M6, M8)', () => {
     assert.match(example, /JWT_SECRET=/);
     assert.match(example, /DATABASE_URL=/);
     assert.doesNotMatch(example, /@gmail\.com/);
+  });
+
+  test('o token dos resultados fica fora do repositório', () => {
+    assert.match(read('.env.example'), /^PANDASCORE_TOKEN=""$/m);
+    assert.match(read('.env.example'), /^RESULTS_SYNC_MINUTES=""$/m);
+  });
+
+  test('a busca de resultados roda só no servidor: o navegador não fala com as fontes', () => {
+    for (const file of ['public/index.html', 'public/js/app.mjs', 'public/js/api.mjs', 'public/js/logic.mjs']) {
+      assert.doesNotMatch(read(file), /pandascore\.co|orlandomm\.net/, file);
+    }
   });
 });

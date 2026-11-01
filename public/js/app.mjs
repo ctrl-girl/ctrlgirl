@@ -7,6 +7,8 @@ import {
   searchContent,
   filterByTournament,
   summarizeResults,
+  resultsKey,
+  resultsUpdatedLabel,
   gameOfTournament,
   formatDate,
   formatBirthDate,
@@ -21,6 +23,8 @@ import {
 const GUEST_KEY = 'ctrlgirl_guest';
 const DYSLEXIA_KEY = 'ctrlgirl_dyslexia_font';
 const MAX_AVATAR_SIZE = 256;
+const RESULTS_REFRESH_MS = 60 * 1000;
+const RESULTS_FIRST_SYNC_WAIT_MS = 10 * 1000;
 
 const VIEWS = {
   auth: { id: 'viewAuth', title: 'Entrar' },
@@ -44,6 +48,7 @@ const FILTERS = {
       { value: 'Worlds', label: 'Worlds', active: 'bg-indigo-700' },
       { value: 'VCT', label: 'VCT Américas', active: 'bg-sky-700' },
       { value: 'VALORANT Champions', label: 'VALORANT Champions', active: 'bg-pink-700' },
+      { value: 'Game Changers', label: 'Game Changers', active: 'bg-fuchsia-700' },
     ],
   },
   forum: {
@@ -72,6 +77,7 @@ const state = {
   returnTo: null,
   filters: { match: 'all', forum: 'all', search: 'all' },
   results: [],
+  resultsSync: null,
   matches: [],
   topics: [],
   stats: {},
@@ -340,12 +346,18 @@ function resultCard(match) {
   const family = gameOfTournament(match.tournament) === 'valorant'
     ? { badge: 'bg-sky-950/90 text-sky-100 border border-sky-700/80', border: 'border-l-4 border-l-sky-500' }
     : { badge: 'bg-purple-950/90 text-purple-100 border border-purple-700/80', border: 'border-l-4 border-l-brand-purple' };
-  const teamColor = (mine, other) => (mine > other ? 'text-emerald-300 font-extrabold' : 'text-slate-200 font-semibold');
+  const isLive = match.status === 'LIVE';
+  // Enquanto o jogo não acaba, quem está na frente ainda não ganhou.
+  const teamColor = (mine, other) => (!isLive && mine > other ? 'text-emerald-300 font-extrabold' : 'text-slate-200 font-semibold');
   return html`
     <article class="shrink-0 w-72 bg-gradient-to-r from-slate-900 via-slate-800 to-slate-900 rounded-xl p-3 border border-slate-700/70 shadow-sm space-y-2.5 ${family.border}">
       <div class="flex items-center justify-between gap-2 text-xs border-b border-slate-800/80 pb-1.5">
         <span class="font-extrabold px-2.5 py-0.5 rounded-full ${family.badge}">${match.tournament}</span>
-        <span class="text-slate-200 font-semibold shrink-0">${formatDate(match.date)}</span>
+        ${isLive ? html`
+          <span class="inline-flex items-center gap-1.5 text-rose-200 font-extrabold shrink-0">
+            <span class="w-2 h-2 rounded-full bg-rose-400 motion-safe:animate-pulse" aria-hidden="true"></span>Ao vivo
+          </span>
+        ` : html`<span class="text-slate-200 font-semibold shrink-0">${formatDate(match.date)}</span>`}
       </div>
       ${match.stage ? html`<p class="text-xs font-bold text-slate-200">${match.stage}</p>` : ''}
       <div class="grid grid-cols-[1fr_auto_1fr] items-center gap-2 bg-slate-950/90 px-3 py-2 rounded-lg border border-slate-800/90 text-sm">
@@ -359,6 +371,24 @@ function resultCard(match) {
   `;
 }
 
+async function loadResults() {
+  // O aviso de atualização é um extra: se falhar, os resultados aparecem do mesmo jeito.
+  const [results, sync] = await Promise.all([api('/jogos/resultados'), api('/jogos/atualizacao').catch(() => null)]);
+  state.results = results;
+  state.resultsSync = sync;
+}
+
+function showResults() {
+  $('resultsSummary').textContent = summarizeResults(state.results);
+  setHtml('resultsContainer', state.results.length
+    ? state.results.map(resultCard)
+    : html`<p class="text-sm text-slate-200 py-6 px-2">Nenhum resultado por enquanto.</p>`);
+}
+
+function showResultsUpdate() {
+  $('resultsUpdated').textContent = resultsUpdatedLabel(state.resultsSync);
+}
+
 async function renderHome() {
   renderHero();
   renderFeed();
@@ -366,14 +396,31 @@ async function renderHome() {
   await loadStats();
   renderFeed();
   try {
-    state.results = await api('/jogos/resultados');
-    $('resultsSummary').textContent = summarizeResults(state.results);
-    setHtml('resultsContainer', state.results.length
-      ? state.results.map(resultCard)
-      : html`<p class="text-sm text-slate-200 py-6 px-2">Nenhum resultado por enquanto.</p>`);
+    await loadResults();
+    showResults();
+    showResultsUpdate();
   } catch (error) {
+    // Lista vazia para a próxima renovação redesenhar e tirar o aviso, mesmo que os resultados sejam os mesmos de antes.
+    state.results = [];
     setHtml('resultsContainer', html`<p class="text-sm text-slate-200 py-6 px-2">${error.message}</p>`);
   }
+  // Servidor recém-acordado: a primeira busca ainda está em andamento, então vale olhar de novo logo.
+  if (!state.resultsSync?.updatedAt) setTimeout(refreshResults, RESULTS_FIRST_SYNC_WAIT_MS);
+}
+
+// Com a tela inicial aberta, o placar anda sozinho. Só redesenha o que mudou,
+// para não atrapalhar quem está rolando a lista ou usando leitor de tela.
+async function refreshResults() {
+  if (state.route?.view !== 'home' || document.hidden) return;
+  const before = resultsKey(state.results);
+  try {
+    await loadResults();
+  } catch {
+    // Sem conexão: continua mostrando o último placar, e a próxima rodada tenta de novo.
+    return;
+  }
+  if (resultsKey(state.results) !== before) showResults();
+  showResultsUpdate();
 }
 
 // ---------- Jogos ----------
@@ -1093,6 +1140,8 @@ async function boot() {
   document.addEventListener('change', onChange);
   document.addEventListener('error', onImageError, true);
   window.addEventListener('hashchange', route);
+  document.addEventListener('visibilitychange', refreshResults);
+  setInterval(refreshResults, RESULTS_REFRESH_MS);
   $('sideDrawer').addEventListener('close', () => $('btnOpenMenu').setAttribute('aria-expanded', 'false'));
 
   $('regBirthDate').max = maxBirthDate();

@@ -70,7 +70,7 @@ const normalize = (text) => String(text ?? '').normalize('NFD').replace(/\p{M}/g
 
 export function gameOfTournament(tournament) {
   const name = normalize(tournament);
-  if (/vct|valorant/.test(name)) return 'valorant';
+  if (/vct|valorant|game changers/.test(name)) return 'valorant';
   return 'lol';
 }
 
@@ -95,6 +95,13 @@ export function summarizeResults(results) {
   const counts = new Map();
   results.forEach(({ tournament }) => counts.set(tournament, (counts.get(tournament) ?? 0) + 1));
   return [...counts].map(([name, count]) => `${count} ${name}`).join(', ');
+}
+
+// O que aparece no cartão. A data da última busca muda toda rodada, mesmo sem novidade, e fica de fora.
+export function resultsKey(results) {
+  return JSON.stringify(results.map(({ id, status, tournament, stage, date, teamA, teamB, scoreA, scoreB }) => (
+    [id, status, tournament, stage, date, teamA, teamB, scoreA, scoreB]
+  )));
 }
 
 // ---------- Datas ----------
@@ -124,6 +131,14 @@ export function formatMatchDate(value) {
 export function formatDateTime(value) {
   const { hour, minute } = dateParts(value, { hour: '2-digit', minute: '2-digit', hourCycle: 'h23' });
   return `${formatDate(value)} às ${hour}:${minute}`;
+}
+
+// Sem atualização confirmada, não diz nada. Em outro dia, leva a data, para não parecer atual.
+export function resultsUpdatedLabel(sync, now = new Date()) {
+  if (!sync?.updatedAt || !sync.games?.length) return '';
+  const { day, month, hour, minute } = dateParts(sync.updatedAt, { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit', hourCycle: 'h23' });
+  const when = formatDate(sync.updatedAt) === formatDate(now) ? `às ${hour}:${minute}` : `em ${day}/${month} às ${hour}:${minute}`;
+  return `${sync.games.join(' e ')} ${sync.games.length > 1 ? 'atualizados' : 'atualizado'} ${when}`;
 }
 
 // Data mais recente que permite o cadastro: hoje, 16 anos atrás.

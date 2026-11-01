@@ -6,11 +6,12 @@ const bcrypt = require('bcryptjs');
 const MIN_ADMIN_PASSWORD = 12;
 const TEAM_NICKNAME = 'EquipeCTRLGIRL';
 
-// Para adicionar jogos novos, inclua-os aqui com um id próprio e reinicie o servidor.
+// Os jogos chegam sozinhos pelas fontes de matchSources.js. Aqui fica o que elas não cobrem:
+// inclua o jogo com um id próprio e reinicie o servidor.
 const MATCHES = [
   { id: 'cblol-2026-grande-final', tournament: 'CBLOL', stage: 'Grande Final', date: '2026-10-10T13:00:00-03:00', teamA: 'LOS', teamB: 'FURIA', scoreA: 3, scoreB: 2, status: 'FINISHED' },
   { id: 'champions-2026-playoffs-nrg', tournament: 'VALORANT Champions 2026', stage: 'Playoffs', date: '2026-10-10T12:00:00-03:00', teamA: 'LOUD', teamB: 'NRG', scoreA: 2, scoreB: 1, status: 'FINISHED' },
-  { id: 'cblol-2026-final-inferior', tournament: 'CBLOL', stage: 'Final da Chave Inferior', date: '2026-10-03T12:00:00-03:00', teamA: 'LOUD', teamB: 'FURIA', scoreA: 3, scoreB: 0, status: 'FINISHED' },
+  { id: 'cblol-2026-final-inferior', tournament: 'CBLOL', stage: 'Final da Chave Inferior', date: '2026-10-03T12:00:00-03:00', teamA: 'LOUD', teamB: 'FURIA', scoreA: 0, scoreB: 3, status: 'FINISHED' },
   { id: 'cblol-2026-final-superior', tournament: 'CBLOL', stage: 'Final da Chave Superior', date: '2026-09-27T12:00:00-03:00', teamA: 'LOUD', teamB: 'LOS', scoreA: 2, scoreB: 3, status: 'FINISHED' },
   { id: 'vct-americas-2026-final', tournament: 'VCT Américas', stage: 'Final', date: '2026-09-06T14:00:00-03:00', teamA: '100Thieves', teamB: 'LOUD', scoreA: 3, scoreB: 2, status: 'FINISHED' },
   { id: 'vct-americas-2026-playoffs', tournament: 'VCT Américas', stage: 'Playoffs', date: '2026-09-05T12:00:00-03:00', teamA: 'LOUD', teamB: 'NRG', scoreA: 3, scoreB: 2, status: 'FINISHED' },

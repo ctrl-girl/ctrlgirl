@@ -28,10 +28,12 @@ const INVALID_LOGIN_MESSAGE = 'E-mail, nickname ou senha incorretos.';
 const WRONG_PASSWORD_MESSAGE = 'A senha atual não confere.';
 const PUBLIC_AUTHOR = { select: { nickname: true } };
 const MAX_LIST_ITEMS = 200;
+// Passado disso sem a fonte confirmar, o jogo deixa de aparecer como ao vivo: é melhor sumir do que afirmar errado.
+const LIVE_CONFIRMATION_MS = 30 * 60 * 1000;
 // Comparar com este hash quando a conta não existe evita revelar, pelo tempo de resposta, quais contas existem.
 const DUMMY_HASH = bcrypt.hashSync('conta-inexistente', 10);
 
-function createApp({ prisma, jwtSecret, jwtExpiresIn = '1d', corsOrigins = [], rateLimits = {}, trustProxyHops = 1 }) {
+function createApp({ prisma, jwtSecret, jwtExpiresIn = '1d', corsOrigins = [], rateLimits = {}, trustProxyHops = 1, matchSync = null }) {
   const limits = { login: 10, register: 30, write: 30, password: 5, ...rateLimits };
   const app = express();
 
@@ -275,15 +277,25 @@ function createApp({ prisma, jwtSecret, jwtExpiresIn = '1d', corsOrigins = [], r
     const matches = await prisma.match.findMany({
       where,
       orderBy: { date: 'asc' },
+      take: MAX_LIST_ITEMS,
       include: { reminders: req.user ? { where: { userId: req.user.id } } : false },
     });
     return res.json(matches.map(({ reminders, ...match }) => ({ ...match, hasReminder: Boolean(reminders?.length) })));
   });
 
   app.get('/api/jogos/resultados', async (req, res) => {
-    const results = await prisma.match.findMany({ where: { status: 'FINISHED' }, orderBy: { date: 'desc' }, take: 15 });
-    return res.json(results);
+    const [live, finished] = await Promise.all([
+      prisma.match.findMany({
+        where: { status: 'LIVE', syncedAt: { gte: new Date(Date.now() - LIVE_CONFIRMATION_MS) } },
+        orderBy: { date: 'desc' },
+        take: 15,
+      }),
+      prisma.match.findMany({ where: { status: 'FINISHED' }, orderBy: { date: 'desc' }, take: 15 }),
+    ]);
+    return res.json([...live, ...finished]);
   });
+
+  app.get('/api/jogos/atualizacao', (req, res) => res.json(matchSync ? matchSync.status() : { updatedAt: null, games: [] }));
 
   app.post('/api/jogos/:id/lembrete', verifyAuth, writeLimiter, async (req, res) => {
     const matchId = req.params.id;

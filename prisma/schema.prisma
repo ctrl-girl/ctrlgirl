@@ -42,6 +42,8 @@ model Match {
   scoreA     Int?
   scoreB     Int?
   status     String   @default("UPCOMING")
+  externalId String?  @unique
+  syncedAt   DateTime?
   createdAt  DateTime @default(now())
 
   reminders MatchReminder[]

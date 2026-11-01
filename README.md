@@ -36,6 +36,8 @@ O `npm start` aplica as migrações, carrega os dados iniciais e inicia o servid
 | `ADMIN_EMAIL` e `ADMIN_PASSWORD` | Não | Criam a conta `SUPER_ADMIN` ao iniciar. A senha precisa de pelo menos 12 caracteres e vale só na criação: depois, troque-a em Perfil > Editar perfil. |
 | `CORS_ORIGINS` | Não | Outras origens que podem chamar a API, separadas por vírgula. |
 | `TRUST_PROXY_HOPS` | Não | Quantos proxies ficam à frente do app, para os limites por IP. O padrão é 1. |
+| `PANDASCORE_TOKEN` | Não | Liga a atualização automática de League of Legends. Sem ele, só VALORANT se atualiza. |
+| `RESULTS_SYNC_MINUTES` | Não | De quantos em quantos minutos buscar os resultados, de 1 a 15. O padrão é 5, e `0` desliga. |
 | `PORT` | Não | Porta do servidor. A hospedagem costuma definir sozinha. |
 
 O arquivo `.env` nunca vai para o Git.
@@ -54,6 +56,27 @@ curl -I https://SEU-APP.onrender.com/prisma/dev.db
 ```
 
 5. Se pessoas diferentes receberem o aviso de muitas tentativas ao entrar ou se cadastrar, elas podem estar dividindo o mesmo IP. O Render não documenta quantos proxies ficam à frente do app: ajuste `TRUST_PROXY_HOPS` aos poucos. Um valor acima do real permite falsificar o IP.
+
+6. Para League of Legends se atualizar sozinho, defina também `PANDASCORE_TOKEN` em **Environment**.
+
+## Resultados automáticos
+
+O servidor busca os jogos a cada 5 minutos e grava no banco. O navegador só fala com a API do próprio app, e a tela inicial renova o placar a cada minuto.
+
+| Jogo | Fonte | O que precisa |
+| --- | --- | --- |
+| VALORANT | [vlresports](https://github.com/Orloxx23/vlresports), projeto aberto que lê o vlr.gg | Nada |
+| League of Legends | [PandaScore](https://developers.pandascore.co), plano gratuito | `PANDASCORE_TOKEN` |
+
+Para ter o token, crie uma conta em [app.pandascore.co](https://app.pandascore.co) e copie o valor do painel. Ele é privado: fica no `.env` ou no painel da hospedagem, nunca no front nem no Git.
+
+Os torneios acompanhados estão em `VLR_TOURNAMENTS` e `LOL_LEAGUES`, em `matchSources.js`: CBLOL, Worlds, VCT Américas, Masters, Champions e Game Changers do Brasil e das Américas, além do Championship.
+
+Se uma fonte sair do ar, nada é apagado: a tela continua com os últimos dados e mostra a hora da última atualização. Um jogo só aparece como ao vivo enquanto a fonte confirma, no máximo 30 minutos depois da última confirmação.
+
+Na lista de resultados, o vlresports só informa há quanto tempo foi cada jogo, como "1mo". Por isso a data vem da rota de detalhe, uma busca por jogo novo, e são guardados no máximo os 15 mais recentes por rodada. O vlresports limita a 30 chamadas por minuto, e a primeira rodada usa cerca de 20.
+
+O vlresports é um projeto de terceiros, sem garantia de continuar no ar e sem termos de uso publicados. Se ele parar, a PandaScore também tem VALORANT (`/valorant/matches`), no mesmo formato.
 
 ## Testes
 
@@ -76,7 +99,8 @@ Ao publicar uma mudança no front, altere também `public/sw.js`, por exemplo o 
 ## Conteúdo
 
 - **Matérias:** `public/js/data.mjs`.
-- **Jogos e resultados:** `prisma/seed.js`. Inclua jogos novos ali, com um `id` próprio, e reinicie o servidor. Jogos com data passada não aparecem em Próximos jogos.
+- **Jogos e resultados:** vêm das fontes acima. Use `prisma/seed.js` para o que as fontes não cobrem: inclua o jogo ali, com um `id` próprio, e reinicie o servidor. Jogos com data passada não aparecem em Próximos jogos.
+- **Jogo cadastrado à mão que também está na fonte:** a fonte assume a linha em vez de duplicar, desde que o torneio e os times sejam os mesmos e a diferença de horário seja de até 18 horas. A exceção é o jogo que a fonte já listava como "A definir" antes de você cadastrar: ele fica duplicado, e basta tirar o seu do `seed.js`.
 
 ## Estrutura
 
@@ -84,6 +108,8 @@ Ao publicar uma mudança no front, altere também `public/sw.js`, por exemplo o 
 app.js              rotas da API e proteções
 server.js           início do servidor e leitura do ambiente
 validation.js       regras de validação
+matchSources.js     fontes externas de jogos
+matchSync.js        atualização automática dos jogos
 prisma/             schema, migrações e carga inicial
 public/             tudo o que é servido ao navegador
 src/styles.css      origem do CSS
