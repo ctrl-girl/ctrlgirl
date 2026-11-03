@@ -61,7 +61,7 @@ curl -I https://SEU-APP.onrender.com/prisma/dev.db
 
 ## Resultados automáticos
 
-O servidor busca os jogos a cada 5 minutos e grava no banco. O navegador só fala com a API do próprio app, e a tela inicial renova o placar a cada minuto.
+O servidor busca os jogos a cada 5 minutos e grava no banco. O navegador só fala com a API do próprio app, e a tela inicial renova o placar a cada minuto. Um botão ao lado da hora da última atualização pausa essa renovação (WCAG 2.2.2), e a escolha fica guardada no navegador.
 
 | Jogo | Fonte | O que precisa |
 | --- | --- | --- |

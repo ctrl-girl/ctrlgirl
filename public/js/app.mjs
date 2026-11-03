@@ -9,6 +9,8 @@ import {
   summarizeResults,
   resultsKey,
   resultsUpdatedLabel,
+  resultsPausedLabel,
+  shouldRefreshResults,
   gameOfTournament,
   formatDate,
   formatBirthDate,
@@ -22,6 +24,7 @@ import {
 
 const GUEST_KEY = 'ctrlgirl_guest';
 const DYSLEXIA_KEY = 'ctrlgirl_dyslexia_font';
+const RESULTS_PAUSED_KEY = 'ctrlgirl_results_paused';
 const MAX_AVATAR_SIZE = 256;
 const RESULTS_REFRESH_MS = 60 * 1000;
 const RESULTS_FIRST_SYNC_WAIT_MS = 10 * 1000;
@@ -78,6 +81,7 @@ const state = {
   filters: { match: 'all', forum: 'all', search: 'all' },
   results: [],
   resultsSync: null,
+  resultsPaused: false,
   matches: [],
   topics: [],
   stats: {},
@@ -355,7 +359,7 @@ function resultCard(match) {
         <span class="font-extrabold px-2.5 py-0.5 rounded-full ${family.badge}">${match.tournament}</span>
         ${isLive ? html`
           <span class="inline-flex items-center gap-1.5 text-rose-200 font-extrabold shrink-0">
-            <span class="w-2 h-2 rounded-full bg-rose-400 motion-safe:animate-pulse" aria-hidden="true"></span>Ao vivo
+            <span class="w-2 h-2 rounded-full bg-rose-400 motion-safe:animate-pulse group-data-[paused]:animate-none" aria-hidden="true"></span>Ao vivo
           </span>
         ` : html`<span class="text-slate-200 font-semibold shrink-0">${formatDate(match.date)}</span>`}
       </div>
@@ -373,9 +377,8 @@ function resultCard(match) {
 
 async function loadResults() {
   // O aviso de atualização é um extra: se falhar, os resultados aparecem do mesmo jeito.
-  const [results, sync] = await Promise.all([api('/jogos/resultados'), api('/jogos/atualizacao').catch(() => null)]);
-  state.results = results;
-  state.resultsSync = sync;
+  const [results, resultsSync] = await Promise.all([api('/jogos/resultados'), api('/jogos/atualizacao').catch(() => null)]);
+  return { results, resultsSync };
 }
 
 function showResults() {
@@ -386,7 +389,16 @@ function showResults() {
 }
 
 function showResultsUpdate() {
-  $('resultsUpdated').textContent = resultsUpdatedLabel(state.resultsSync);
+  $('resultsUpdated').textContent = state.resultsPaused ? resultsPausedLabel(state.resultsSync) : resultsUpdatedLabel(state.resultsSync);
+}
+
+// Pausar não redesenha nada: os cartões ficam onde estão, e só a bolinha do "Ao vivo" para.
+function setResultsPaused(paused) {
+  state.resultsPaused = paused;
+  $('resultsContainer').toggleAttribute('data-paused', paused);
+  $('resultsPauseIcon').className = `fa-solid ${paused ? 'fa-play' : 'fa-pause'}`;
+  $('resultsPauseLabel').textContent = paused ? 'Retomar atualização' : 'Pausar atualização';
+  showResultsUpdate();
 }
 
 async function renderHome() {
@@ -396,7 +408,7 @@ async function renderHome() {
   await loadStats();
   renderFeed();
   try {
-    await loadResults();
+    Object.assign(state, await loadResults());
     showResults();
     showResultsUpdate();
   } catch (error) {
@@ -411,15 +423,19 @@ async function renderHome() {
 // Com a tela inicial aberta, o placar anda sozinho. Só redesenha o que mudou,
 // para não atrapalhar quem está rolando a lista ou usando leitor de tela.
 async function refreshResults() {
-  if (state.route?.view !== 'home' || document.hidden) return;
-  const before = resultsKey(state.results);
+  if (!shouldRefreshResults({ view: state.route?.view, hidden: document.hidden, paused: state.resultsPaused })) return;
+  let fresh;
   try {
-    await loadResults();
+    fresh = await loadResults();
   } catch {
     // Sem conexão: continua mostrando o último placar, e a próxima rodada tenta de novo.
     return;
   }
-  if (resultsKey(state.results) !== before) showResults();
+  // Pausou com a busca a caminho: o que chegou fica de fora, para a tela não mudar depois do clique.
+  if (state.resultsPaused) return;
+  const changed = resultsKey(fresh.results) !== resultsKey(state.results);
+  Object.assign(state, fresh);
+  if (changed) showResults();
   showResultsUpdate();
 }
 
@@ -1048,6 +1064,13 @@ const ACTIONS = {
     const smooth = !window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     $('resultsContainer').scrollBy({ left: Number(element.dataset.direction) * 300, behavior: smooth ? 'smooth' : 'auto' });
   },
+  'toggle-results-pause': () => {
+    const paused = !state.resultsPaused;
+    localStorage.setItem(RESULTS_PAUSED_KEY, String(paused));
+    setResultsPaused(paused);
+    announce(paused ? 'Atualização dos resultados pausada.' : 'Atualização dos resultados retomada.');
+    if (!paused) refreshResults();
+  },
   'add-to-calendar': addToCalendar,
   'new-topic': openNewTopic,
   'cancel-topic': closeNewTopic,
@@ -1150,6 +1173,7 @@ async function boot() {
     $('btnNativeShare').classList.add('flex');
   }
   setDyslexia(localStorage.getItem(DYSLEXIA_KEY) === 'true');
+  setResultsPaused(localStorage.getItem(RESULTS_PAUSED_KEY) === 'true');
 
   await restoreSession();
   updateAccountUi();

@@ -145,6 +145,49 @@ describe('aviso de atualização dos resultados', () => {
   test('a tela inicial tem onde mostrar o aviso', () => {
     assert.match(read('public/index.html'), /id="resultsUpdated"/);
   });
+
+  test('pausada, avisa e mostra de quando são os dados, sempre com a data', async () => {
+    const { resultsPausedLabel } = await logic();
+    assert.equal(resultsPausedLabel({ updatedAt: '2026-11-01T17:32:00Z', games: ['VALORANT'] }), 'Atualização pausada. VALORANT atualizado em 01/11 às 14:32');
+  });
+
+  test('pausada e sem atualização confirmada, só avisa da pausa', async () => {
+    const { resultsPausedLabel } = await logic();
+    assert.equal(resultsPausedLabel({ updatedAt: null, games: [] }), 'Atualização pausada');
+    assert.equal(resultsPausedLabel(null), 'Atualização pausada');
+  });
+
+  test('só renova com a tela inicial aberta, visível e sem pausa (WCAG 2.2.2)', async () => {
+    const { shouldRefreshResults } = await logic();
+    assert.equal(shouldRefreshResults({ view: 'home', hidden: false, paused: false }), true);
+    assert.equal(shouldRefreshResults({ view: 'home', hidden: false, paused: true }), false);
+    assert.equal(shouldRefreshResults({ view: 'home', hidden: true, paused: false }), false);
+    assert.equal(shouldRefreshResults({ view: 'forum', hidden: false, paused: false }), false);
+  });
+
+  test('a tela inicial tem o botão de pausar, com alvo de toque de 44 px (WCAG 2.2.2)', () => {
+    const button = read('public/index.html').match(/<button\b[^>]*data-action="toggle-results-pause"[^>]*>/)?.[0];
+    assert.ok(button, 'sem botão de pausar');
+    assert.match(button, /\bmin-h-11\b/);
+  });
+
+  test('a escolha de pausar continua depois de recarregar', () => {
+    const app = read('public/js/app.mjs');
+    assert.match(app, /localStorage\.setItem\(RESULTS_PAUSED_KEY, String\(paused\)\)/);
+    assert.match(app, /setResultsPaused\(localStorage\.getItem\(RESULTS_PAUSED_KEY\) === 'true'\)/);
+  });
+
+  test('a renovação olha a pausa antes da busca e também depois dela', () => {
+    const refresh = read('public/js/app.mjs').match(/async function refreshResults\(\) \{[\s\S]*?\n\}/)?.[0];
+    assert.ok(refresh, 'sem refreshResults');
+    assert.match(refresh, /shouldRefreshResults\(/);
+    assert.match(refresh, /await loadResults\(\)[\s\S]*if \(state\.resultsPaused\) return;/);
+  });
+
+  test('pausada, a bolinha do selo "Ao vivo" para de piscar', () => {
+    assert.match(read('public/js/app.mjs'), /motion-safe:animate-pulse group-data-\[paused\]:animate-none/);
+    assert.match(read('public/css/app.css'), /group-data-\\\[paused\\\]\\:animate-none/);
+  });
 });
 
 describe('rotas (US11)', () => {

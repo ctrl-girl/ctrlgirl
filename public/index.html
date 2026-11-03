@@ -232,9 +232,15 @@
               <i class="fa-solid fa-trophy text-amber-400" aria-hidden="true"></i> Últimos resultados
             </h2>
             <p id="resultsSummary" class="text-xs text-purple-200 font-semibold"></p>
-            <p id="resultsUpdated" class="text-xs text-slate-200 empty:hidden"></p>
+            <div class="flex flex-wrap items-center justify-between gap-x-3 gap-y-1.5">
+              <p id="resultsUpdated" class="text-xs text-slate-200 empty:hidden"></p>
+              <button type="button" data-action="toggle-results-pause" class="min-h-11 px-3 rounded-full bg-slate-800 text-white text-xs font-bold inline-flex items-center gap-2">
+                <i id="resultsPauseIcon" class="fa-solid fa-pause" aria-hidden="true"></i>
+                <span id="resultsPauseLabel">Pausar atualização</span>
+              </button>
+            </div>
           </div>
-          <div id="resultsContainer" tabindex="0" role="region" aria-label="Últimos resultados das partidas" class="flex gap-3 overflow-x-auto custom-scrollbar pb-2 pt-1"></div>
+          <div id="resultsContainer" tabindex="0" role="region" aria-label="Últimos resultados das partidas" class="group flex gap-3 overflow-x-auto custom-scrollbar pb-2 pt-1"></div>
           <div class="flex justify-end gap-2">
             <button type="button" data-action="scroll-results" data-direction="-1" aria-label="Resultados anteriores" class="w-11 h-11 rounded-full bg-slate-800 text-white flex items-center justify-center"><i class="fa-solid fa-chevron-left" aria-hidden="true"></i></button>
             <button type="button" data-action="scroll-results" data-direction="1" aria-label="Próximos resultados" class="w-11 h-11 rounded-full bg-slate-800 text-white flex items-center justify-center"><i class="fa-solid fa-chevron-right" aria-hidden="true"></i></button>

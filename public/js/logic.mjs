@@ -104,6 +104,11 @@ export function resultsKey(results) {
   )));
 }
 
+// A tela só busca sozinha quando alguém está vendo os resultados e não pediu para parar.
+export function shouldRefreshResults({ view, hidden, paused }) {
+  return view === 'home' && !hidden && !paused;
+}
+
 // ---------- Datas ----------
 function dateParts(value, options) {
   const parts = new Intl.DateTimeFormat('pt-BR', { timeZone: TIME_ZONE, ...options }).formatToParts(new Date(value));
@@ -133,12 +138,23 @@ export function formatDateTime(value) {
   return `${formatDate(value)} às ${hour}:${minute}`;
 }
 
+const hasConfirmedUpdate = (sync) => Boolean(sync?.updatedAt && sync.games?.length);
+
+function updateSentence(sync, withDate) {
+  const { day, month, hour, minute } = dateParts(sync.updatedAt, { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit', hourCycle: 'h23' });
+  const when = withDate ? `em ${day}/${month} às ${hour}:${minute}` : `às ${hour}:${minute}`;
+  return `${sync.games.join(' e ')} ${sync.games.length > 1 ? 'atualizados' : 'atualizado'} ${when}`;
+}
+
 // Sem atualização confirmada, não diz nada. Em outro dia, leva a data, para não parecer atual.
 export function resultsUpdatedLabel(sync, now = new Date()) {
-  if (!sync?.updatedAt || !sync.games?.length) return '';
-  const { day, month, hour, minute } = dateParts(sync.updatedAt, { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit', hourCycle: 'h23' });
-  const when = formatDate(sync.updatedAt) === formatDate(now) ? `às ${hour}:${minute}` : `em ${day}/${month} às ${hour}:${minute}`;
-  return `${sync.games.join(' e ')} ${sync.games.length > 1 ? 'atualizados' : 'atualizado'} ${when}`;
+  if (!hasConfirmedUpdate(sync)) return '';
+  return updateSentence(sync, formatDate(sync.updatedAt) !== formatDate(now));
+}
+
+// Pausada, a tela pode ficar parada de um dia para o outro, então a data vem sempre.
+export function resultsPausedLabel(sync) {
+  return hasConfirmedUpdate(sync) ? `Atualização pausada. ${updateSentence(sync, true)}` : 'Atualização pausada';
 }
 
 // Data mais recente que permite o cadastro: hoje, 16 anos atrás.
