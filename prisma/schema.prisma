@@ -8,15 +8,108 @@ generator client {
 }
 
 model User {
-id        String   @id @default(uuid())
-  name      String
-  nickname  String   @unique
-  email     String   @unique
-  password  String
-  birthDate DateTime
-  gender    String?
-  race      String?
-  city      String?
-  role      String   @default("USER")  // <--- Adiciona esta linha aqui!
+  id              String    @id @default(uuid())
+  name            String
+  nickname        String    @unique
+  email           String    @unique
+  password        String
+  birthDate       DateTime
+  gender          String?
+  race            String?
+  city            String?
+  avatarUrl       String?
+  role            String    @default("USER")
+  tokenVersion    Int       @default(0)
+  termsAcceptedAt DateTime?
+  termsVersion    String?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  topics          ForumTopic[]
+  forumComments   ForumComment[]
+  reminders       MatchReminder[]
+  articleComments ArticleComment[]
+  articleLikes    ArticleLike[]
+}
+
+model Match {
+  id         String   @id @default(uuid())
+  tournament String
+  stage      String?
+  date       DateTime
+  teamA      String
+  teamB      String
+  scoreA     Int?
+  scoreB     Int?
+  status     String   @default("UPCOMING")
+  externalId String?  @unique
+  syncedAt   DateTime?
+  createdAt  DateTime @default(now())
+
+  reminders MatchReminder[]
+
+  @@index([status, date])
+}
+
+model MatchReminder {
+  id        String   @id @default(uuid())
+  userId    String
+  matchId   String
   createdAt DateTime @default(now())
+
+  user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  match Match @relation(fields: [matchId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, matchId])
+}
+
+model ForumTopic {
+  id        String   @id @default(uuid())
+  title     String
+  category  String
+  content   String
+  isADM     Boolean  @default(false)
+  authorId  String
+  createdAt DateTime @default(now())
+
+  author   User           @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  comments ForumComment[]
+
+  @@index([category, createdAt])
+}
+
+model ForumComment {
+  id        String   @id @default(uuid())
+  content   String
+  topicId   String
+  authorId  String
+  createdAt DateTime @default(now())
+
+  topic  ForumTopic @relation(fields: [topicId], references: [id], onDelete: Cascade)
+  author User       @relation(fields: [authorId], references: [id], onDelete: Cascade)
+
+  @@index([topicId, createdAt])
+}
+
+model ArticleComment {
+  id        String   @id @default(uuid())
+  articleId Int
+  content   String
+  authorId  String
+  createdAt DateTime @default(now())
+
+  author User @relation(fields: [authorId], references: [id], onDelete: Cascade)
+
+  @@index([articleId, createdAt])
+}
+
+model ArticleLike {
+  id        String   @id @default(uuid())
+  articleId Int
+  userId    String
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([articleId, userId])
 }

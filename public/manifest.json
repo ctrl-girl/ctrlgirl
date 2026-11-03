@@ -1,0 +1,15 @@
+{
+  "name": "CTRL GIRL - eSports Inclusivo",
+  "short_name": "CTRL GIRL",
+  "description": "Portal de eSports inclusivo, com matérias, jogos e fórum.",
+  "lang": "pt-BR",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#F1F5F9",
+  "theme_color": "#5B21B6",
+  "icons": [
+    { "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" }
+  ]
+}

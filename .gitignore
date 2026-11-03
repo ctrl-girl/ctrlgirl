@@ -1,4 +1,11 @@
 node_modules/
-.env
+.env*
+!.env.example
 *.log
 .DS_Store
+*.db*
+test/.tmp/
+.agents/
+.claude/
+.cursor/
+.devin/

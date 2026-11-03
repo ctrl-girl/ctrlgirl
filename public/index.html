@@ -1,0 +1,897 @@
+<!DOCTYPE html>
+<html lang="pt-BR" class="bg-slate-900">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CTRL GIRL - eSports Inclusivo</title>
+  <meta name="description" content="Portal de eSports inclusivo, com matérias, jogos e fórum da comunidade." />
+  <meta name="theme-color" content="#5B21B6" />
+  <link rel="manifest" href="/manifest.json" />
+  <link rel="icon" type="image/png" href="/icons/icon-192.png" />
+  <link rel="apple-touch-icon" href="/icons/icon-192.png" />
+  <link rel="stylesheet" href="/vendor/fontawesome/css/all.min.css" />
+  <link rel="stylesheet" href="/css/app.css" />
+  <script type="module" src="/js/app.mjs"></script>
+</head>
+<body class="flex items-center justify-center bg-slate-900 md:p-4">
+
+  <a href="#mainContent" data-action="skip-to-content" class="sr-only focus:not-sr-only focus:absolute focus:top-2 focus:left-2 focus:z-50 focus:p-3 focus:bg-brand-purple focus:text-white focus:rounded-lg focus:font-bold focus:shadow-2xl">
+    Pular para o conteúdo principal
+  </a>
+
+  <div id="appShell" class="relative w-full max-w-md h-full md:max-h-[844px] bg-slate-50 md:rounded-[40px] md:border-4 md:border-slate-800 shadow-2xl overflow-hidden flex flex-col">
+
+    <!-- Tela de carregamento: some assim que a sessão é verificada -->
+    <div id="splashScreen" role="status" aria-label="Carregando o aplicativo" class="absolute inset-0 z-50 bg-slate-100 flex flex-col items-center justify-center p-6 transition-opacity duration-300">
+      <div class="flex flex-col items-center text-center space-y-6">
+        <div class="w-36 h-36 bg-purple-100 rounded-full flex items-center justify-center shadow-lg border-4 border-purple-300 overflow-hidden">
+          <img src="/img/mascote.svg" alt="" class="w-full h-full" />
+        </div>
+        <div class="space-y-2 animate-logo-reveal" aria-hidden="true">
+          <p class="flex items-center justify-center text-4xl font-extrabold tracking-wider">
+            <span class="text-brand-pinkVivid">CTRL</span>
+            <span class="text-brand-blue flex items-center ml-1">G<img src="/img/carranca.svg" alt="" class="h-[0.95em] w-auto inline-block mx-0.5 align-middle" />RL</span>
+          </p>
+          <p class="text-slate-700 text-sm font-semibold">O portal de eSports inclusivo</p>
+        </div>
+        <div class="spinner mt-4" aria-hidden="true"></div>
+      </div>
+    </div>
+
+    <!-- Cabeçalho -->
+    <header id="mainHeader" class="hidden bg-white border-b border-slate-200 px-1 py-1 items-center justify-between shrink-0 shadow-sm z-30">
+      <button id="btnOpenMenu" type="button" data-action="open-menu" aria-label="Abrir menu" aria-haspopup="dialog" aria-expanded="false" class="text-slate-700 hover:text-brand-purple w-11 h-11 rounded-lg flex items-center justify-center">
+        <i class="fa-solid fa-bars text-xl" aria-hidden="true"></i>
+      </button>
+
+      <a href="#/inicio" aria-label="CTRL GIRL, ir para o início" class="flex items-center gap-2 rounded-lg p-1 min-h-11">
+        <span class="hidden min-[360px]:flex w-8 h-8 rounded-full bg-purple-100 items-center justify-center border border-purple-300 overflow-hidden">
+          <img src="/img/mascote.svg" alt="" class="w-full h-full" />
+        </span>
+        <span class="font-black text-lg tracking-tight flex items-center" aria-hidden="true">
+          <span class="text-brand-pinkVivid">CTRL</span>
+          <span class="text-brand-blue flex items-center ml-0.5">G<img src="/img/carranca.svg" alt="" class="h-[0.95em] w-auto inline-block mx-0.5 align-middle" />RL</span>
+        </span>
+      </a>
+
+      <div class="flex items-center">
+        <button type="button" data-action="toggle-dyslexia" data-dyslexia-toggle aria-label="Fonte para dislexia" aria-pressed="false" title="Fonte para dislexia" class="text-slate-700 hover:text-brand-purple aria-pressed:text-brand-purple aria-pressed:bg-purple-100 w-11 h-11 rounded-lg flex items-center justify-center">
+          <i class="fa-solid fa-universal-access text-xl" aria-hidden="true"></i>
+        </button>
+        <a id="headerUserBadge" href="#/perfil" aria-label="Perfil" class="w-11 h-11 flex items-center justify-center rounded-full">
+          <span id="headerAvatar" class="w-8 h-8 rounded-full bg-purple-100 text-brand-darkPurple flex items-center justify-center font-bold text-xs border border-purple-300 overflow-hidden">
+            <i class="fa-solid fa-user" aria-hidden="true"></i>
+          </span>
+        </a>
+      </div>
+    </header>
+
+    <!-- Conteúdo principal -->
+    <main id="mainContent" tabindex="0" aria-label="Conteúdo principal" class="flex-1 overflow-y-auto custom-scrollbar p-4 space-y-4 bg-slate-100 relative">
+
+      <!-- ================= ENTRAR OU CRIAR CONTA ================= -->
+      <section id="viewAuth" tabindex="-1" aria-label="Entrar ou criar conta" class="hidden min-h-full flex flex-col justify-between">
+        <div class="relative -mx-4 -mt-4 pt-14 pb-12 px-6 bg-gradient-to-b from-purple-200/80 via-purple-100/60 to-pink-100/40 overflow-hidden md:rounded-t-[36px] flex flex-col items-center justify-center text-center shadow-sm">
+          <button type="button" data-action="toggle-dyslexia" data-dyslexia-toggle aria-pressed="false" class="absolute top-2 right-2 z-20 flex items-center gap-2 px-3 rounded-full bg-white/90 text-slate-800 aria-pressed:bg-brand-darkPurple aria-pressed:text-white text-xs font-bold shadow-sm">
+            <i class="fa-solid fa-universal-access text-base" aria-hidden="true"></i> Fonte para dislexia
+          </button>
+
+          <svg class="absolute bottom-0 left-0 w-full h-11 text-slate-100 fill-current pointer-events-none" viewBox="0 0 500 60" preserveAspectRatio="none" aria-hidden="true">
+            <path opacity="0.4" fill="#E9D5FF" d="M 0,15 Q 125,45 250,20 Q 375,-5 500,25 L 500,60 L 0,60 Z" />
+            <path opacity="0.7" fill="#FFFFFF" d="M 0,30 Q 80,10 160,32 Q 240,54 320,25 Q 400,-2 500,28 L 500,60 L 0,60 Z" />
+            <path fill="#F1F5F9" d="M 0,38 Q 100,20 200,42 Q 300,60 400,30 Q 450,15 500,32 L 500,60 L 0,60 Z" />
+          </svg>
+
+          <div class="relative z-10 mb-3">
+            <div class="w-20 h-20 rounded-full bg-purple-100 p-1 shadow-md border-2 border-purple-300 flex items-center justify-center overflow-hidden">
+              <img src="/img/mascote.svg" alt="Mascote Iu-Á" class="w-full h-full" />
+            </div>
+          </div>
+
+          <div class="relative z-10 space-y-1">
+            <h1 aria-label="CTRL GIRL" class="font-black text-3xl tracking-wider flex items-center justify-center drop-shadow-sm">
+              <span aria-hidden="true" class="text-brand-pinkVivid">CTRL</span>
+              <span aria-hidden="true" class="text-brand-blue flex items-center ml-1">G<img src="/img/carranca.svg" alt="" class="h-[0.95em] w-auto inline-block mx-0.5 align-middle" />RL</span>
+            </h1>
+            <p class="text-sm text-slate-800 font-bold">O seu portal inclusivo de eSports</p>
+          </div>
+        </div>
+
+        <div class="my-auto space-y-6 pt-2 pb-4">
+          <div role="tablist" aria-label="Opções de acesso" class="flex bg-slate-200 p-1 rounded-2xl text-sm font-bold text-slate-700 max-w-xs mx-auto w-full">
+            <button id="authTabBtnLogin" type="button" role="tab" aria-selected="true" aria-controls="authPageLogin" tabindex="0" data-action="switch-auth" data-page="login" class="flex-1 rounded-xl aria-selected:bg-white aria-selected:shadow-sm aria-selected:text-brand-darkPurple aria-selected:font-extrabold">Entrar</button>
+            <button id="authTabBtnRegister" type="button" role="tab" aria-selected="false" aria-controls="authPageRegister" tabindex="-1" data-action="switch-auth" data-page="register" class="flex-1 rounded-xl aria-selected:bg-white aria-selected:shadow-sm aria-selected:text-brand-darkPurple aria-selected:font-extrabold">Criar conta</button>
+          </div>
+
+          <form id="authPageLogin" role="tabpanel" aria-labelledby="authTabBtnLogin" data-form="login" novalidate class="space-y-5 px-4">
+            <p data-form-error role="alert" class="form-error hidden"></p>
+            <div>
+              <label for="loginUser" class="field-label">Nickname ou e-mail</label>
+              <input type="text" id="loginUser" name="loginUser" required autocomplete="username" autocapitalize="none" spellcheck="false" placeholder="Seu nickname ou e-mail" aria-describedby="loginUserError" class="figma-input text-slate-900 font-medium" />
+              <p id="loginUserError" data-error-for="loginUser" class="field-error hidden"></p>
+            </div>
+            <div>
+              <label for="loginPass" class="field-label">Senha</label>
+              <div class="relative">
+                <input type="password" id="loginPass" name="password" required autocomplete="current-password" aria-describedby="loginPassError" class="figma-input text-slate-900 font-medium pr-20" />
+                <button type="button" data-action="toggle-password" data-target="loginPass" aria-label="Mostrar senha" aria-pressed="false" class="absolute right-0 top-0 px-2 text-sm font-bold text-brand-darkPurple">Mostrar</button>
+              </div>
+              <p id="loginPassError" data-error-for="password" class="field-error hidden"></p>
+              <p class="field-hint"><a href="mailto:ctrlgirlesports@gmail.com?subject=Recuperar%20acesso" class="font-bold text-brand-darkPurple underline">Esqueci a senha</a></p>
+            </div>
+            <div class="pt-1 text-center space-y-3">
+              <button type="submit" class="w-full bg-brand-purple hover:bg-brand-darkPurple text-white font-bold rounded-full shadow-lg transition text-sm">Entrar no app</button>
+              <button type="button" data-action="login-as-guest" class="w-full bg-slate-200 hover:bg-slate-300 text-slate-800 font-bold rounded-full transition text-sm">
+                <i class="fa-solid fa-user-secret mr-1" aria-hidden="true"></i> Continuar como visitante
+              </button>
+            </div>
+          </form>
+
+          <form id="authPageRegister" role="tabpanel" aria-labelledby="authTabBtnRegister" data-form="register" novalidate class="hidden space-y-4 px-4">
+            <p data-form-error role="alert" class="form-error hidden"></p>
+            <p class="text-sm text-slate-700 text-center font-semibold">Campos com * são obrigatórios.</p>
+            <div>
+              <label for="regName" class="field-label">Nome completo ou nome social *</label>
+              <input type="text" id="regName" name="name" required maxlength="80" autocomplete="name" placeholder="Ex.: Maria Silva" aria-describedby="regNameError" class="figma-input text-slate-900 font-medium" />
+              <p id="regNameError" data-error-for="name" class="field-error hidden"></p>
+            </div>
+            <div>
+              <label for="regNick" class="field-label">Nickname *</label>
+              <input type="text" id="regNick" name="nickname" required minlength="3" maxlength="24" autocomplete="nickname" autocapitalize="none" spellcheck="false" placeholder="gamerx" aria-describedby="regNickHint regNickError" class="figma-input text-slate-900 font-medium" />
+              <p id="regNickHint" class="field-hint">De 3 a 24 letras, números, ponto, hífen ou sublinhado.</p>
+              <p id="regNickError" data-error-for="nickname" class="field-error hidden"></p>
+            </div>
+            <div>
+              <label for="regEmail" class="field-label">E-mail *</label>
+              <input type="email" id="regEmail" name="email" required autocomplete="email" autocapitalize="none" spellcheck="false" placeholder="seu@email.com" aria-describedby="regEmailError" class="figma-input text-slate-900 font-medium" />
+              <p id="regEmailError" data-error-for="email" class="field-error hidden"></p>
+            </div>
+            <div>
+              <label for="regPass" class="field-label">Senha *</label>
+              <div class="relative">
+                <input type="password" id="regPass" name="password" required minlength="8" autocomplete="new-password" aria-describedby="regPassHint regPassError" class="figma-input text-slate-900 font-medium pr-20" />
+                <button type="button" data-action="toggle-password" data-target="regPass" aria-label="Mostrar senha" aria-pressed="false" class="absolute right-0 top-0 px-2 text-sm font-bold text-brand-darkPurple">Mostrar</button>
+              </div>
+              <p id="regPassHint" class="field-hint">Mínimo de 8 caracteres. Evite senhas óbvias, como 12345678.</p>
+              <p id="regPassError" data-error-for="password" class="field-error hidden"></p>
+            </div>
+            <div>
+              <label for="regBirthDate" class="field-label">Data de nascimento *</label>
+              <input type="date" id="regBirthDate" name="birthDate" required autocomplete="bday" data-range-message="É preciso ter 16 anos ou mais para criar uma conta." aria-describedby="regBirthHint regBirthError" class="figma-input text-slate-900 font-medium" />
+              <p id="regBirthHint" class="field-hint">É preciso ter 16 anos ou mais.</p>
+              <p id="regBirthError" data-error-for="birthDate" class="field-error hidden"></p>
+            </div>
+            <div class="grid grid-cols-1 min-[400px]:grid-cols-2 gap-3">
+              <div>
+                <label for="regGender" class="field-label">Gênero (opcional)</label>
+                <select id="regGender" name="gender" autocomplete="sex" aria-describedby="regGenderError" class="figma-input text-slate-900 font-medium">
+                  <option value="">Selecione</option>
+                  <option>Mulher Cis</option>
+                  <option>Mulher Trans</option>
+                  <option>Homem Cis</option>
+                  <option>Homem Trans</option>
+                  <option>Pessoa Não-Binária</option>
+                  <option>Prefiro não informar</option>
+                </select>
+                <p id="regGenderError" data-error-for="gender" class="field-error hidden"></p>
+              </div>
+              <div>
+                <label for="regRace" class="field-label">Raça ou etnia (opcional)</label>
+                <select id="regRace" name="race" autocomplete="off" aria-describedby="regRaceError" class="figma-input text-slate-900 font-medium">
+                  <option value="">Selecione</option>
+                  <option>Parda</option>
+                  <option>Preta</option>
+                  <option>Branca</option>
+                  <option>Amarela</option>
+                  <option>Indígena</option>
+                  <option>Prefiro não informar</option>
+                </select>
+                <p id="regRaceError" data-error-for="race" class="field-error hidden"></p>
+              </div>
+            </div>
+            <p class="field-hint">Gênero, raça e cidade ficam só no seu perfil, não são públicos, e você pode mudar ou apagar quando quiser.</p>
+            <div>
+              <label for="regCity" class="field-label">Cidade e estado (opcional)</label>
+              <input type="text" id="regCity" name="city" maxlength="80" autocomplete="address-level2" placeholder="Ex.: São Paulo, SP" aria-describedby="regCityError" class="figma-input text-slate-900 font-medium" />
+              <p id="regCityError" data-error-for="city" class="field-error hidden"></p>
+            </div>
+            <div>
+              <div class="flex items-start gap-2">
+                <input type="checkbox" id="regTerms" name="acceptTerms" required data-value-missing-message="Para criar a conta, aceite os Termos de Uso e a Política de Privacidade." aria-describedby="regTermsError" class="mt-0.5 h-5 w-5 shrink-0 accent-brand-purple" />
+                <label for="regTerms" class="text-sm text-slate-800 font-medium">Li e aceito os Termos de Uso e a Política de Privacidade. *</label>
+              </div>
+              <button type="button" data-action="open-terms" class="text-sm font-bold text-brand-darkPurple underline px-1">Ler os termos</button>
+              <p id="regTermsError" data-error-for="acceptTerms" class="field-error hidden"></p>
+            </div>
+            <div class="pt-1 text-center">
+              <button type="submit" class="w-full bg-brand-purple hover:bg-brand-darkPurple text-white font-bold rounded-full shadow-lg transition text-sm">Criar conta e entrar</button>
+            </div>
+          </form>
+        </div>
+
+        <div class="relative -mx-4 -mb-4 pt-12 pb-6 px-4 overflow-hidden md:rounded-b-[36px] min-h-[120px] flex items-end justify-center">
+          <svg class="absolute inset-0 w-full h-full object-cover pointer-events-none" viewBox="0 0 500 220" preserveAspectRatio="none" aria-hidden="true">
+            <path d="M 0,0 C 130,130 370,130 500,0 L 500,220 L 0,220 Z" fill="#F5F3FF" opacity="0.8"/>
+            <path d="M 0,25 C 140,140 360,140 500,25 L 500,220 L 0,220 Z" fill="#EDE9FE" opacity="0.9"/>
+            <path d="M 0,60 C 150,155 350,155 500,60 L 500,220 L 0,220 Z" fill="#DDD6FE"/>
+            <path d="M 0,95 C 170,170 330,170 500,95 L 500,220 L 0,220 Z" fill="#C4B5FD"/>
+            <path d="M 0,130 C 190,180 310,180 500,130 L 500,220 L 0,220 Z" fill="#A78BFA"/>
+          </svg>
+          <button type="button" data-action="open-terms" class="relative z-10 px-4 bg-white/90 rounded-2xl border border-white/80 shadow-sm text-sm font-extrabold text-brand-darkPurple underline">Termos e Privacidade</button>
+        </div>
+      </section>
+
+      <!-- ================= INÍCIO ================= -->
+      <section id="viewHome" tabindex="-1" aria-label="Início" class="hidden space-y-4">
+        <h1 class="sr-only">Início</h1>
+
+        <div class="on-dark bg-slate-900 rounded-2xl p-3.5 shadow-md border border-purple-900/60 space-y-3 relative overflow-hidden">
+          <div class="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-brand-pinkVivid via-brand-purple to-brand-blue"></div>
+          <div class="border-b border-slate-800 pb-2.5 space-y-2">
+            <h2 class="text-sm font-extrabold text-white flex items-center gap-1.5">
+              <i class="fa-solid fa-trophy text-amber-400" aria-hidden="true"></i> Últimos resultados
+            </h2>
+            <p id="resultsSummary" class="text-xs text-purple-200 font-semibold"></p>
+            <div class="flex flex-wrap items-center justify-between gap-x-3 gap-y-1.5">
+              <p id="resultsUpdated" class="text-xs text-slate-200 empty:hidden"></p>
+              <button type="button" data-action="toggle-results-pause" class="min-h-11 px-3 rounded-full bg-slate-800 text-white text-xs font-bold inline-flex items-center gap-2">
+                <i id="resultsPauseIcon" class="fa-solid fa-pause" aria-hidden="true"></i>
+                <span id="resultsPauseLabel">Pausar atualização</span>
+              </button>
+            </div>
+          </div>
+          <div id="resultsContainer" tabindex="0" role="region" aria-label="Últimos resultados das partidas" class="group flex gap-3 overflow-x-auto custom-scrollbar pb-2 pt-1"></div>
+          <div class="flex justify-end gap-2">
+            <button type="button" data-action="scroll-results" data-direction="-1" aria-label="Resultados anteriores" class="w-11 h-11 rounded-full bg-slate-800 text-white flex items-center justify-center"><i class="fa-solid fa-chevron-left" aria-hidden="true"></i></button>
+            <button type="button" data-action="scroll-results" data-direction="1" aria-label="Próximos resultados" class="w-11 h-11 rounded-full bg-slate-800 text-white flex items-center justify-center"><i class="fa-solid fa-chevron-right" aria-hidden="true"></i></button>
+          </div>
+        </div>
+
+        <article id="featuredHero" class="relative rounded-2xl overflow-hidden shadow-lg border border-purple-200 min-h-56 flex flex-col justify-end group">
+          <img id="heroImage" alt="" class="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition duration-500" />
+          <div class="relative bg-gradient-to-t from-slate-950 via-slate-950/80 to-transparent p-4 pt-16 flex flex-col justify-end">
+            <span class="bg-pink-700 text-white text-xs font-extrabold px-2.5 py-0.5 rounded-full w-max mb-1 shadow-sm">Destaque</span>
+            <h2 class="text-white font-bold text-base leading-snug drop-shadow-md">
+              <a id="heroLink" class="card-link"></a>
+            </h2>
+            <p id="heroDate" class="text-slate-200 text-xs mt-2 font-medium"></p>
+          </div>
+        </article>
+
+        <h2 class="font-extrabold text-slate-900 text-sm flex items-center gap-2 pt-2">
+          <span class="w-2 h-4 bg-brand-purple rounded-full" aria-hidden="true"></span>
+          Últimas notícias
+        </h2>
+        <ul id="newsFeedList" class="space-y-3"></ul>
+      </section>
+
+      <!-- ================= PRÓXIMOS JOGOS ================= -->
+      <section id="viewMatches" tabindex="-1" aria-label="Próximos jogos" class="hidden space-y-4">
+        <div class="bg-white p-4 rounded-2xl shadow-sm border border-slate-200">
+          <div class="flex items-center justify-between mb-3">
+            <div>
+              <h1 class="font-extrabold text-slate-900 text-lg">Próximos jogos</h1>
+              <p class="text-xs text-slate-700 font-medium">Horários de Brasília</p>
+            </div>
+            <i class="fa-solid fa-calendar-days text-2xl text-brand-purple" aria-hidden="true"></i>
+          </div>
+          <div id="matchFilters" role="group" aria-label="Filtrar por campeonato" class="flex items-center gap-2 overflow-x-auto pb-1 text-xs font-semibold custom-scrollbar"></div>
+        </div>
+        <div id="matchesContainer" class="space-y-3"></div>
+      </section>
+
+      <!-- ================= SOBRE ================= -->
+      <section id="viewAbout" tabindex="-1" aria-label="Sobre o CTRL GIRL" class="hidden space-y-4 font-serif-roboto">
+        <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200 space-y-4">
+          <div class="text-center space-y-3 pb-2 border-b border-slate-100">
+            <div class="w-14 h-14 bg-purple-100 rounded-2xl flex items-center justify-center mx-auto border-2 border-brand-purple shadow-sm">
+              <i class="fa-solid fa-gamepad text-2xl text-brand-purple" aria-hidden="true"></i>
+            </div>
+            <div>
+              <span class="font-sans text-xs font-extrabold text-pink-800 bg-pink-100 px-2.5 py-1 rounded-full">Plataforma inclusiva</span>
+              <h1 class="font-sans font-extrabold text-slate-900 text-xl mt-2">Sobre o CTRL GIRL</h1>
+            </div>
+          </div>
+          <p class="text-base text-slate-800 leading-relaxed">
+            <strong class="text-slate-900 font-extrabold">CTRL GIRL</strong> é um aplicativo de <span class="text-brand-darkPurple font-bold">eSports</span> com conteúdos produzidos por mulheres cis e trans. Nosso objetivo é construir um ambiente saudável, acolhedor e seguro em um universo muitas vezes marcado por padrões heteronormativos.
+          </p>
+        </div>
+
+        <div class="bg-purple-50 p-4 rounded-2xl border border-purple-200 space-y-1.5 shadow-sm">
+          <h2 class="font-sans font-extrabold text-brand-darkPurple text-sm flex items-center gap-2">
+            <i class="fa-solid fa-eye text-pink-700" aria-hidden="true"></i> Visão
+          </h2>
+          <p class="text-base text-slate-800 leading-relaxed">
+            Ser referência na promoção da equidade de gênero no eSports, fortalecendo uma comunidade diversa, respeitosa e livre de preconceitos.
+          </p>
+        </div>
+
+        <div class="bg-white p-4 rounded-2xl border border-slate-200 space-y-2.5 shadow-sm">
+          <h2 class="font-sans font-bold text-slate-900 text-sm flex items-center gap-2">
+            <i class="fa-solid fa-shield-halved text-brand-purple" aria-hidden="true"></i> Nossos valores
+          </h2>
+          <ul class="text-base space-y-2 text-slate-800">
+            <li class="bg-slate-50 p-2 rounded-xl border border-slate-200"><strong class="text-slate-900 font-extrabold font-sans">Inclusão:</strong> celebrar todas as identidades de gênero que se identificam com o universo feminino.</li>
+            <li class="bg-slate-50 p-2 rounded-xl border border-slate-200"><strong class="text-slate-900 font-extrabold font-sans">Respeito:</strong> garantir um espaço livre de discursos de ódio e discriminação.</li>
+            <li class="bg-slate-50 p-2 rounded-xl border border-slate-200"><strong class="text-slate-900 font-extrabold font-sans">Representatividade:</strong> dar voz, visibilidade e protagonismo às jogadoras e criadoras de conteúdo.</li>
+          </ul>
+        </div>
+
+        <div class="bg-gradient-to-r from-purple-950 to-slate-900 p-4 rounded-2xl border border-purple-800 text-white space-y-2 shadow-md">
+          <div class="flex items-center gap-3">
+            <div class="w-14 h-14 bg-purple-100 rounded-xl flex items-center justify-center shrink-0 border border-purple-300 shadow-inner p-0.5 overflow-hidden">
+              <img src="/img/mascote.svg" alt="" class="w-full h-full" />
+            </div>
+            <div>
+              <span class="font-sans text-xs font-bold text-pink-100">Símbolo de força</span>
+              <h2 class="font-sans font-extrabold text-sm text-white mt-1">Mascote Iu-Á</h2>
+            </div>
+          </div>
+          <p class="text-base text-purple-100 leading-relaxed pt-1">
+            A nossa mascote é inspirada em uma jogadora real, simbolizando a força e a representatividade feminina no <strong class="text-pink-200 font-bold">eSports</strong>. O nome <strong class="text-white">Iu-Á</strong> remete à árvore Juazeiro, na língua tupi-guarani.
+          </p>
+        </div>
+      </section>
+
+      <!-- ================= FÓRUM ================= -->
+      <section id="viewChat" tabindex="-1" aria-label="Fórum da comunidade" class="hidden space-y-4">
+        <div class="bg-white p-4 rounded-2xl shadow-sm border border-slate-200 space-y-3">
+          <div>
+            <h1 class="font-extrabold text-slate-900 text-lg flex items-center gap-2">
+              <i class="fa-solid fa-comments text-brand-purple" aria-hidden="true"></i> Fórum da comunidade
+            </h1>
+            <p class="text-xs text-slate-700 font-medium">Debates e troca de experiências</p>
+          </div>
+          <button id="btnNewTopic" type="button" data-action="new-topic" class="w-full bg-brand-purple hover:bg-brand-darkPurple text-white font-bold rounded-xl text-sm transition">
+            <i class="fa-solid fa-pen-to-square mr-1" aria-hidden="true"></i> Novo tópico
+          </button>
+          <div id="forumFilters" role="group" aria-label="Filtrar por categoria" class="flex items-center gap-2 overflow-x-auto pb-1 text-xs font-semibold custom-scrollbar"></div>
+        </div>
+
+        <div id="newTopicForm" class="hidden bg-white p-4 rounded-2xl shadow-sm border border-purple-300 space-y-3">
+          <h2 class="font-bold text-slate-900 text-sm flex items-center gap-1.5">
+            <i class="fa-solid fa-pen-to-square text-brand-purple" aria-hidden="true"></i> Criar nova discussão
+          </h2>
+          <form data-form="topic" novalidate class="space-y-3">
+            <p data-form-error role="alert" class="form-error hidden"></p>
+            <div>
+              <label for="topicTitle" class="field-label">Título ou pergunta *</label>
+              <input type="text" id="topicTitle" name="title" required minlength="3" maxlength="120" autocomplete="off" placeholder="Ex.: Qual o seu time favorito do VCT?" aria-describedby="topicTitleError" class="box-input" />
+              <p id="topicTitleError" data-error-for="title" class="field-error hidden"></p>
+            </div>
+            <div>
+              <label for="topicCategory" class="field-label">Categoria *</label>
+              <select id="topicCategory" name="category" required autocomplete="off" aria-describedby="topicCategoryError" class="box-input">
+                <option>Campeonatos</option>
+                <option>Comunidade</option>
+                <option>Dicas &amp; Gameplay</option>
+              </select>
+              <p id="topicCategoryError" data-error-for="category" class="field-error hidden"></p>
+            </div>
+            <div>
+              <label for="topicBody" class="field-label">Mensagem inicial *</label>
+              <textarea id="topicBody" name="content" rows="3" required maxlength="5000" autocomplete="off" placeholder="Descreva sua dúvida, opinião ou ponto de debate..." aria-describedby="topicBodyError" class="box-input"></textarea>
+              <p id="topicBodyError" data-error-for="content" class="field-error hidden"></p>
+            </div>
+            <div class="flex gap-2">
+              <button type="button" data-action="cancel-topic" class="flex-1 bg-slate-200 hover:bg-slate-300 text-slate-800 font-bold rounded-xl text-sm transition">Cancelar</button>
+              <button type="submit" class="flex-1 bg-brand-purple hover:bg-brand-darkPurple text-white font-bold rounded-xl shadow-md text-sm transition">Publicar</button>
+            </div>
+          </form>
+        </div>
+
+        <div id="forumTopicsContainer" class="space-y-3"></div>
+      </section>
+
+      <!-- ================= DETALHE DO TÓPICO ================= -->
+      <section id="viewTopicDetail" tabindex="-1" aria-label="Discussão" class="hidden space-y-4">
+        <a href="#/forum" class="inline-flex items-center min-h-11 text-sm text-brand-darkPurple font-bold gap-1.5 rounded">
+          <i class="fa-solid fa-arrow-left" aria-hidden="true"></i> Voltar ao fórum
+        </a>
+        <div class="bg-white p-4 rounded-2xl shadow-sm border border-slate-200 space-y-4">
+          <div class="space-y-2 border-b border-slate-100 pb-3">
+            <div class="flex items-center justify-between gap-2">
+              <span id="topicDetailCategory" class="bg-purple-100 text-brand-darkPurple font-extrabold text-xs px-2.5 py-0.5 rounded-full"></span>
+              <span id="topicDetailDate" class="text-xs text-slate-700 font-medium"></span>
+            </div>
+            <h1 id="topicDetailTitle" class="text-lg font-extrabold text-slate-900 leading-snug"></h1>
+            <p id="topicDetailAuthor" class="text-xs font-bold text-slate-800"></p>
+            <p id="topicDetailContent" class="text-base text-slate-800 leading-relaxed pt-1 whitespace-pre-line break-words"></p>
+          </div>
+          <div class="space-y-3">
+            <h2 class="font-bold text-slate-900 text-sm flex items-center gap-2">
+              <i class="fa-solid fa-reply text-brand-purple" aria-hidden="true"></i> Respostas (<span id="topicRepliesCount">0</span>)
+            </h2>
+            <form id="replyForm" data-form="reply" novalidate class="hidden space-y-2">
+              <p data-form-error role="alert" class="form-error hidden"></p>
+              <label for="replyTextarea" class="field-label">Sua resposta</label>
+              <textarea id="replyTextarea" name="content" rows="2" required maxlength="2000" autocomplete="off" aria-describedby="replyError" class="box-input"></textarea>
+              <p id="replyError" data-error-for="content" class="field-error hidden"></p>
+              <button type="submit" class="px-4 bg-brand-purple hover:bg-brand-darkPurple text-white font-bold rounded-xl text-sm transition">Responder</button>
+            </form>
+            <p id="replyLoginPrompt" class="hidden bg-slate-100 p-3 rounded-xl text-sm text-slate-700 font-medium text-center">
+              <button type="button" data-action="prompt-login" data-reason="participar da discussão" class="text-brand-darkPurple font-bold underline px-1">Entre</button> para participar desta discussão.
+            </p>
+            <div id="topicRepliesList" class="space-y-2.5 pt-2"></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================= PESQUISAR ================= -->
+      <section id="viewSearch" tabindex="-1" aria-label="Buscar" class="hidden space-y-4">
+        <div class="bg-white p-4 rounded-2xl shadow-sm border border-slate-200 space-y-3">
+          <h1 class="font-extrabold text-slate-900 text-lg">Buscar</h1>
+          <div>
+            <label for="searchInput" class="field-label">Matérias, jogos e fórum</label>
+            <div class="relative">
+              <i class="fa-solid fa-magnifying-glass absolute left-3 top-3.5 text-slate-600 text-sm" aria-hidden="true"></i>
+              <input type="search" id="searchInput" data-search autocomplete="off" placeholder="Digite para buscar..." class="box-input pl-9" />
+            </div>
+          </div>
+          <div id="searchFilters" role="group" aria-label="Filtrar por jogo" class="flex flex-wrap items-center gap-1.5 text-xs font-semibold"></div>
+        </div>
+        <div id="searchResults" class="space-y-3"></div>
+      </section>
+
+      <!-- ================= PERFIL ================= -->
+      <section id="viewProfile" tabindex="-1" aria-label="Perfil" class="hidden space-y-4">
+        <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200 text-center space-y-3">
+          <div class="relative w-24 h-24 mx-auto">
+            <div id="profileAvatar" class="w-24 h-24 rounded-full bg-purple-100 text-brand-darkPurple flex items-center justify-center text-3xl font-extrabold border-4 border-brand-purple shadow-md overflow-hidden"></div>
+            <button id="btnChangeAvatar" type="button" data-action="change-avatar" aria-label="Alterar foto de perfil" title="Alterar foto de perfil" class="absolute -bottom-1 -right-1 bg-brand-purple hover:bg-brand-darkPurple text-white w-11 h-11 rounded-full border-2 border-white shadow-md flex items-center justify-center">
+              <i class="fa-solid fa-camera text-sm" aria-hidden="true"></i>
+            </button>
+            <input type="file" id="avatarFileInput" accept="image/jpeg,image/png,image/webp" class="hidden" aria-label="Escolher foto de perfil" />
+          </div>
+          <div>
+            <h1 id="profileNickname" class="font-extrabold text-slate-900 text-lg break-words"></h1>
+            <p id="profileName" class="text-sm text-slate-700"></p>
+          </div>
+
+          <div id="guestNotice" class="hidden bg-amber-50 border border-amber-300 p-3 rounded-xl text-sm text-amber-950 font-medium">
+            Você está navegando como <strong>visitante</strong>. Entre para curtir, comentar e participar dos tópicos.
+            <button type="button" data-action="go-login" class="block w-full mt-2 bg-brand-purple text-white font-bold rounded-lg text-sm">Entrar ou criar conta</button>
+          </div>
+
+          <dl id="profileDetails" class="hidden text-left text-sm divide-y divide-slate-100"></dl>
+
+          <div id="profileActions" class="hidden pt-2 space-y-2">
+            <a href="#/perfil/editar" class="flex items-center justify-center gap-2 min-h-11 bg-purple-100 hover:bg-purple-200 text-brand-darkPurple rounded-xl font-bold text-sm">
+              <i class="fa-solid fa-user-pen" aria-hidden="true"></i> Editar perfil
+            </a>
+            <button type="button" id="btnRemoveAvatar" data-action="remove-avatar" class="hidden w-full bg-slate-200 hover:bg-slate-300 text-slate-800 rounded-xl font-bold text-sm">Remover foto</button>
+            <button type="button" data-action="logout" class="w-full bg-rose-100 hover:bg-rose-200 text-rose-900 rounded-xl font-bold text-sm flex items-center justify-center gap-2">
+              <i class="fa-solid fa-right-from-bracket" aria-hidden="true"></i> Sair do app
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================= EDITAR PERFIL ================= -->
+      <section id="viewProfileEdit" tabindex="-1" aria-label="Editar perfil" class="hidden space-y-4">
+        <a href="#/perfil" class="inline-flex items-center min-h-11 text-sm text-brand-darkPurple font-bold gap-1.5 rounded">
+          <i class="fa-solid fa-arrow-left" aria-hidden="true"></i> Voltar ao perfil
+        </a>
+        <h1 class="font-extrabold text-slate-900 text-lg">Editar perfil</h1>
+
+        <form id="profileForm" data-form="profile" novalidate class="bg-white p-4 rounded-2xl shadow-sm border border-slate-200 space-y-3">
+          <h2 class="font-bold text-slate-900 text-sm">Seus dados</h2>
+          <p data-form-error role="alert" class="form-error hidden"></p>
+          <div>
+            <label for="editName" class="field-label">Nome completo ou nome social *</label>
+            <input type="text" id="editName" name="name" required maxlength="80" autocomplete="name" aria-describedby="editNameError" class="box-input" />
+            <p id="editNameError" data-error-for="name" class="field-error hidden"></p>
+          </div>
+          <div>
+            <label for="editNick" class="field-label">Nickname *</label>
+            <input type="text" id="editNick" name="nickname" required minlength="3" maxlength="24" autocomplete="nickname" autocapitalize="none" spellcheck="false" aria-describedby="editNickError" class="box-input" />
+            <p id="editNickError" data-error-for="nickname" class="field-error hidden"></p>
+          </div>
+          <div>
+            <label for="editEmail" class="field-label">E-mail *</label>
+            <input type="email" id="editEmail" name="email" required autocomplete="email" autocapitalize="none" spellcheck="false" aria-describedby="editEmailError" class="box-input" />
+            <p id="editEmailError" data-error-for="email" class="field-error hidden"></p>
+          </div>
+          <div>
+            <label for="editCurrentPassword" class="field-label">Senha atual (só para trocar o e-mail)</label>
+            <input type="password" id="editCurrentPassword" name="currentPassword" autocomplete="current-password" aria-describedby="editCurrentPasswordError" class="box-input" />
+            <p id="editCurrentPasswordError" data-error-for="currentPassword" class="field-error hidden"></p>
+          </div>
+          <div>
+            <label for="editCity" class="field-label">Cidade e estado (opcional)</label>
+            <input type="text" id="editCity" name="city" maxlength="80" autocomplete="address-level2" aria-describedby="editCityError" class="box-input" />
+            <p id="editCityError" data-error-for="city" class="field-error hidden"></p>
+          </div>
+          <div>
+            <label for="editGender" class="field-label">Gênero (opcional)</label>
+            <select id="editGender" name="gender" autocomplete="sex" aria-describedby="editGenderError" class="box-input">
+              <option value="">Não informado</option>
+              <option>Mulher Cis</option>
+              <option>Mulher Trans</option>
+              <option>Homem Cis</option>
+              <option>Homem Trans</option>
+              <option>Pessoa Não-Binária</option>
+              <option>Prefiro não informar</option>
+            </select>
+            <p id="editGenderError" data-error-for="gender" class="field-error hidden"></p>
+          </div>
+          <div>
+            <label for="editRace" class="field-label">Raça ou etnia (opcional)</label>
+            <select id="editRace" name="race" autocomplete="off" aria-describedby="editRaceError" class="box-input">
+              <option value="">Não informado</option>
+              <option>Parda</option>
+              <option>Preta</option>
+              <option>Branca</option>
+              <option>Amarela</option>
+              <option>Indígena</option>
+              <option>Prefiro não informar</option>
+            </select>
+            <p id="editRaceError" data-error-for="race" class="field-error hidden"></p>
+          </div>
+          <button type="submit" class="w-full bg-brand-purple hover:bg-brand-darkPurple text-white font-bold rounded-xl text-sm">Salvar alterações</button>
+        </form>
+
+        <form id="passwordForm" data-form="password" novalidate class="bg-white p-4 rounded-2xl shadow-sm border border-slate-200 space-y-3">
+          <h2 class="font-bold text-slate-900 text-sm">Trocar a senha</h2>
+          <p data-form-error role="alert" class="form-error hidden"></p>
+          <div>
+            <label for="passCurrent" class="field-label">Senha atual *</label>
+            <input type="password" id="passCurrent" name="currentPassword" required autocomplete="current-password" aria-describedby="passCurrentError" class="box-input" />
+            <p id="passCurrentError" data-error-for="currentPassword" class="field-error hidden"></p>
+          </div>
+          <div>
+            <label for="passNew" class="field-label">Nova senha *</label>
+            <input type="password" id="passNew" name="newPassword" required minlength="8" autocomplete="new-password" aria-describedby="passNewHint passNewError" class="box-input" />
+            <p id="passNewHint" class="field-hint">Mínimo de 8 caracteres. Evite senhas óbvias, como 12345678.</p>
+            <p id="passNewError" data-error-for="newPassword" class="field-error hidden"></p>
+          </div>
+          <button type="submit" class="w-full bg-brand-purple hover:bg-brand-darkPurple text-white font-bold rounded-xl text-sm">Trocar a senha</button>
+        </form>
+
+        <div class="bg-white p-4 rounded-2xl shadow-sm border border-rose-200 space-y-2">
+          <h2 class="font-bold text-slate-900 text-sm">Excluir a conta</h2>
+          <p class="text-sm text-slate-700">Apaga seus dados, tópicos, comentários, curtidas e lembretes. Não dá para desfazer.</p>
+          <button type="button" data-action="open-delete" class="w-full bg-rose-100 hover:bg-rose-200 text-rose-900 font-bold rounded-xl text-sm">Excluir minha conta</button>
+        </div>
+      </section>
+
+      <!-- ================= MATÉRIA ================= -->
+      <section id="viewArticleDetail" tabindex="-1" aria-label="Matéria" class="hidden space-y-4">
+        <a href="#/inicio" class="inline-flex items-center min-h-11 text-sm text-brand-darkPurple font-bold gap-1.5 rounded">
+          <i class="fa-solid fa-arrow-left" aria-hidden="true"></i> Voltar para as notícias
+        </a>
+        <article class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200 space-y-4">
+          <span id="artCategory" class="bg-purple-100 text-brand-darkPurple font-extrabold text-xs px-2.5 py-0.5 rounded-full"></span>
+          <h1 id="artTitle" class="text-xl font-extrabold text-slate-900 leading-tight font-serif-roboto"></h1>
+          <div class="flex flex-wrap items-center gap-3 text-xs text-slate-700 font-medium pb-2 border-b">
+            <span><i class="fa-regular fa-user text-brand-purple mr-1" aria-hidden="true"></i><span id="artAuthor"></span></span>
+            <span><i class="fa-regular fa-calendar mr-1" aria-hidden="true"></i><span id="artDate"></span></span>
+          </div>
+          <img id="artImage" alt="" class="w-full h-48 object-cover rounded-xl shadow-sm" />
+          <div id="artBody" class="article-body text-base text-slate-800 leading-relaxed font-serif-roboto"></div>
+
+          <div class="pt-4 border-t border-slate-100 flex flex-wrap items-center justify-between gap-2">
+            <button id="btnLikeArticle" type="button" data-action="like-article" aria-pressed="false" class="flex items-center gap-2 px-4 bg-pink-100 text-pink-900 rounded-xl font-bold text-sm hover:bg-pink-200 transition">
+              <i id="likeIcon" class="fa-regular fa-heart text-base" aria-hidden="true"></i>
+              <span id="likeLabel"></span>
+            </button>
+            <button type="button" data-action="share-article" class="flex items-center gap-2 px-4 bg-sky-100 text-sky-900 rounded-xl font-bold text-sm hover:bg-sky-200 transition">
+              <i class="fa-solid fa-share-nodes text-base" aria-hidden="true"></i> Compartilhar
+            </button>
+          </div>
+
+          <div class="pt-4 border-t border-slate-100 space-y-3">
+            <h2 class="font-extrabold text-slate-900 text-sm flex items-center gap-2">
+              <i class="fa-regular fa-comments text-brand-purple" aria-hidden="true"></i> Comentários (<span id="commentCount">0</span>)
+            </h2>
+            <form id="commentForm" data-form="comment" novalidate class="hidden space-y-2">
+              <p data-form-error role="alert" class="form-error hidden"></p>
+              <label for="newCommentInput" class="field-label">Seu comentário</label>
+              <div class="flex gap-2">
+                <input type="text" id="newCommentInput" name="content" required maxlength="2000" autocomplete="off" aria-describedby="commentError" class="box-input flex-1 min-w-0" />
+                <button type="submit" class="px-3 bg-brand-purple text-white text-sm font-bold rounded-xl hover:bg-brand-darkPurple">Enviar</button>
+              </div>
+              <p id="commentError" data-error-for="content" class="field-error hidden"></p>
+            </form>
+            <p id="commentLoginPrompt" class="hidden bg-slate-100 p-2.5 rounded-xl text-sm text-slate-700 font-medium text-center">
+              <button type="button" data-action="prompt-login" data-reason="comentar" class="text-brand-darkPurple font-bold underline px-1">Entre</button> para comentar.
+            </p>
+            <div id="commentList" class="space-y-3 pt-2"></div>
+          </div>
+        </article>
+      </section>
+    </main>
+
+    <!-- Navegação inferior -->
+    <nav id="mainFooter" aria-label="Navegação principal" class="hidden bg-white border-t border-slate-200 px-1 py-1 justify-around items-center shrink-0 z-30">
+      <a href="#/inicio" id="navHome" class="flex-1 min-w-0 flex flex-col items-center text-slate-700 aria-[current=page]:text-brand-darkPurple aria-[current=page]:font-extrabold hover:text-brand-purple rounded-lg py-1 group">
+        <span class="w-7 h-7 rounded-full flex items-center justify-center group-aria-[current=page]:bg-purple-100"><i class="fa-solid fa-house text-sm" aria-hidden="true"></i></span>
+        <span class="text-xs font-bold">Início</span>
+      </a>
+      <a href="#/pesquisar" id="navSearch" class="flex-1 min-w-0 flex flex-col items-center text-slate-700 aria-[current=page]:text-brand-darkPurple aria-[current=page]:font-extrabold hover:text-brand-purple rounded-lg py-1 group">
+        <span class="w-7 h-7 rounded-full flex items-center justify-center group-aria-[current=page]:bg-purple-100"><i class="fa-solid fa-magnifying-glass text-sm" aria-hidden="true"></i></span>
+        <span class="text-xs font-bold">Buscar</span>
+      </a>
+      <a href="#/jogos" id="navMatches" class="flex-1 min-w-0 flex flex-col items-center text-slate-700 aria-[current=page]:text-brand-darkPurple aria-[current=page]:font-extrabold hover:text-brand-purple rounded-lg py-1 group">
+        <span class="w-7 h-7 rounded-full flex items-center justify-center group-aria-[current=page]:bg-purple-100"><i class="fa-solid fa-calendar-days text-sm" aria-hidden="true"></i></span>
+        <span class="text-xs font-bold">Jogos</span>
+      </a>
+      <a href="#/forum" id="navChat" class="flex-1 min-w-0 flex flex-col items-center text-slate-700 aria-[current=page]:text-brand-darkPurple aria-[current=page]:font-extrabold hover:text-brand-purple rounded-lg py-1 group">
+        <span class="w-7 h-7 rounded-full flex items-center justify-center group-aria-[current=page]:bg-purple-100"><i class="fa-solid fa-comments text-sm" aria-hidden="true"></i></span>
+        <span class="text-xs font-bold">Fórum</span>
+      </a>
+      <a href="#/perfil" id="navProfile" class="flex-1 min-w-0 flex flex-col items-center text-slate-700 aria-[current=page]:text-brand-darkPurple aria-[current=page]:font-extrabold hover:text-brand-purple rounded-lg py-1 group">
+        <span class="w-7 h-7 rounded-full flex items-center justify-center group-aria-[current=page]:bg-purple-100"><i class="fa-solid fa-user text-sm" aria-hidden="true"></i></span>
+        <span class="text-xs font-bold">Perfil</span>
+      </a>
+    </nav>
+
+    <!-- Avisos -->
+    <div id="toast" role="status" aria-live="polite" aria-atomic="true" class="absolute bottom-20 left-1/2 -translate-x-1/2 z-40 w-[calc(100%-2rem)] max-w-sm bg-slate-900 text-white text-sm px-4 py-2 rounded-2xl shadow-lg border border-purple-500/30 hidden items-center gap-2">
+      <i id="toastIcon" class="fa-solid fa-circle-check text-green-400" aria-hidden="true"></i>
+      <span id="toastMsg" class="font-semibold flex-1"></span>
+      <button type="button" data-action="close-toast" aria-label="Fechar aviso" class="w-11 h-11 -my-1 -mr-2 shrink-0 rounded-full flex items-center justify-center"><i class="fa-solid fa-xmark" aria-hidden="true"></i></button>
+    </div>
+    <p id="liveStatus" role="status" aria-live="polite" class="sr-only"></p>
+  </div>
+
+  <!-- Menu lateral -->
+  <dialog id="sideDrawer" class="drawer" aria-labelledby="drawerTitle">
+    <div class="h-full p-5 flex flex-col">
+      <div class="flex items-center justify-between border-b pb-4 mb-4">
+        <h2 id="drawerTitle" class="font-extrabold text-slate-800 text-lg">Menu</h2>
+        <button type="button" data-action="close-dialog" aria-label="Fechar menu" class="text-slate-700 hover:text-slate-900 w-11 h-11 rounded-lg flex items-center justify-center">
+          <i class="fa-solid fa-xmark text-xl" aria-hidden="true"></i>
+        </button>
+      </div>
+      <nav aria-label="Menu lateral" class="space-y-2 flex-1">
+        <a href="#/sobre" data-close-dialog class="w-full min-h-11 px-3 rounded-xl hover:bg-purple-50 hover:text-brand-darkPurple font-semibold text-slate-800 flex items-center gap-3">
+          <i class="fa-solid fa-circle-info text-amber-700 w-5" aria-hidden="true"></i> Sobre nós
+        </a>
+        <button type="button" data-action="open-terms" class="w-full text-left px-3 rounded-xl hover:bg-purple-50 hover:text-brand-darkPurple font-semibold text-slate-800 flex items-center gap-3">
+          <i class="fa-solid fa-file-contract text-slate-600 w-5" aria-hidden="true"></i> Termos e Privacidade
+        </button>
+        <button type="button" data-action="toggle-dyslexia" data-dyslexia-toggle aria-pressed="false" class="w-full text-left px-3 rounded-xl hover:bg-purple-50 hover:text-brand-darkPurple font-semibold text-slate-800 flex items-center gap-3">
+          <i class="fa-solid fa-universal-access text-indigo-700 w-5" aria-hidden="true"></i>
+          <span class="flex-1">Fonte para dislexia</span>
+          <span data-dyslexia-badge class="text-xs font-extrabold px-2 py-0.5 rounded-full bg-slate-200 text-slate-800">Desligada</span>
+        </button>
+      </nav>
+      <div class="pt-4 border-t border-slate-100 text-sm text-slate-700 space-y-2">
+        <p id="drawerUserStatus" class="break-words"></p>
+        <button id="btnDrawerAccount" type="button" data-action="logout" class="w-full bg-brand-purple text-white rounded-xl font-bold text-sm"></button>
+      </div>
+    </div>
+  </dialog>
+
+  <!-- Termos de Uso e Política de Privacidade -->
+  <dialog id="termsModal" aria-labelledby="termsModalTitle" class="w-[calc(100%-1.5rem)] max-w-sm bg-white rounded-3xl p-0 shadow-2xl border border-purple-200">
+    <div class="p-5 flex flex-col max-h-[85dvh]">
+      <div class="flex items-center justify-between border-b pb-3 shrink-0">
+        <div class="flex items-center gap-2">
+          <div class="w-8 h-8 rounded-xl bg-purple-100 text-brand-purple flex items-center justify-center font-bold text-sm">
+            <i class="fa-solid fa-shield-halved" aria-hidden="true"></i>
+          </div>
+          <div>
+            <h2 id="termsModalTitle" class="font-extrabold text-slate-900 text-sm leading-tight">Termos e Privacidade</h2>
+            <p class="text-xs text-slate-700 font-medium">LGPD, Lei 13.709/2018</p>
+          </div>
+        </div>
+        <button type="button" data-action="close-dialog" aria-label="Fechar Termos e Privacidade" class="text-slate-700 hover:text-slate-900 w-11 h-11 rounded-lg flex items-center justify-center">
+          <i class="fa-solid fa-xmark text-lg" aria-hidden="true"></i>
+        </button>
+      </div>
+
+      <div tabindex="0" role="region" aria-label="Texto dos Termos e da Política de Privacidade" class="flex-1 overflow-y-auto custom-scrollbar my-3 pr-1 text-sm text-slate-800 space-y-4 font-serif-roboto leading-relaxed">
+        <div class="space-y-2 border-b pb-3">
+          <h3 class="font-sans font-extrabold text-brand-darkPurple text-sm">Capítulo I: Termos de Uso</h3>
+
+          <div class="space-y-1.5">
+            <h4 class="font-sans font-bold text-slate-900 text-sm">1. Aceite das regras e objeto do ecossistema</h4>
+            <p>Seja muito bem-vindo, bem-vinda e bem-vinde ao ecossistema da <strong>CTRL GIRL</strong>! O aplicativo é destinado a pessoas com 16 anos ou mais e reúne conteúdos e comunidade sobre o cenário competitivo de eSports, com foco especial no CBLOL e no VCT Américas. Ao criar uma conta, você aceita estes Termos de Uso e a Política de Privacidade.</p>
+          </div>
+
+          <div class="space-y-1.5">
+            <h4 class="font-sans font-bold text-slate-900 text-sm">2. Conduta da comunidade e tolerância zero à toxicidade</h4>
+            <p>O espaço da CTRL GIRL é pautado pelo respeito, inclusão e apoio mútuo:</p>
+            <ul class="list-disc pl-4 space-y-1">
+              <li><strong>Veracidade e sigilo:</strong> você se compromete a fornecer informações verdadeiras e a manter o sigilo do seu login e senha.</li>
+              <li><strong>Ambiente livre de toxicidade:</strong> é proibido qualquer conteúdo ou interação com discurso de ódio, machismo, racismo, lgbtfobia, capacitismo, assédio ou comportamento tóxico.</li>
+              <li><strong>Sanções:</strong> o descumprimento pode resultar em advertência, suspensão temporária ou banimento da conta, a critério da administração.</li>
+            </ul>
+          </div>
+
+          <div class="space-y-1.5">
+            <h4 class="font-sans font-bold text-slate-900 text-sm">3. Propriedade intelectual e licença limitada</h4>
+            <p>Marca, logotipos, identidade visual, textos, ilustrações, fotos, vídeos e códigos-fonte pertencem à CTRL GIRL ou a terceiros licenciantes. Você recebe uma licença pessoal, limitada, não exclusiva, revogável e intransferível para visualização e uso pessoal não comercial.</p>
+          </div>
+
+          <div class="space-y-1.5">
+            <h4 class="font-sans font-bold text-slate-900 text-sm">4. Links externos</h4>
+            <p>O aplicativo pode conter links para sites externos. A CTRL GIRL não se responsabiliza pelo conteúdo nem pelas práticas de privacidade desses sites.</p>
+          </div>
+        </div>
+
+        <div class="space-y-3 pt-1">
+          <h3 class="font-sans font-extrabold text-brand-darkPurple text-sm">Capítulo II: Política de Privacidade (LGPD)</h3>
+          <p>Esta Política regula o tratamento de dados pessoais pela CTRL GIRL, em observância à Lei Geral de Proteção de Dados (Lei nº 13.709/2018).</p>
+
+          <div class="space-y-1.5">
+            <h4 class="font-sans font-bold text-slate-900 text-sm">5. Controladora e canal do encarregado</h4>
+            <p>A CTRL GIRL atua como controladora dos dados pessoais. Contato do encarregado (Art. 41 da LGPD):</p>
+            <p class="bg-purple-100 p-2.5 rounded-xl border border-purple-300 font-sans"><a href="mailto:ctrlgirlesports@gmail.com" class="text-brand-darkPurple font-extrabold underline break-all">ctrlgirlesports@gmail.com</a></p>
+          </div>
+
+          <div class="space-y-2">
+            <h4 class="font-sans font-bold text-slate-900 text-sm">6. Dados tratados, finalidades e bases legais</h4>
+            <div tabindex="0" role="region" aria-label="Tabela de dados tratados" class="overflow-x-auto rounded-xl border border-slate-300 font-sans my-2">
+              <table class="w-full min-w-[32rem] text-left text-xs">
+                <thead class="bg-purple-100 text-slate-900 font-extrabold">
+                  <tr>
+                    <th scope="col" class="p-2 border-b">Dados</th>
+                    <th scope="col" class="p-2 border-b">Finalidade</th>
+                    <th scope="col" class="p-2 border-b">Base legal</th>
+                  </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-200 bg-white">
+                  <tr>
+                    <td class="p-2 font-bold text-slate-900">Nome ou nome social, nickname, e-mail e senha criptografada</td>
+                    <td class="p-2">Criar e gerenciar a conta e autenticar acessos.</td>
+                    <td class="p-2">Execução de contrato (Art. 7º, V)</td>
+                  </tr>
+                  <tr>
+                    <td class="p-2 font-bold text-slate-900">Data de nascimento</td>
+                    <td class="p-2">Verificar a idade mínima de 16 anos.</td>
+                    <td class="p-2">Execução de contrato (Art. 7º, V)</td>
+                  </tr>
+                  <tr>
+                    <td class="p-2 font-bold text-slate-900">Gênero, raça ou etnia e cidade (opcionais)</td>
+                    <td class="p-2">Aparecer apenas no seu próprio perfil. Não são públicos nem compartilhados. Raça e etnia são dados pessoais sensíveis (Art. 5º, II).</td>
+                    <td class="p-2">Consentimento (Art. 7º, I e Art. 11, I)</td>
+                  </tr>
+                  <tr>
+                    <td class="p-2 font-bold text-slate-900">Foto, tópicos, comentários, curtidas e lembretes</td>
+                    <td class="p-2">Permitir a interação na comunidade e a moderação contra discurso de ódio.</td>
+                    <td class="p-2">Legítimo interesse (Art. 7º, IX e Art. 10)</td>
+                  </tr>
+                  <tr>
+                    <td class="p-2 font-bold text-slate-900">Data e versão do aceite destes Termos</td>
+                    <td class="p-2">Comprovar o aceite.</td>
+                    <td class="p-2">Exercício regular de direitos (Art. 7º, VI)</td>
+                  </tr>
+                  <tr>
+                    <td class="p-2 font-bold text-slate-900">Endereço IP e registros de acesso</td>
+                    <td class="p-2">Segurança e prevenção a abusos.</td>
+                    <td class="p-2">Obrigação legal (Art. 7º, II)</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <div class="space-y-1.5">
+            <h4 class="font-sans font-bold text-slate-900 text-sm">7. Adolescentes (Art. 14 da LGPD)</h4>
+            <ul class="list-disc pl-4 space-y-1">
+              <li><strong>Idade mínima:</strong> cadastros de pessoas com menos de 16 anos são bloqueados.</li>
+              <li><strong>Sem condicionamento:</strong> a participação não depende de informar dados opcionais.</li>
+              <li><strong>Comunicação clara:</strong> as informações sobre o tratamento de dados são prestadas em linguagem simples.</li>
+            </ul>
+          </div>
+
+          <div class="space-y-1.5">
+            <h4 class="font-sans font-bold text-slate-900 text-sm">8. Compartilhamento de dados</h4>
+            <p>A CTRL GIRL não vende dados pessoais. O compartilhamento ocorre apenas com empresas de hospedagem e infraestrutura e com autoridades públicas, no cumprimento de ordens ou obrigações legais (Art. 7º, II).</p>
+          </div>
+
+          <div class="space-y-1.5">
+            <h4 class="font-sans font-bold text-slate-900 text-sm">9. Armazenamento no navegador e imagens externas</h4>
+            <p>O aplicativo não usa cookies de análise nem de publicidade. Ele guarda no seu navegador apenas a sua sessão e a preferência de fonte. Algumas imagens das matérias são carregadas de sites externos, que podem registrar o seu endereço IP.</p>
+          </div>
+
+          <div class="space-y-1.5">
+            <h4 class="font-sans font-bold text-slate-900 text-sm">10. Direitos do titular (Art. 18 da LGPD)</h4>
+            <p>Em <strong>Perfil</strong> você pode ver e corrigir seus dados e excluir a sua conta. Os demais pedidos podem ser enviados gratuitamente, a qualquer momento, para <strong class="text-brand-darkPurple break-all">ctrlgirlesports@gmail.com</strong>:</p>
+            <ol class="list-decimal pl-4 space-y-0.5">
+              <li>Confirmação da existência de tratamento.</li>
+              <li>Acesso aos dados.</li>
+              <li>Correção de dados incompletos, inexatos ou desatualizados.</li>
+              <li>Anonimização, bloqueio ou eliminação de dados desnecessários ou excessivos.</li>
+              <li>Portabilidade dos dados a outro fornecedor de serviço.</li>
+              <li>Eliminação dos dados tratados com consentimento.</li>
+              <li>Informação sobre com quem os dados foram compartilhados.</li>
+              <li>Revogação do consentimento.</li>
+            </ol>
+          </div>
+
+          <div class="space-y-1.5">
+            <h4 class="font-sans font-bold text-slate-900 text-sm">11. Segurança e incidentes</h4>
+            <p>Adotamos medidas como senhas criptografadas com bcrypt, conexão HTTPS e controle de acesso. Nenhum sistema é totalmente imune: em caso de incidente de segurança relevante, a CTRL GIRL comunicará a Autoridade Nacional de Proteção de Dados (ANPD) e as pessoas afetadas (Art. 48).</p>
+          </div>
+
+          <div class="space-y-1.5">
+            <h4 class="font-sans font-bold text-slate-900 text-sm">12. Retenção de dados</h4>
+            <p>Os dados ficam guardados enquanto a conta existir. Ao excluir a conta, seus dados, tópicos, comentários, curtidas e lembretes são apagados. Registros de acesso podem ser mantidos pelo prazo exigido em lei.</p>
+          </div>
+
+          <div class="space-y-1.5">
+            <h4 class="font-sans font-bold text-slate-900 text-sm">13. Alterações</h4>
+            <p>Estes Termos podem ser atualizados. Em caso de alterações significativas, a CTRL GIRL avisará de forma destacada e prévia. Versão atual: 31/10/2026.</p>
+          </div>
+
+          <div class="space-y-1.5">
+            <h4 class="font-sans font-bold text-slate-900 text-sm">14. Legislação aplicável e foro</h4>
+            <p>Estes Termos são regidos pela legislação brasileira, em especial a LGPD e o Marco Civil da Internet. Fica eleito o foro do domicílio de quem usa o aplicativo.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="pt-3 border-t shrink-0">
+        <button type="button" data-action="close-dialog" class="w-full bg-brand-purple hover:bg-brand-darkPurple text-white font-bold rounded-2xl text-sm transition shadow-md">Fechar</button>
+      </div>
+    </div>
+  </dialog>
+
+  <!-- Compartilhar matéria -->
+  <dialog id="shareModal" aria-labelledby="shareModalTitle" class="w-[calc(100%-2rem)] max-w-xs bg-white rounded-2xl p-0 shadow-2xl">
+    <div class="p-5 space-y-4 text-center">
+      <div class="flex items-center justify-between border-b pb-2">
+        <h2 id="shareModalTitle" class="font-extrabold text-slate-900 text-sm">Compartilhar matéria</h2>
+        <button type="button" data-action="close-dialog" aria-label="Fechar" class="text-slate-700 hover:text-slate-900 w-11 h-11 rounded flex items-center justify-center">
+          <i class="fa-solid fa-xmark text-sm" aria-hidden="true"></i>
+        </button>
+      </div>
+      <p id="shareModalArticleName" class="text-sm font-bold text-slate-800 line-clamp-2 text-left bg-slate-50 p-2.5 rounded-lg border border-slate-200"></p>
+      <div class="grid grid-cols-2 gap-2">
+        <a id="shareWhatsapp" target="_blank" rel="noopener noreferrer" class="flex flex-col items-center justify-center min-h-11 p-2.5 bg-emerald-50 text-emerald-900 rounded-xl font-bold text-xs hover:bg-emerald-100 transition">
+          <i class="fa-brands fa-whatsapp text-2xl mb-1 text-emerald-700" aria-hidden="true"></i> WhatsApp
+        </a>
+        <a id="shareTwitter" target="_blank" rel="noopener noreferrer" class="flex flex-col items-center justify-center min-h-11 p-2.5 bg-sky-50 text-sky-900 rounded-xl font-bold text-xs hover:bg-sky-100 transition">
+          <i class="fa-brands fa-x-twitter text-2xl mb-1 text-sky-800" aria-hidden="true"></i> X / Twitter
+        </a>
+        <a id="shareTelegram" target="_blank" rel="noopener noreferrer" class="flex flex-col items-center justify-center min-h-11 p-2.5 bg-blue-50 text-blue-900 rounded-xl font-bold text-xs hover:bg-blue-100 transition">
+          <i class="fa-brands fa-telegram text-2xl mb-1 text-blue-700" aria-hidden="true"></i> Telegram
+        </a>
+        <a id="shareFacebook" target="_blank" rel="noopener noreferrer" class="flex flex-col items-center justify-center min-h-11 p-2.5 bg-indigo-50 text-indigo-900 rounded-xl font-bold text-xs hover:bg-indigo-100 transition">
+          <i class="fa-brands fa-facebook text-2xl mb-1 text-indigo-700" aria-hidden="true"></i> Facebook
+        </a>
+        <button type="button" data-action="copy-link" class="flex flex-col items-center justify-center p-2.5 bg-purple-50 text-brand-darkPurple rounded-xl font-bold text-xs hover:bg-purple-100 transition">
+          <i class="fa-solid fa-link text-2xl mb-1" aria-hidden="true"></i> Copiar link
+        </button>
+        <button id="btnNativeShare" type="button" data-action="native-share" class="hidden flex-col items-center justify-center p-2.5 bg-slate-100 text-slate-800 rounded-xl font-bold text-xs hover:bg-slate-200 transition">
+          <i class="fa-solid fa-share-nodes text-2xl mb-1" aria-hidden="true"></i> Mais opções
+        </button>
+      </div>
+    </div>
+  </dialog>
+
+  <!-- Pedido de login para quem navega como visitante -->
+  <dialog id="loginDialog" aria-labelledby="loginDialogTitle" class="w-[calc(100%-2rem)] max-w-xs bg-white rounded-2xl p-0 shadow-2xl">
+    <div class="p-5 space-y-4">
+      <h2 id="loginDialogTitle" class="font-extrabold text-slate-900 text-base">Entre para continuar</h2>
+      <p id="loginDialogText" class="text-sm text-slate-700"></p>
+      <div class="space-y-2">
+        <button type="button" data-action="go-login" class="w-full bg-brand-purple hover:bg-brand-darkPurple text-white font-bold rounded-xl text-sm">Entrar ou criar conta</button>
+        <button type="button" data-action="close-dialog" class="w-full bg-slate-200 hover:bg-slate-300 text-slate-800 font-bold rounded-xl text-sm">Agora não</button>
+      </div>
+    </div>
+  </dialog>
+
+  <!-- Confirmação para excluir a conta -->
+  <dialog id="deleteDialog" aria-labelledby="deleteDialogTitle" class="w-[calc(100%-2rem)] max-w-xs bg-white rounded-2xl p-0 shadow-2xl">
+    <form data-form="delete" novalidate class="p-5 space-y-3">
+      <h2 id="deleteDialogTitle" class="font-extrabold text-slate-900 text-base">Excluir a conta?</h2>
+      <p class="text-sm text-slate-700">Seus dados e publicações serão apagados agora, e não dá para desfazer.</p>
+      <p data-form-error role="alert" class="form-error hidden"></p>
+      <div>
+        <label for="deletePassword" class="field-label">Confirme com a sua senha</label>
+        <input type="password" id="deletePassword" name="password" required autocomplete="current-password" aria-describedby="deletePasswordError" class="box-input" />
+        <p id="deletePasswordError" data-error-for="password" class="field-error hidden"></p>
+      </div>
+      <div class="space-y-2">
+        <button type="submit" class="w-full bg-rose-800 hover:bg-rose-900 text-white font-bold rounded-xl text-sm">Excluir definitivamente</button>
+        <button type="button" data-action="close-dialog" class="w-full bg-slate-200 hover:bg-slate-300 text-slate-800 font-bold rounded-xl text-sm">Cancelar</button>
+      </div>
+    </form>
+  </dialog>
+</body>
+</html>
