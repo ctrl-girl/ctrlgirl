@@ -4,6 +4,7 @@ const { execSync, spawn, spawnSync } = require('node:child_process');
 const fs = require('node:fs');
 const net = require('node:net');
 const path = require('node:path');
+const { pathToFileURL } = require('node:url');
 const jwt = require('jsonwebtoken');
 
 const ROOT = path.join(__dirname, '..');
@@ -513,23 +514,63 @@ describe('fórum (A2, M9)', () => {
     assert.equal(list.text.includes('birthDate'), false);
   });
 
-  test('tópicos e respostas não expõem foto nem papel do autor', async () => {
-    const { token, user } = await register();
-    await prisma.user.update({ where: { id: user.id }, data: { avatarUrl: 'data:image/jpeg;base64,AAAA' } });
-    const created = await call('POST', '/api/forum/topicos', { token, body: { title: 'Sem foto', category: 'Comunidade', content: 'Texto' } });
+  test('tópicos e respostas trazem o endereço da foto, sem a imagem nem o papel do autor', async () => {
+    const { token } = await register();
+    await call('PATCH', '/api/auth/me', { token, body: { avatarUrl: 'data:image/jpeg;base64,/9j/4AAQSkZJRgABAQ==' } });
+    const created = await call('POST', '/api/forum/topicos', { token, body: { title: 'Com foto', category: 'Comunidade', content: 'Texto' } });
     const id = created.body.topic.id;
     const comment = await call('POST', `/api/forum/topicos/${id}/comentarios`, { token, body: { content: 'Resposta' } });
     await call('POST', '/api/materias/9/comentarios', { token, body: { content: 'Comentário' } });
-    const responses = await Promise.all([
+    const [list, detail, articleComments] = await Promise.all([
       call('GET', '/api/forum/topicos'),
       call('GET', `/api/forum/topicos/${id}`),
       call('GET', '/api/materias/9/comentarios'),
     ]);
-    for (const response of [created, comment, ...responses]) {
+    for (const response of [created, comment, list, detail, articleComments]) {
       assert.equal(response.text.includes('data:image'), false);
-      assert.equal(response.text.includes('avatarUrl'), false);
+      assert.equal(response.text.includes('avatarUpdatedAt'), false);
       assert.equal(response.text.includes('"role"'), false);
     }
+    const photo = created.body.topic.author.avatarUrl;
+    assert.match(photo, /^\/api\/usuarios\/[\w-]+\/foto\?v=\d+$/);
+    assert.equal(comment.body.comment.author.avatarUrl, photo);
+    assert.equal(list.body.find((topic) => topic.id === id).author.avatarUrl, photo);
+    assert.equal(detail.body.author.avatarUrl, photo);
+    assert.equal(detail.body.comments[0].author.avatarUrl, photo);
+    assert.equal(articleComments.text.includes('avatarUrl'), false);
+  });
+
+  test('sem foto, o autor vem sem endereço de foto', async () => {
+    const { token } = await register();
+    const created = await call('POST', '/api/forum/topicos', { token, body: { title: 'Sem foto', category: 'Comunidade', content: 'Texto' } });
+    assert.equal(created.body.topic.author.avatarUrl, null);
+  });
+
+  test('a foto sai como imagem, e o endereço muda quando ela muda', async () => {
+    const { token, user } = await register();
+    const jpeg = Buffer.from('/9j/4AAQSkZJRgABAQ==', 'base64');
+    await call('PATCH', '/api/auth/me', { token, body: { avatarUrl: `data:image/jpeg;base64,${jpeg.toString('base64')}` } });
+    const created = await call('POST', '/api/forum/topicos', { token, body: { title: 'Foto nova', category: 'Comunidade', content: 'Texto' } });
+    const topicUrl = `/api/forum/topicos/${created.body.topic.id}`;
+    const first = created.body.topic.author.avatarUrl;
+
+    const image = await fetch(baseUrl + first);
+    assert.equal(image.status, 200);
+    assert.equal(image.headers.get('content-type'), 'image/jpeg');
+    assert.match(image.headers.get('cache-control'), /max-age=[1-9]/);
+    assert.deepEqual(Buffer.from(await image.arrayBuffer()), jpeg);
+    // Sem a versão atual no endereço, o navegador não guarda: a foto pode ter mudado.
+    assert.equal((await fetch(`${baseUrl}/api/usuarios/${user.id}/foto?v=1`)).headers.get('cache-control'), 'no-cache');
+
+    await new Promise((resolve) => setTimeout(resolve, 5));
+    await call('PATCH', '/api/auth/me', { token, body: { avatarUrl: 'data:image/png;base64,iVBORw0KGgo=' } });
+    const second = (await call('GET', topicUrl)).body.author.avatarUrl;
+    assert.notEqual(second, first);
+    assert.equal((await fetch(baseUrl + second)).headers.get('content-type'), 'image/png');
+
+    await call('PATCH', '/api/auth/me', { token, body: { avatarUrl: null } });
+    assert.equal((await call('GET', topicUrl)).body.author.avatarUrl, null);
+    assert.equal((await fetch(`${baseUrl}/api/usuarios/${user.id}/foto`)).status, 404);
   });
 
   test('limita o tamanho das listas', async () => {
@@ -563,6 +604,45 @@ describe('fórum (A2, M9)', () => {
     const { token } = await register();
     const response = await call('POST', '/api/forum/topicos/nao-existe/comentarios', { token, body: { content: 'Oi' } });
     assert.equal(response.status, 404);
+  });
+});
+
+describe('link de matéria compartilhado', () => {
+  const APP_SCRIPT = '<script type="module" src="/js/app.mjs"></script>';
+  const metaContent = (page, property) => (page.match(new RegExp(`<meta property="${property}" content="([^"]*)" />`)) ?? [])[1];
+
+  test('a prévia mostra título, resumo e imagem da matéria', async () => {
+    const { articles } = await import(pathToFileURL(path.join(ROOT, 'public', 'js', 'data.mjs')).href);
+    const article = articles.find((item) => item.id === 1);
+    const page = await call('GET', '/materia/1');
+    assert.equal(page.status, 200);
+    assert.match(page.headers.get('content-type'), /^text\/html/);
+    assert.equal(metaContent(page.text, 'og:title'), article.title.trim());
+    assert.equal(metaContent(page.text, 'og:description'), article.summary);
+    assert.equal(metaContent(page.text, 'og:image'), article.image);
+    assert.equal(metaContent(page.text, 'og:url'), `${baseUrl}/materia/1`);
+    assert.ok(page.text.includes(`<title>${article.title.trim()} | CTRL GIRL</title>`));
+    assert.ok(page.text.includes(APP_SCRIPT), 'a página continua sendo o app');
+  });
+
+  test('matéria que não existe abre o app, sem prévia', async () => {
+    for (const id of ['999', 'abc', '12345']) {
+      const page = await call('GET', `/materia/${id}`);
+      assert.equal(page.status, 404, id);
+      assert.ok(page.text.includes(APP_SCRIPT), id);
+      assert.equal(metaContent(page.text, 'og:title'), undefined, id);
+    }
+  });
+
+  test('o texto da matéria entra escapado, e imagem local ganha o endereço do site', () => {
+    const { articlePageHtml } = require('../articlePage');
+    const template = '<head>\n  <title>CTRL GIRL - eSports Inclusivo</title>\n  <meta name="description" content="Portal" />\n</head>';
+    const page = articlePageHtml(template, { id: 7, title: ' A & "B" <c> $& ', summary: "D'água", image: '/img/x.png' }, 'https://app.example');
+    assert.ok(page.includes('<title>A &amp; &quot;B&quot; &lt;c&gt; $&amp; | CTRL GIRL</title>'), page);
+    assert.equal(metaContent(page, 'og:description'), 'D&#39;água');
+    assert.equal(metaContent(page, 'og:image'), 'https://app.example/img/x.png');
+    assert.equal(metaContent(page, 'og:url'), 'https://app.example/materia/7');
+    assert.equal(page.includes('Portal'), false);
   });
 });
 

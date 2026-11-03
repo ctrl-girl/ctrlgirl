@@ -4,6 +4,7 @@ import {
   html,
   toHtml,
   parseRoute,
+  sharedArticleHash,
   searchContent,
   filterByTournament,
   summarizeResults,
@@ -518,6 +519,12 @@ async function addToCalendar(button) {
 }
 
 // ---------- Fórum ----------
+// Foto de quem escreveu; sem foto, o ícone de pessoa.
+function authorPhoto(author) {
+  if (!author.avatarUrl) return html`<i class="fa-regular fa-user text-brand-purple" aria-hidden="true"></i>`;
+  return html`<img src="${author.avatarUrl}" alt="" loading="lazy" class="w-6 h-6 rounded-full object-cover shrink-0" />`;
+}
+
 function topicCard(topic, heading = 'h2') {
   return html`
     <article class="relative p-4 rounded-2xl shadow-sm border transition hover:border-purple-300 bg-white border-slate-200 space-y-2.5">
@@ -530,7 +537,7 @@ function topicCard(topic, heading = 'h2') {
       </${heading}>
       <p class="text-sm text-slate-700 line-clamp-2 break-words">${topic.content}</p>
       <div class="flex items-center justify-between gap-2 pt-1 text-xs text-slate-700 font-medium border-t border-slate-200">
-        <span class="flex items-center gap-1 min-w-0 break-words"><i class="fa-regular fa-user text-brand-purple" aria-hidden="true"></i> ${topic.author.nickname}</span>
+        <span class="flex items-center gap-1.5 min-w-0 break-words">${authorPhoto(topic.author)} ${topic.author.nickname}</span>
         <span class="bg-slate-100 px-2 py-0.5 rounded-full text-slate-800 font-bold flex items-center gap-1 shrink-0">
           <i class="fa-regular fa-comment" aria-hidden="true"></i> ${plural(topic._count.comments, 'resposta', 'respostas')}
         </span>
@@ -585,7 +592,7 @@ function commentItem(comment) {
   return html`
     <div class="bg-slate-50 p-3 rounded-xl border border-slate-200 text-sm space-y-1">
       <div class="flex flex-wrap items-center justify-between gap-1 font-bold text-slate-900">
-        <span class="break-words min-w-0">@${comment.author.nickname}</span>
+        <span class="flex items-center gap-1.5 break-words min-w-0">${authorPhoto(comment.author)} @${comment.author.nickname}</span>
         <span class="text-xs text-slate-600 font-normal">${formatDateTime(comment.createdAt)}</span>
       </div>
       <p class="text-slate-800 leading-relaxed whitespace-pre-line break-words">${comment.content}</p>
@@ -613,7 +620,7 @@ async function renderTopic({ id }) {
   $('topicDetailCategory').textContent = topic.category;
   $('topicDetailDate').textContent = formatDate(topic.createdAt);
   $('topicDetailTitle').textContent = topic.title;
-  $('topicDetailAuthor').textContent = `Por @${topic.author.nickname}`;
+  setHtml('topicDetailAuthor', html`${authorPhoto(topic.author)} <span>Por @${topic.author.nickname}</span>`);
   $('topicDetailContent').textContent = topic.content;
   $('replyForm').classList.toggle('hidden', !isSignedIn());
   $('replyLoginPrompt').classList.toggle('hidden', isSignedIn());
@@ -715,7 +722,8 @@ async function likeArticle() {
 }
 
 // ---------- Compartilhar ----------
-const articleUrl = () => `${location.origin}/#/materia/${state.article.id}`;
+// Sem "#": o servidor recebe o endereço inteiro e devolve a prévia com título e imagem da matéria.
+const articleUrl = () => `${location.origin}/materia/${state.article.id}`;
 
 function openShare() {
   const links = shareLinks({ title: state.article.title, url: articleUrl() });
@@ -1156,6 +1164,10 @@ function hideSplash() {
 }
 
 async function boot() {
+  // Link compartilhado chega como /materia/N: vira #/materia/N, e os links internos voltam a partir da raiz.
+  const shared = sharedArticleHash(location.pathname);
+  if (shared) history.replaceState(null, '', `/${shared}`);
+
   document.addEventListener('click', onClick);
   document.addEventListener('submit', onSubmit);
   document.addEventListener('input', onInput);

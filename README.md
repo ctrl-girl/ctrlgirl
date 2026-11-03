@@ -98,7 +98,8 @@ Ao publicar uma mudança no front, altere também `public/sw.js`, por exemplo o 
 
 ## Conteúdo
 
-- **Matérias:** `public/js/data.mjs`.
+- **Matérias:** `public/js/data.mjs`. O link de compartilhar é `/materia/N`: o servidor devolve o app com o título, o resumo (`summary`) e a imagem da matéria nas tags que o WhatsApp, o Telegram e as redes usam para montar a prévia. Por isso, a imagem precisa de endereço completo ou começar com `/`, e o resumo é o texto que aparece embaixo do título.
+- **Fotos de perfil:** no fórum, aparecem ao lado do apelido, carregadas de `/api/usuarios/:id/foto`.
 - **Jogos e resultados:** vêm das fontes acima. Use `prisma/seed.js` para o que as fontes não cobrem: inclua o jogo ali, com um `id` próprio, e reinicie o servidor. Jogos com data passada não aparecem em Próximos jogos.
 - **Jogo cadastrado à mão que também está na fonte:** a fonte assume a linha em vez de duplicar, desde que o torneio e os times sejam os mesmos e a diferença de horário seja de até 18 horas. A exceção é o jogo que a fonte já listava como "A definir" antes de você cadastrar: ele fica duplicado, e basta tirar o seu do `seed.js`.
 
@@ -106,6 +107,7 @@ Ao publicar uma mudança no front, altere também `public/sw.js`, por exemplo o 
 
 ```text
 app.js              rotas da API e proteções
+articlePage.js      prévia das matérias no link compartilhado
 server.js           início do servidor e leitura do ambiente
 validation.js       regras de validação
 matchSources.js     fontes externas de jogos

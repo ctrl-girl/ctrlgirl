@@ -18,6 +18,8 @@ model User {
   race            String?
   city            String?
   avatarUrl       String?
+  // Muda junto com a foto e entra no endereço dela: o navegador guarda a imagem até ela mudar.
+  avatarUpdatedAt DateTime?
   role            String    @default("USER")
   tokenVersion    Int       @default(0)
   termsAcceptedAt DateTime?

@@ -65,6 +65,13 @@ export function parseRoute(hash) {
   return { view: 'home' };
 }
 
+// O link compartilhado é /materia/N, que o servidor entrega com a prévia da matéria.
+// Dentro do app, a navegação segue por #/materia/N.
+export function sharedArticleHash(pathname) {
+  const article = /^\/materia\/(\d{1,4})\/?$/.exec(pathname);
+  return article ? `#/materia/${article[1]}` : null;
+}
+
 // ---------- Busca e filtros ----------
 const normalize = (text) => String(text ?? '').normalize('NFD').replace(/\p{M}/gu, '').toLowerCase();
 
@@ -200,9 +207,9 @@ export function buildIcs(match, now = new Date()) {
 }
 
 export function shareLinks({ title, url }) {
-  const text = encodeURIComponent(`${title} ${url}`);
+  const text = encodeURIComponent(`${title.trim()} ${url}`);
   const encodedUrl = encodeURIComponent(url);
-  const encodedTitle = encodeURIComponent(title);
+  const encodedTitle = encodeURIComponent(title.trim());
   return {
     whatsapp: `https://wa.me/?text=${text}`,
     twitter: `https://twitter.com/intent/tweet?text=${encodedTitle}&url=${encodedUrl}`,

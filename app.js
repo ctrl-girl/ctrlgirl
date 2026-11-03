@@ -1,4 +1,6 @@
+const fs = require('fs');
 const path = require('path');
+const { pathToFileURL } = require('url');
 const express = require('express');
 const cors = require('cors');
 const helmet = require('helmet');
@@ -22,16 +24,26 @@ const {
   validateAvatar,
   validateArticleId,
 } = require('./validation');
+const { articlePageHtml, SITE_HEAD } = require('./articlePage');
 
 const CONFLICT_MESSAGE = 'E-mail ou nickname indisponível. Se você já tem conta, faça login.';
 const INVALID_LOGIN_MESSAGE = 'E-mail, nickname ou senha incorretos.';
 const WRONG_PASSWORD_MESSAGE = 'A senha atual não confere.';
 const PUBLIC_AUTHOR = { select: { nickname: true } };
+// No fórum, a foto aparece ao lado do apelido. Vai só o endereço dela, nunca a imagem:
+// a lista fica leve, e o navegador baixa cada foto uma vez só.
+const FORUM_AUTHOR = { select: { id: true, nickname: true, avatarUpdatedAt: true } };
 const MAX_LIST_ITEMS = 200;
 // Passado disso sem a fonte confirmar, o jogo deixa de aparecer como ao vivo: é melhor sumir do que afirmar errado.
 const LIVE_CONFIRMATION_MS = 30 * 60 * 1000;
 // Comparar com este hash quando a conta não existe evita revelar, pelo tempo de resposta, quais contas existem.
 const DUMMY_HASH = bcrypt.hashSync('conta-inexistente', 10);
+
+function forumAuthor({ id, nickname, avatarUpdatedAt }) {
+  return { nickname, avatarUrl: avatarUpdatedAt ? `/api/usuarios/${id}/foto?v=${avatarUpdatedAt.getTime()}` : null };
+}
+
+const withForumAuthor = (item) => ({ ...item, author: forumAuthor(item.author) });
 
 function createApp({ prisma, jwtSecret, jwtExpiresIn = '1d', corsOrigins = [], rateLimits = {}, trustProxyHops = 1, matchSync = null }) {
   const limits = { login: 10, register: 30, write: 30, password: 5, ...rateLimits };
@@ -63,6 +75,20 @@ function createApp({ prisma, jwtSecret, jwtExpiresIn = '1d', corsOrigins = [], r
 
   // Só a pasta public é servida: o banco, o código do servidor e as configurações ficam fora dela.
   app.use(express.static(path.join(__dirname, 'public')));
+
+  // Link compartilhado de matéria: a página do app, com a prévia daquela matéria.
+  // Ao abrir, o próprio app troca o endereço por #/materia/N.
+  const indexHtml = fs.readFileSync(path.join(__dirname, 'public', 'index.html'), 'utf8');
+  if (!SITE_HEAD.test(indexHtml)) throw new Error('O index.html precisa do <title> seguido da descrição: a prévia das matérias troca os dois.');
+  const loadArticles = () => import(pathToFileURL(path.join(__dirname, 'public', 'js', 'data.mjs')).href);
+
+  app.get('/materia/:id', async (req, res) => {
+    const { articles } = await loadArticles();
+    const article = /^\d{1,4}$/.test(req.params.id) ? articles.find((item) => item.id === Number(req.params.id)) : undefined;
+    res.set('Cache-Control', 'no-cache');
+    if (!article) return res.status(404).type('html').send(indexHtml);
+    return res.type('html').send(articlePageHtml(indexHtml, article, `${req.protocol}://${req.get('host')}`));
+  });
 
   // Respostas da API podem trazer dados pessoais e não devem sobrar no cache do aparelho.
   app.use('/api', (req, res, next) => {
@@ -228,7 +254,10 @@ function createApp({ prisma, jwtSecret, jwtExpiresIn = '1d', corsOrigins = [], r
     if ('city' in body) changes.city = optionalText(body.city, 'city', 'a cidade', { max: 80 });
     if ('gender' in body) changes.gender = validateChoice(body.gender, GENDERS, 'gender', 'gênero');
     if ('race' in body) changes.race = validateChoice(body.race, RACES, 'race', 'raça ou etnia');
-    if ('avatarUrl' in body) changes.avatarUrl = validateAvatar(body.avatarUrl);
+    if ('avatarUrl' in body) {
+      changes.avatarUrl = validateAvatar(body.avatarUrl);
+      changes.avatarUpdatedAt = changes.avatarUrl ? new Date() : null;
+    }
 
     if ('email' in body) {
       const email = validateEmail(body.email);
@@ -323,23 +352,23 @@ function createApp({ prisma, jwtSecret, jwtExpiresIn = '1d', corsOrigins = [], r
       where,
       orderBy: [{ isADM: 'desc' }, { createdAt: 'desc' }],
       take: MAX_LIST_ITEMS,
-      include: { author: PUBLIC_AUTHOR, _count: { select: { comments: true } } },
+      include: { author: FORUM_AUTHOR, _count: { select: { comments: true } } },
     });
-    return res.json(topics);
+    return res.json(topics.map(withForumAuthor));
   });
 
   app.get('/api/forum/topicos/:id', async (req, res) => {
     const topic = await prisma.forumTopic.findUnique({
       where: { id: req.params.id },
       include: {
-        author: PUBLIC_AUTHOR,
-        comments: { orderBy: { createdAt: 'desc' }, take: MAX_LIST_ITEMS, include: { author: PUBLIC_AUTHOR } },
+        author: FORUM_AUTHOR,
+        comments: { orderBy: { createdAt: 'desc' }, take: MAX_LIST_ITEMS, include: { author: FORUM_AUTHOR } },
       },
     });
     if (!topic) return res.status(404).json({ error: 'Tópico não encontrado.' });
     // As respostas mais recentes, em ordem de leitura.
     topic.comments.reverse();
-    return res.json(topic);
+    return res.json({ ...withForumAuthor(topic), comments: topic.comments.map(withForumAuthor) });
   });
 
   app.post('/api/forum/topicos', verifyAuth, writeLimiter, async (req, res) => {
@@ -356,9 +385,9 @@ function createApp({ prisma, jwtSecret, jwtExpiresIn = '1d', corsOrigins = [], r
 
     const topic = await prisma.forumTopic.create({
       data: { title, category, content, isADM, authorId: req.user.id },
-      include: { author: PUBLIC_AUTHOR, _count: { select: { comments: true } } },
+      include: { author: FORUM_AUTHOR, _count: { select: { comments: true } } },
     });
-    return res.status(201).json({ message: 'Tópico publicado!', topic });
+    return res.status(201).json({ message: 'Tópico publicado!', topic: withForumAuthor(topic) });
   });
 
   app.post('/api/forum/topicos/:id/comentarios', verifyAuth, writeLimiter, async (req, res) => {
@@ -368,9 +397,23 @@ function createApp({ prisma, jwtSecret, jwtExpiresIn = '1d', corsOrigins = [], r
 
     const comment = await prisma.forumComment.create({
       data: { content, topicId: topic.id, authorId: req.user.id },
-      include: { author: PUBLIC_AUTHOR },
+      include: { author: FORUM_AUTHOR },
     });
-    return res.status(201).json({ message: 'Resposta enviada!', comment });
+    return res.status(201).json({ message: 'Resposta enviada!', comment: withForumAuthor(comment) });
+  });
+
+  // ==========================================
+  // FOTO DE PERFIL
+  // ==========================================
+  // A foto sai como imagem. Com a versão atual no endereço, o navegador guarda por uma semana:
+  // quando a foto muda, o endereço muda junto.
+  app.get('/api/usuarios/:id/foto', async (req, res) => {
+    const user = await prisma.user.findUnique({ where: { id: req.params.id }, select: { avatarUrl: true, avatarUpdatedAt: true } });
+    const photo = /^data:(image\/(?:jpeg|png|webp));base64,(.+)$/.exec(user?.avatarUrl ?? '');
+    if (!photo) return res.status(404).json({ error: 'Foto não encontrada.' });
+    const isCurrent = req.query.v === String(user.avatarUpdatedAt?.getTime());
+    res.set('Cache-Control', isCurrent ? 'public, max-age=604800, immutable' : 'no-cache');
+    return res.type(photo[1]).send(Buffer.from(photo[2], 'base64'));
   });
 
   // ==========================================

@@ -202,6 +202,24 @@ describe('rotas (US11)', () => {
     assert.deepEqual(parseRoute('#/nao-existe'), { view: 'home' });
     assert.deepEqual(parseRoute('#/materia/abc'), { view: 'home' });
   });
+
+  test('o link compartilhado de matéria vira a rota interna', async () => {
+    const { sharedArticleHash } = await logic();
+    assert.equal(sharedArticleHash('/materia/3'), '#/materia/3');
+    assert.equal(sharedArticleHash('/materia/3/'), '#/materia/3');
+    assert.equal(sharedArticleHash('/'), null);
+    assert.equal(sharedArticleHash('/materia/abc'), null);
+    assert.equal(sharedArticleHash('/materia/12345'), null);
+  });
+
+  test('o app compartilha /materia/N e traduz esse endereço antes de escolher a tela', () => {
+    const app = read('public/js/app.mjs');
+    assert.match(app, /const articleUrl = \(\) => `\$\{location\.origin\}\/materia\/\$\{state\.article\.id\}`;/);
+    const boot = app.slice(app.indexOf('async function boot()'));
+    const translate = boot.indexOf('sharedArticleHash(location.pathname)');
+    assert.ok(translate > -1);
+    assert.ok(translate < boot.indexOf('await route()'));
+  });
 });
 
 describe('utilidades', () => {
@@ -239,10 +257,9 @@ describe('utilidades', () => {
 
   test('monta os links de compartilhamento com o endereço da matéria (US3)', async () => {
     const { shareLinks } = await logic();
-    const links = shareLinks({ title: 'Título & cia', url: 'https://app.example/#/materia/2' });
-    assert.ok(links.whatsapp.startsWith('https://wa.me/?text='));
-    assert.ok(links.whatsapp.includes(encodeURIComponent('https://app.example/#/materia/2')));
-    assert.ok(links.twitter.includes(encodeURIComponent('Título & cia')));
+    const links = shareLinks({ title: ' Título & cia ', url: 'https://app.example/materia/2' });
+    assert.equal(links.whatsapp, `https://wa.me/?text=${encodeURIComponent('Título & cia https://app.example/materia/2')}`);
+    assert.ok(links.twitter.includes(`text=${encodeURIComponent('Título & cia')}&`));
     assert.ok(links.telegram.startsWith('https://t.me/share/url?'));
     assert.ok(links.facebook.startsWith('https://www.facebook.com/sharer/'));
   });
@@ -255,6 +272,22 @@ describe('página (CSP e acessibilidade)', () => {
     assert.doesNotMatch(page, /<script(?![^>]*\bsrc=)/i);
     assert.doesNotMatch(page, /\sstyle\s*=/i);
     assert.doesNotMatch(page, /<style/i);
+  });
+
+  test('todo ícone usado existe na versão do Font Awesome do projeto', () => {
+    const css = read('public/vendor/fontawesome/css/all.min.css');
+    const used = new Set();
+    for (const file of ['public/index.html', 'public/js/app.mjs']) {
+      for (const [, name] of read(file).matchAll(/\bfa-(?:solid|regular|brands) fa-([a-z0-9-]+)/g)) used.add(name);
+    }
+    assert.ok(used.has('x-twitter'));
+    for (const name of used) assert.match(css, new RegExp(`\\.fa-${name}[,:{]`), name);
+  });
+
+  test('o fórum mostra a foto de quem escreveu no tópico, na discussão e nas respostas', () => {
+    const app = read('public/js/app.mjs');
+    assert.match(app, /function authorPhoto\(author\)/);
+    assert.equal((app.match(/authorPhoto\((topic|comment)\.author\)/g) || []).length, 3);
   });
 
   test('não depende de CDN em tempo de execução (M4, M5)', () => {
