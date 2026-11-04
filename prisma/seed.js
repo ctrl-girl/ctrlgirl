@@ -105,8 +105,8 @@ if (require.main === module) {
   } catch {
     // Sem .env local: segue com o ambiente.
   }
-  const { PrismaClient } = require('@prisma/client');
-  const prisma = new PrismaClient();
+  const { createPrisma } = require('../db');
+  const prisma = createPrisma();
   seed(prisma, process.env)
     .catch((error) => {
       console.error(`Carga inicial falhou: ${error.message}`);

@@ -4,7 +4,9 @@ datasource db {
 }
 
 generator client {
-  provider = "prisma-client-js"
+  provider        = "prisma-client-js"
+  // Permite o adaptador do Turso, usado quando TURSO_DATABASE_URL está definida (veja db.js).
+  previewFeatures = ["driverAdapters"]
 }
 
 model User {
