@@ -290,6 +290,35 @@ describe('página (CSP e acessibilidade)', () => {
     assert.equal((app.match(/authorPhoto\((topic|comment)\.author\)/g) || []).length, 3);
   });
 
+  test('no cadastro, o link dos termos aparece uma vez só', () => {
+    const page = read('public/index.html');
+    const start = page.indexOf('id="authPageRegister"');
+    const register = page.slice(start, page.indexOf('</form>', start));
+    assert.equal((register.match(/data-action="open-terms"/g) || []).length, 1);
+    assert.match(page, /<button id="authTermsButton" type="button" data-action="open-terms"/);
+    const app = read('public/js/app.mjs');
+    const start2 = app.indexOf('function switchAuthPage(');
+    assert.match(app.slice(start2, start2 + 700), /\$\('authTermsButton'\)\.classList\.toggle\('hidden', page === 'register'\)/);
+  });
+
+  test('a tela de jogos mostra "Onde assistir" uma vez só, no topo, e não em cada cartão', async () => {
+    const { HERO_ARTICLE_ID } = await data();
+    const page = read('public/index.html');
+    const header = page.slice(page.indexOf('id="viewMatches"'), page.indexOf('id="matchesContainer"'));
+    assert.match(header, new RegExp(`href="#/materia/${HERO_ARTICLE_ID}"[^>]*>[\\s\\S]*?Onde assistir`));
+    const app = read('public/js/app.mjs');
+    const card = app.slice(app.indexOf('function matchCard('), app.indexOf('function showMatches('));
+    assert.doesNotMatch(card, /Onde assistir/);
+    assert.match(card, /data-action="add-to-calendar"[^>]*aria-pressed=/);
+  });
+
+  test('aria-pressed recebe "true" ou "false" por extenso, porque o template apaga o false', () => {
+    const app = read('public/js/app.mjs');
+    const values = [...app.matchAll(/aria-pressed="\$\{([^}]*)\}"/g)].map((found) => found[1]);
+    assert.ok(values.length >= 2);
+    for (const value of values) assert.match(value, /^String\(/, value);
+  });
+
   test('não depende de CDN em tempo de execução (M4, M5)', () => {
     assert.doesNotMatch(read('public/index.html'), /https?:\/\/(cdn|cdnjs|fonts)\./i);
     assert.doesNotMatch(read('public/css/app.css'), /@master|cdn\.jsdelivr/);

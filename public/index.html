@@ -217,7 +217,7 @@
             <path d="M 0,95 C 170,170 330,170 500,95 L 500,220 L 0,220 Z" fill="#C4B5FD"/>
             <path d="M 0,130 C 190,180 310,180 500,130 L 500,220 L 0,220 Z" fill="#A78BFA"/>
           </svg>
-          <button type="button" data-action="open-terms" class="relative z-10 px-4 bg-white/90 rounded-2xl border border-white/80 shadow-sm text-sm font-extrabold text-brand-darkPurple underline">Termos e Privacidade</button>
+          <button id="authTermsButton" type="button" data-action="open-terms" class="relative z-10 px-4 bg-white/90 rounded-2xl border border-white/80 shadow-sm text-sm font-extrabold text-brand-darkPurple underline">Termos e Privacidade</button>
         </div>
       </section>
 
@@ -273,7 +273,9 @@
               <h1 class="font-extrabold text-slate-900 text-lg">Próximos jogos</h1>
               <p class="text-xs text-slate-700 font-medium">Horários de Brasília</p>
             </div>
-            <i class="fa-solid fa-calendar-days text-2xl text-brand-purple" aria-hidden="true"></i>
+            <a href="#/materia/2" class="inline-flex items-center gap-1.5 min-h-11 px-3 rounded-xl bg-purple-50 hover:bg-purple-100 text-sm text-brand-darkPurple font-bold">
+              <i class="fa-solid fa-tv" aria-hidden="true"></i> Onde assistir
+            </a>
           </div>
           <div id="matchFilters" role="group" aria-label="Filtrar por campeonato" class="flex items-center gap-2 overflow-x-auto pb-1 text-xs font-semibold custom-scrollbar"></div>
         </div>

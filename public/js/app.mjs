@@ -296,7 +296,7 @@ function renderFilter(group) {
     const on = state.filters[group] === value;
     const color = on ? `${active} text-white font-extrabold shadow-sm` : 'bg-slate-200 text-slate-800 hover:bg-slate-300 font-semibold';
     return html`
-      <button type="button" data-action="filter" data-group="${group}" data-value="${value}" aria-pressed="${on}" class="${color} px-3 rounded-full whitespace-nowrap transition flex items-center gap-1.5">
+      <button type="button" data-action="filter" data-group="${group}" data-value="${value}" aria-pressed="${String(on)}" class="${color} px-3 rounded-full whitespace-nowrap transition flex items-center gap-1.5">
         ${on ? html`<i class="fa-solid fa-check text-xs" aria-hidden="true"></i>` : ''} ${label}
       </button>
     `;
@@ -445,23 +445,18 @@ async function loadMatches() {
   state.matches = await api('/jogos/proximos');
 }
 
+// Compacto para caber mais jogos na tela. "Onde assistir" fica uma vez só, no topo da tela de jogos.
 function matchCard(match) {
   return html`
-    <article aria-label="${match.teamA} contra ${match.teamB}, ${match.tournament}" class="bg-white p-4 rounded-2xl shadow-sm border border-slate-200 space-y-3">
-      <div class="flex flex-wrap items-center justify-between gap-2">
-        <span class="text-xs font-extrabold px-2.5 py-0.5 rounded-full bg-purple-100 text-purple-950 border border-purple-300">${match.tournament}</span>
-        <span class="text-xs font-bold text-slate-800"><i class="fa-regular fa-clock mr-1" aria-hidden="true"></i>${formatMatchDate(match.date)}</span>
+    <article aria-label="${match.teamA} contra ${match.teamB}, ${match.tournament}" class="bg-white px-3 py-2.5 rounded-2xl shadow-sm border border-slate-200 space-y-1">
+      <div class="flex flex-wrap items-center justify-between gap-x-2 gap-y-1 text-xs">
+        <span class="font-extrabold px-2 py-0.5 rounded-full bg-purple-100 text-purple-950 border border-purple-300">${match.tournament}</span>
+        <span class="font-bold text-slate-800"><i class="fa-regular fa-clock mr-1" aria-hidden="true"></i>${formatMatchDate(match.date)}</span>
       </div>
-      <div class="flex items-center justify-between bg-slate-50 p-3 rounded-xl border border-slate-200">
-        <span class="font-extrabold text-slate-900 text-sm flex-1 break-words">${match.teamA}</span>
-        <span class="font-black text-slate-700 text-sm px-2" aria-hidden="true">VS</span>
-        <span class="font-extrabold text-slate-900 text-sm flex-1 text-right break-words">${match.teamB}</span>
-      </div>
-      <div class="flex flex-wrap justify-between items-center gap-2 text-sm">
-        <a href="#/materia/${HERO_ARTICLE_ID}" class="inline-flex items-center min-h-11 text-brand-darkPurple font-bold underline">Onde assistir</a>
-        <button type="button" data-action="add-to-calendar" data-id="${match.id}" aria-pressed="${Boolean(match.hasReminder)}" class="px-3 text-brand-darkPurple font-bold bg-purple-50 hover:bg-purple-100 rounded-xl flex items-center gap-1.5">
-          <i class="fa-${match.hasReminder ? 'solid' : 'regular'} fa-bell" aria-hidden="true"></i>
-          ${match.hasReminder ? 'Na sua agenda' : 'Adicionar à agenda'}
+      <div class="flex items-center justify-between gap-2">
+        <p class="min-w-0 font-extrabold text-slate-900 text-sm break-words">${match.teamA} <span class="font-black text-slate-600" aria-hidden="true">x</span> ${match.teamB}</p>
+        <button type="button" data-action="add-to-calendar" data-id="${match.id}" aria-pressed="${String(Boolean(match.hasReminder))}" class="shrink-0 px-3 text-xs text-brand-darkPurple font-bold bg-purple-50 hover:bg-purple-100 aria-pressed:bg-brand-purple aria-pressed:text-white aria-pressed:hover:bg-brand-darkPurple rounded-xl flex items-center gap-1.5">
+          <i class="fa-${match.hasReminder ? 'solid' : 'regular'} fa-bell" aria-hidden="true"></i> Agenda
         </button>
       </div>
     </article>
@@ -1020,6 +1015,8 @@ function switchAuthPage(page, { focus = false } = {}) {
     tabs[name].tabIndex = selected ? 0 : -1;
     panels[name].classList.toggle('hidden', !selected);
   });
+  // No cadastro, o link dos termos já fica ao lado da caixa de aceite: o do rodapé seria repetido.
+  $('authTermsButton').classList.toggle('hidden', page === 'register');
   if (focus) tabs[page].focus();
 }
 
