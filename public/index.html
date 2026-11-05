@@ -6,6 +6,7 @@
   <title>CTRL GIRL - eSports Inclusivo</title>
   <meta name="description" content="Portal de eSports inclusivo, com matérias, jogos e fórum da comunidade." />
   <meta name="theme-color" content="#5B21B6" />
+  <script src="/js/theme.js"></script>
   <link rel="manifest" href="/manifest.json" />
   <link rel="icon" type="image/png" href="/icons/icon-192.png" />
   <link rel="apple-touch-icon" href="/icons/icon-192.png" />
@@ -72,11 +73,16 @@
       <!-- ================= ENTRAR OU CRIAR CONTA ================= -->
       <section id="viewAuth" tabindex="-1" aria-label="Entrar ou criar conta" class="hidden min-h-full flex flex-col justify-between">
         <div class="relative -mx-4 -mt-4 pt-14 pb-12 px-6 bg-gradient-to-b from-purple-200/80 via-purple-100/60 to-pink-100/40 overflow-hidden md:rounded-t-[36px] flex flex-col items-center justify-center text-center shadow-sm">
-          <button type="button" data-action="toggle-dyslexia" data-dyslexia-toggle aria-pressed="false" class="absolute top-2 right-2 z-20 flex items-center gap-2 px-3 rounded-full bg-white/90 text-slate-800 aria-pressed:bg-brand-darkPurple aria-pressed:text-white text-xs font-bold shadow-sm">
-            <i class="fa-solid fa-universal-access text-base" aria-hidden="true"></i> Fonte para dislexia
-          </button>
+          <div class="absolute top-2 right-2 left-2 z-20 flex flex-wrap justify-end gap-2">
+            <button type="button" data-action="toggle-theme" data-theme-toggle aria-pressed="false" class="flex items-center gap-2 px-3 rounded-full bg-white/90 text-slate-800 aria-pressed:bg-brand-darkPurple aria-pressed:text-white text-xs font-bold shadow-sm">
+              <i class="fa-solid fa-moon text-base" aria-hidden="true"></i> Modo escuro
+            </button>
+            <button type="button" data-action="toggle-dyslexia" data-dyslexia-toggle aria-pressed="false" class="flex items-center gap-2 px-3 rounded-full bg-white/90 text-slate-800 aria-pressed:bg-brand-darkPurple aria-pressed:text-white text-xs font-bold shadow-sm">
+              <i class="fa-solid fa-universal-access text-base" aria-hidden="true"></i> Fonte para dislexia
+            </button>
+          </div>
 
-          <svg class="absolute bottom-0 left-0 w-full h-11 text-slate-100 fill-current pointer-events-none" viewBox="0 0 500 60" preserveAspectRatio="none" aria-hidden="true">
+          <svg class="wave-top absolute bottom-0 left-0 w-full h-11 text-slate-100 fill-current pointer-events-none" viewBox="0 0 500 60" preserveAspectRatio="none" aria-hidden="true">
             <path opacity="0.4" fill="#E9D5FF" d="M 0,15 Q 125,45 250,20 Q 375,-5 500,25 L 500,60 L 0,60 Z" />
             <path opacity="0.7" fill="#FFFFFF" d="M 0,30 Q 80,10 160,32 Q 240,54 320,25 Q 400,-2 500,28 L 500,60 L 0,60 Z" />
             <path fill="#F1F5F9" d="M 0,38 Q 100,20 200,42 Q 300,60 400,30 Q 450,15 500,32 L 500,60 L 0,60 Z" />
@@ -210,7 +216,7 @@
         </div>
 
         <div class="relative -mx-4 -mb-4 pt-12 pb-6 px-4 overflow-hidden md:rounded-b-[36px] min-h-[120px] flex items-end justify-center">
-          <svg class="absolute inset-0 w-full h-full object-cover pointer-events-none" viewBox="0 0 500 220" preserveAspectRatio="none" aria-hidden="true">
+          <svg class="wave-bottom absolute inset-0 w-full h-full object-cover pointer-events-none" viewBox="0 0 500 220" preserveAspectRatio="none" aria-hidden="true">
             <path d="M 0,0 C 130,130 370,130 500,0 L 500,220 L 0,220 Z" fill="#F5F3FF" opacity="0.8"/>
             <path d="M 0,25 C 140,140 360,140 500,25 L 500,220 L 0,220 Z" fill="#EDE9FE" opacity="0.9"/>
             <path d="M 0,60 C 150,155 350,155 500,60 L 500,220 L 0,220 Z" fill="#DDD6FE"/>
@@ -657,6 +663,11 @@
           <i class="fa-solid fa-universal-access text-indigo-700 w-5" aria-hidden="true"></i>
           <span class="flex-1">Fonte para dislexia</span>
           <span data-dyslexia-badge class="text-xs font-extrabold px-2 py-0.5 rounded-full bg-slate-200 text-slate-800">Desligada</span>
+        </button>
+        <button type="button" data-action="toggle-theme" data-theme-toggle aria-pressed="false" class="w-full text-left px-3 rounded-xl hover:bg-purple-50 hover:text-brand-darkPurple font-semibold text-slate-800 flex items-center gap-3">
+          <i class="fa-solid fa-moon text-indigo-700 w-5" aria-hidden="true"></i>
+          <span class="flex-1">Modo escuro</span>
+          <span data-theme-badge class="text-xs font-extrabold px-2 py-0.5 rounded-full bg-slate-200 text-slate-800">Desligado</span>
         </button>
       </nav>
       <div class="pt-4 border-t border-slate-100 text-sm text-slate-700 space-y-2">

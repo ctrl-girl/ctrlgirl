@@ -122,6 +122,8 @@ npm run build
 
 Ao publicar uma mudança no front, altere também `public/sw.js`, por exemplo o nome em `CACHE`. É isso que faz o navegador instalar a versão nova do service worker.
 
+**Modo escuro:** o app segue o tema do aparelho, e o botão "Modo escuro", no menu lateral e na tela de entrar, guarda a escolha no navegador. O `public/js/theme.js` aplica o tema antes de a página aparecer, e as cores escuras ficam na seção "Modo escuro", no fim de `src/styles.css`. Ao usar uma cor clara nova numa tela, como um `bg-*-100` ou um `text-*-800`, acrescente a versão escura dela nessa seção. O teste "toda cor clara usada nas telas tem a versão escura no CSS" avisa quando falta.
+
 ## Conteúdo
 
 - **Matérias:** `public/js/data.mjs`. O link de compartilhar é `/materia/N`: o servidor devolve o app com o título, o resumo (`summary`) e a imagem da matéria nas tags que o WhatsApp, o Telegram e as redes usam para montar a prévia. Por isso, a imagem precisa de endereço completo ou começar com `/`, e o resumo é o texto que aparece embaixo do título.

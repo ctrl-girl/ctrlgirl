@@ -30,6 +30,9 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+/* Os estados (hover:, aria-pressed: e outros) saem aqui, e não no fim do arquivo:
+   a seção do modo escuro, no fim, precisa vir depois deles para trocar as cores. */
+@tailwind variants;
 
 @layer base {
   html,
@@ -270,3 +273,154 @@ body.dyslexia-mode #mainFooter a span {
     scroll-behavior: auto !important;
   }
 }
+
+/* ===== Modo escuro ===== */
+/* O theme.js marca <html data-theme="dark"> antes de a página aparecer. Os seletores usam :where()
+   para não ganhar peso: hover, aria-pressed e os outros estados continuam valendo por cima.
+   Classe de cor clara nova numa tela precisa de uma linha aqui. O teste "toda cor clara usada nas
+   telas tem a versão escura no CSS" avisa quando falta. */
+:root[data-theme='dark'] {
+  color-scheme: dark;
+}
+/* Borda sem cor definida, como em "border-b". */
+:where([data-theme='dark']) *,
+:where([data-theme='dark']) ::before,
+:where([data-theme='dark']) ::after {
+  border-color: #352f4d;
+}
+
+/* Classes do Tailwind usadas nas telas: mesmo seletor, cor escura. */
+:where([data-theme='dark']) .aria-\[current\=page\]\:text-brand-darkPurple[aria-current=page] { --tw-text-opacity:1; color:rgb(203 188 255/var(--tw-text-opacity,1)); }
+:where([data-theme='dark']) .aria-pressed\:bg-purple-100[aria-pressed=true] { --tw-bg-opacity:1; background-color:rgb(49 38 90/var(--tw-bg-opacity,1)); }
+:where([data-theme='dark']) .aria-pressed\:text-brand-purple[aria-pressed=true] { --tw-text-opacity:1; color:rgb(203 188 255/var(--tw-text-opacity,1)); }
+:where([data-theme='dark']) .aria-selected\:bg-white[aria-selected=true] { --tw-bg-opacity:1; background-color:rgb(61 53 96/var(--tw-bg-opacity,1)); }
+:where([data-theme='dark']) .aria-selected\:text-brand-darkPurple[aria-selected=true] { --tw-text-opacity:1; color:rgb(228 220 255/var(--tw-text-opacity,1)); }
+:where([data-theme='dark']) .bg-amber-50 { --tw-bg-opacity:1; background-color:rgb(43 33 16/var(--tw-bg-opacity,1)); }
+:where([data-theme='dark']) .bg-blue-50 { --tw-bg-opacity:1; background-color:rgb(17 31 58/var(--tw-bg-opacity,1)); }
+:where([data-theme='dark']) .bg-emerald-50 { --tw-bg-opacity:1; background-color:rgb(15 42 32/var(--tw-bg-opacity,1)); }
+:where([data-theme='dark']) .bg-indigo-50 { --tw-bg-opacity:1; background-color:rgb(27 28 64/var(--tw-bg-opacity,1)); }
+:where([data-theme='dark']) .bg-pink-100 { --tw-bg-opacity:1; background-color:rgb(61 26 51/var(--tw-bg-opacity,1)); }
+:where([data-theme='dark']) .bg-purple-100 { --tw-bg-opacity:1; background-color:rgb(49 38 90/var(--tw-bg-opacity,1)); }
+:where([data-theme='dark']) .bg-purple-50 { --tw-bg-opacity:1; background-color:rgb(38 30 64/var(--tw-bg-opacity,1)); }
+:where([data-theme='dark']) .bg-rose-100 { --tw-bg-opacity:1; background-color:rgb(61 22 34/var(--tw-bg-opacity,1)); }
+:where([data-theme='dark']) .bg-sky-100 { --tw-bg-opacity:1; background-color:rgb(18 41 59/var(--tw-bg-opacity,1)); }
+:where([data-theme='dark']) .bg-sky-50 { --tw-bg-opacity:1; background-color:rgb(15 34 49/var(--tw-bg-opacity,1)); }
+:where([data-theme='dark']) .bg-slate-100 { --tw-bg-opacity:1; background-color:rgb(17 14 28/var(--tw-bg-opacity,1)); }
+:where([data-theme='dark']) .bg-slate-200 { --tw-bg-opacity:1; background-color:rgb(42 37 64/var(--tw-bg-opacity,1)); }
+:where([data-theme='dark']) .bg-slate-50 { --tw-bg-opacity:1; background-color:rgb(21 18 31/var(--tw-bg-opacity,1)); }
+:where([data-theme='dark']) .bg-white { --tw-bg-opacity:1; background-color:rgb(27 23 41/var(--tw-bg-opacity,1)); }
+:where([data-theme='dark']) .bg-white\/90 { background-color:rgba(27,23,41,.9); }
+:where([data-theme='dark']) .border-amber-300 { --tw-border-opacity:1; border-color:rgb(122 92 26/var(--tw-border-opacity,1)); }
+:where([data-theme='dark']) .border-purple-200 { --tw-border-opacity:1; border-color:rgb(74 58 128/var(--tw-border-opacity,1)); }
+:where([data-theme='dark']) .border-purple-300 { --tw-border-opacity:1; border-color:rgb(90 71 148/var(--tw-border-opacity,1)); }
+:where([data-theme='dark']) .border-rose-200 { --tw-border-opacity:1; border-color:rgb(127 42 64/var(--tw-border-opacity,1)); }
+:where([data-theme='dark']) .border-slate-100 { --tw-border-opacity:1; border-color:rgb(42 37 64/var(--tw-border-opacity,1)); }
+:where([data-theme='dark']) .border-slate-200 { --tw-border-opacity:1; border-color:rgb(53 47 77/var(--tw-border-opacity,1)); }
+:where([data-theme='dark']) .border-slate-300 { --tw-border-opacity:1; border-color:rgb(66 59 94/var(--tw-border-opacity,1)); }
+:where([data-theme='dark']) .border-white { --tw-border-opacity:1; border-color:rgb(27 23 41/var(--tw-border-opacity,1)); }
+:where([data-theme='dark']) .border-white\/80 { border-color:rgba(27,23,41,.8); }
+:where([data-theme='dark']) .divide-slate-100>:not([hidden])~:not([hidden]) { --tw-divide-opacity:1; border-color:rgb(42 37 64/var(--tw-divide-opacity,1)); }
+:where([data-theme='dark']) .divide-slate-200>:not([hidden])~:not([hidden]) { --tw-divide-opacity:1; border-color:rgb(53 47 77/var(--tw-divide-opacity,1)); }
+:where([data-theme='dark']) .group[aria-current=page] .group-aria-\[current\=page\]\:bg-purple-100 { --tw-bg-opacity:1; background-color:rgb(49 38 90/var(--tw-bg-opacity,1)); }
+:where([data-theme='dark']) .hover\:bg-blue-100:hover { --tw-bg-opacity:1; background-color:rgb(22 39 70/var(--tw-bg-opacity,1)); }
+:where([data-theme='dark']) .hover\:bg-emerald-100:hover { --tw-bg-opacity:1; background-color:rgb(19 52 39/var(--tw-bg-opacity,1)); }
+:where([data-theme='dark']) .hover\:bg-indigo-100:hover { --tw-bg-opacity:1; background-color:rgb(34 35 77/var(--tw-bg-opacity,1)); }
+:where([data-theme='dark']) .hover\:bg-pink-200:hover { --tw-bg-opacity:1; background-color:rgb(77 33 65/var(--tw-bg-opacity,1)); }
+:where([data-theme='dark']) .hover\:bg-purple-100:hover { --tw-bg-opacity:1; background-color:rgb(49 38 90/var(--tw-bg-opacity,1)); }
+:where([data-theme='dark']) .hover\:bg-purple-200:hover { --tw-bg-opacity:1; background-color:rgb(61 47 112/var(--tw-bg-opacity,1)); }
+:where([data-theme='dark']) .hover\:bg-purple-50:hover { --tw-bg-opacity:1; background-color:rgb(38 30 64/var(--tw-bg-opacity,1)); }
+:where([data-theme='dark']) .hover\:bg-rose-200:hover { --tw-bg-opacity:1; background-color:rgb(77 28 43/var(--tw-bg-opacity,1)); }
+:where([data-theme='dark']) .hover\:bg-sky-100:hover { --tw-bg-opacity:1; background-color:rgb(18 41 59/var(--tw-bg-opacity,1)); }
+:where([data-theme='dark']) .hover\:bg-sky-200:hover { --tw-bg-opacity:1; background-color:rgb(27 59 82/var(--tw-bg-opacity,1)); }
+:where([data-theme='dark']) .hover\:bg-slate-200:hover { --tw-bg-opacity:1; background-color:rgb(42 37 64/var(--tw-bg-opacity,1)); }
+:where([data-theme='dark']) .hover\:bg-slate-300:hover { --tw-bg-opacity:1; background-color:rgb(58 51 84/var(--tw-bg-opacity,1)); }
+:where([data-theme='dark']) .hover\:border-purple-300:hover { --tw-border-opacity:1; border-color:rgb(90 71 148/var(--tw-border-opacity,1)); }
+:where([data-theme='dark']) .hover\:text-brand-darkPurple:hover { --tw-text-opacity:1; color:rgb(221 211 255/var(--tw-text-opacity,1)); }
+:where([data-theme='dark']) .hover\:text-brand-purple:hover { --tw-text-opacity:1; color:rgb(203 188 255/var(--tw-text-opacity,1)); }
+:where([data-theme='dark']) .hover\:text-slate-900:hover { --tw-text-opacity:1; color:rgb(255 255 255/var(--tw-text-opacity,1)); }
+:where([data-theme='dark']) .text-amber-700 { --tw-text-opacity:1; color:rgb(252 211 77/var(--tw-text-opacity,1)); }
+:where([data-theme='dark']) .text-amber-950 { --tw-text-opacity:1; color:rgb(253 230 138/var(--tw-text-opacity,1)); }
+:where([data-theme='dark']) .text-blue-700 { --tw-text-opacity:1; color:rgb(147 197 253/var(--tw-text-opacity,1)); }
+:where([data-theme='dark']) .text-blue-900 { --tw-text-opacity:1; color:rgb(191 219 254/var(--tw-text-opacity,1)); }
+:where([data-theme='dark']) .text-brand-darkPurple { --tw-text-opacity:1; color:rgb(203 188 255/var(--tw-text-opacity,1)); }
+:where([data-theme='dark']) .text-brand-purple { --tw-text-opacity:1; color:rgb(184 161 255/var(--tw-text-opacity,1)); }
+:where([data-theme='dark']) .text-emerald-700 { --tw-text-opacity:1; color:rgb(110 231 183/var(--tw-text-opacity,1)); }
+:where([data-theme='dark']) .text-emerald-900 { --tw-text-opacity:1; color:rgb(167 243 208/var(--tw-text-opacity,1)); }
+:where([data-theme='dark']) .text-indigo-700 { --tw-text-opacity:1; color:rgb(165 180 252/var(--tw-text-opacity,1)); }
+:where([data-theme='dark']) .text-indigo-900 { --tw-text-opacity:1; color:rgb(199 210 254/var(--tw-text-opacity,1)); }
+:where([data-theme='dark']) .text-pink-700 { --tw-text-opacity:1; color:rgb(249 168 212/var(--tw-text-opacity,1)); }
+:where([data-theme='dark']) .text-pink-800 { --tw-text-opacity:1; color:rgb(249 180 218/var(--tw-text-opacity,1)); }
+:where([data-theme='dark']) .text-pink-900 { --tw-text-opacity:1; color:rgb(251 207 232/var(--tw-text-opacity,1)); }
+:where([data-theme='dark']) .text-purple-950 { --tw-text-opacity:1; color:rgb(234 220 255/var(--tw-text-opacity,1)); }
+:where([data-theme='dark']) .text-rose-900 { --tw-text-opacity:1; color:rgb(254 205 211/var(--tw-text-opacity,1)); }
+:where([data-theme='dark']) .text-sky-800 { --tw-text-opacity:1; color:rgb(125 211 252/var(--tw-text-opacity,1)); }
+:where([data-theme='dark']) .text-sky-900 { --tw-text-opacity:1; color:rgb(186 230 253/var(--tw-text-opacity,1)); }
+:where([data-theme='dark']) .text-slate-500 { --tw-text-opacity:1; color:rgb(154 148 179/var(--tw-text-opacity,1)); }
+:where([data-theme='dark']) .text-slate-600 { --tw-text-opacity:1; color:rgb(176 170 198/var(--tw-text-opacity,1)); }
+:where([data-theme='dark']) .text-slate-700 { --tw-text-opacity:1; color:rgb(200 195 218/var(--tw-text-opacity,1)); }
+:where([data-theme='dark']) .text-slate-800 { --tw-text-opacity:1; color:rgb(226 223 238/var(--tw-text-opacity,1)); }
+:where([data-theme='dark']) .text-slate-900 { --tw-text-opacity:1; color:rgb(241 239 248/var(--tw-text-opacity,1)); }
+:where([data-theme='dark']) .from-purple-200\/80 { --tw-gradient-from:rgba(49,38,90,.8) var(--tw-gradient-from-position); --tw-gradient-to:rgba(49,38,90,0) var(--tw-gradient-to-position); --tw-gradient-stops:var(--tw-gradient-from),var(--tw-gradient-to); }
+:where([data-theme='dark']) .via-purple-100\/60 { --tw-gradient-to:rgba(38,30,64,0) var(--tw-gradient-to-position); --tw-gradient-stops:var(--tw-gradient-from),rgba(38,30,64,.6) var(--tw-gradient-via-position),var(--tw-gradient-to); }
+:where([data-theme='dark']) .to-pink-100\/40 { --tw-gradient-to:rgba(61,26,51,.4) var(--tw-gradient-to-position); }
+
+/* Logotipo: a WCAG dispensa contraste em marca, mas o azul um pouco mais claro lê melhor no fundo escuro. */
+:where([data-theme='dark']) .text-brand-blue { color: #0ea5e9; }
+
+/* CSS próprio do app. */
+:where([data-theme='dark']) input::placeholder,
+:where([data-theme='dark']) textarea::placeholder {
+  color: #9a94b3;
+}
+:where([data-theme='dark']) :focus-visible,
+:where([data-theme='dark']) .card-link:focus-visible::after {
+  outline-color: #cbbcff;
+}
+:where([data-theme='dark']) .box-input {
+  background: #15121f;
+  border-color: #6b6585;
+  color: #f1eff8;
+}
+:where([data-theme='dark']) .figma-input {
+  border-bottom-color: #8a84a3;
+}
+:where([data-theme='dark']) .figma-input:focus {
+  border-bottom-color: #b8a1ff;
+}
+:where([data-theme='dark']) .box-input[aria-invalid='true'],
+:where([data-theme='dark']) .figma-input[aria-invalid='true'] {
+  border-color: #fb7185;
+}
+:where([data-theme='dark']) .field-label {
+  color: #e2dfee;
+}
+:where([data-theme='dark']) .field-hint {
+  color: #b0aac6;
+}
+:where([data-theme='dark']) .field-error,
+:where([data-theme='dark']) .form-error {
+  color: #fda4af;
+}
+:where([data-theme='dark']) .form-error {
+  background: #3d1622;
+  border-color: #9f1239;
+}
+:where([data-theme='dark']) .drawer {
+  background: #1b1729;
+}
+:where([data-theme='dark']) .custom-scrollbar::-webkit-scrollbar-track {
+  background: #2a2540;
+}
+:where([data-theme='dark']) .spinner {
+  border-color: #31265a;
+  border-top-color: #b8a1ff;
+}
+/* Ondas da tela de entrar: as cores ficam no próprio SVG, e o CSS passa por cima. */
+:where([data-theme='dark']) .wave-top path:nth-child(1) { fill: #3a2d69; }
+:where([data-theme='dark']) .wave-top path:nth-child(2) { fill: #1b1729; }
+:where([data-theme='dark']) .wave-top path:nth-child(3) { fill: #110e1c; }
+:where([data-theme='dark']) .wave-bottom path:nth-child(1) { fill: #1a1530; }
+:where([data-theme='dark']) .wave-bottom path:nth-child(2) { fill: #221a3d; }
+:where([data-theme='dark']) .wave-bottom path:nth-child(3) { fill: #2c2150; }
+:where([data-theme='dark']) .wave-bottom path:nth-child(4) { fill: #3a2b68; }
+:where([data-theme='dark']) .wave-bottom path:nth-child(5) { fill: #4b3784; }
