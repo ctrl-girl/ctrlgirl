@@ -12,17 +12,21 @@ const TMP = path.join(__dirname, '.tmp');
 const DB_FILE = path.join(TMP, `api-${process.pid}.db`);
 const JWT_SECRET = 'segredo-de-teste-com-mais-de-32-caracteres';
 const PASSWORD = 'senha-de-teste-123';
+// test/turso.test.js roda estes mesmos testes com o banco passando pelo adaptador do Turso.
+const USE_LIBSQL = process.env.TEST_DB === 'libsql';
 
 fs.mkdirSync(TMP, { recursive: true });
 process.env.DATABASE_URL = `file:${DB_FILE.replaceAll('\\', '/')}`;
 process.env.MASTER_EMAIL = 'mestre-antigo@example.com';
 
-execSync('npx prisma migrate deploy', { cwd: ROOT, stdio: 'pipe', env: process.env });
+if (USE_LIBSQL) process.env.TURSO_DATABASE_URL = process.env.DATABASE_URL;
+else execSync('npx prisma migrate deploy', { cwd: ROOT, stdio: 'pipe', env: process.env });
 
-const { PrismaClient } = require('@prisma/client');
 const { createApp } = require('../app');
+const { createPrisma, createLibsqlClient } = require('../db');
+const { applyMigrations } = require('../scripts/migrate');
 
-const prisma = new PrismaClient();
+const prisma = createPrisma();
 const servers = [];
 let baseUrl;
 let counter = 0;
@@ -78,13 +82,25 @@ async function register(overrides = {}) {
 }
 
 before(async () => {
+  if (USE_LIBSQL) {
+    const client = createLibsqlClient();
+    await applyMigrations(client);
+    client.close();
+  }
   baseUrl = await listen({ rateLimits: { login: 1000, register: 1000, write: 1000 } });
 });
 
 after(async () => {
   servers.forEach((server) => server.close());
   await prisma.$disconnect();
-  for (const suffix of ['', '-journal']) fs.rmSync(DB_FILE + suffix, { force: true });
+  for (const suffix of ['', '-journal', '-wal', '-shm']) {
+    try {
+      fs.rmSync(DB_FILE + suffix, { force: true });
+    } catch (error) {
+      // No Windows, o libSQL só solta o arquivo quando o processo termina: o test/migrate.test.js apaga depois.
+      if (!USE_LIBSQL || (error.code !== 'EPERM' && error.code !== 'EBUSY')) throw error;
+    }
+  }
 });
 
 describe('arquivos públicos (C2)', () => {

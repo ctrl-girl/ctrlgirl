@@ -393,10 +393,11 @@ describe('repositório (C3, M6, M8)', () => {
     assert.match(ignore, /^\*\.db\*$/m);
   });
 
-  test('o início não usa db push, e o postinstall não esconde falhas', () => {
+  test('o início aplica as migrações sem db push, e o postinstall não esconde falhas', () => {
     const { scripts, dependencies } = JSON.parse(read('package.json'));
     assert.doesNotMatch(scripts.start, /db push/);
-    assert.match(scripts.start, /migrate deploy/);
+    assert.match(scripts.start, /^node scripts\/migrate\.js && /);
+    assert.match(read('scripts/migrate.js'), /prisma migrate deploy/);
     assert.doesNotMatch(scripts.postinstall, /exit 0/);
     assert.doesNotMatch(scripts.test, /no test specified/);
     assert.equal(dependencies.bcrypt, undefined);
@@ -412,6 +413,11 @@ describe('repositório (C3, M6, M8)', () => {
   test('o token dos resultados fica fora do repositório', () => {
     assert.match(read('.env.example'), /^PANDASCORE_TOKEN=""$/m);
     assert.match(read('.env.example'), /^RESULTS_SYNC_MINUTES=""$/m);
+  });
+
+  test('o endereço e o token do Turso ficam fora do repositório', () => {
+    assert.match(read('.env.example'), /^TURSO_DATABASE_URL=""$/m);
+    assert.match(read('.env.example'), /^TURSO_AUTH_TOKEN=""$/m);
   });
 
   test('a busca de resultados roda só no servidor: o navegador não fala com as fontes', () => {

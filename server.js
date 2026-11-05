@@ -5,8 +5,8 @@ try {
   // Sem .env local: segue com o ambiente.
 }
 
-const { PrismaClient } = require('@prisma/client');
 const { createApp } = require('./app');
+const { createPrisma } = require('./db');
 const { createDefaultSources } = require('./matchSources');
 const { createMatchSync, parseSyncMinutes } = require('./matchSync');
 
@@ -21,7 +21,7 @@ if (!JWT_SECRET || JWT_SECRET.length < 32) {
 const corsOrigins = (process.env.CORS_ORIGINS || '').split(',').map((origin) => origin.trim()).filter(Boolean);
 const trustProxyHops = Number(process.env.TRUST_PROXY_HOPS) || 1;
 
-const prisma = new PrismaClient();
+const prisma = createPrisma();
 const matchSync = createMatchSync({ prisma, sources: createDefaultSources({ pandascoreToken: process.env.PANDASCORE_TOKEN }) });
 const app = createApp({ prisma, jwtSecret: JWT_SECRET, corsOrigins, trustProxyHops, matchSync });
 

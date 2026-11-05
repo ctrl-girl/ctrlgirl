@@ -9,7 +9,7 @@
   "scripts": {
     "test": "node --test",
     "postinstall": "prisma generate",
-    "start": "prisma migrate deploy && node prisma/seed.js && node server.js",
+    "start": "node scripts/migrate.js && node prisma/seed.js && node server.js",
     "generate": "prisma generate",
     "build": "node scripts/build-assets.js"
   },
@@ -18,6 +18,8 @@
   "license": "ISC",
   "type": "commonjs",
   "dependencies": {
+    "@libsql/client": "^0.8.1",
+    "@prisma/adapter-libsql": "^5.22.0",
     "@prisma/client": "^5.22.0",
     "bcryptjs": "^3.0.3",
     "cors": "^2.8.6",

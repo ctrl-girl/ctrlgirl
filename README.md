@@ -2,7 +2,7 @@
 
 Portal de eSports inclusivo (PWA), com matérias, jogos, fórum e fonte para dislexia. Trabalho de Conclusão de Curso.
 
-Backend em Express 5 + Prisma 5 (SQLite) + JWT. O front é HTML, Tailwind compilado e módulos JavaScript, sem etapa de build na hospedagem.
+Backend em Express 5 + Prisma 5 (SQLite na máquina, Turso em produção) + JWT. O front é HTML, Tailwind compilado e módulos JavaScript, sem etapa de build na hospedagem.
 
 ## Rodar na sua máquina
 
@@ -32,7 +32,8 @@ O `npm start` aplica as migrações, carrega os dados iniciais e inicia o servid
 | Variável | Obrigatória | Para que serve |
 | --- | --- | --- |
 | `JWT_SECRET` | Sim | Assina as sessões. Aleatória, com pelo menos 32 caracteres. O servidor não sobe sem ela. |
-| `DATABASE_URL` | Sim | Banco de dados. Ex.: `file:./dev.db`, relativo à pasta `prisma/`. |
+| `DATABASE_URL` | Sim | Banco de dados. Ex.: `file:./dev.db`, relativo à pasta `prisma/`. Com o Turso ligado, fica sem uso, mas o Prisma ainda exige a variável. |
+| `TURSO_DATABASE_URL` e `TURSO_AUTH_TOKEN` | Em produção | Endereço (`libsql://…`) e token do banco no Turso. Com o endereço preenchido, o app usa o Turso em vez do arquivo do `DATABASE_URL`. |
 | `ADMIN_EMAIL` e `ADMIN_PASSWORD` | Não | Criam a conta `SUPER_ADMIN` ao iniciar. A senha precisa de pelo menos 12 caracteres e vale só na criação: depois, troque-a em Perfil > Editar perfil. |
 | `CORS_ORIGINS` | Não | Outras origens que podem chamar a API, separadas por vírgula. |
 | `TRUST_PROXY_HOPS` | Não | Quantos proxies ficam à frente do app, para os limites por IP. O padrão é 1. |
@@ -46,9 +47,7 @@ O arquivo `.env` nunca vai para o Git.
 
 1. **Antes de publicar**, em **Environment**, defina `JWT_SECRET` e `DATABASE_URL`. Sem elas, o deploy falha e o Render mantém a versão anterior no ar.
 2. Em **Settings**, use `npm install` como Build Command e `npm start` como Start Command.
-3. Decida onde o banco fica. O disco do Render é temporário: sem disco persistente, os cadastros somem a cada deploy ou reinício e, no plano Free, também quando o serviço hiberna. As opções são:
-   - disco persistente em plano pago, com `DATABASE_URL="file:/caminho-do-disco/ctrlgirl.db"`;
-   - banco PostgreSQL, trocando o `provider` em `prisma/schema.prisma` e gerando uma nova migração.
+3. Ligue o banco no Turso. O disco do Render é temporário: um arquivo SQLite some a cada deploy, reinício e, no plano Free, a cada hibernação. Veja [Banco no Turso](#banco-no-turso).
 4. Depois do primeiro deploy, confira que o banco antigo não está mais exposto. O resultado esperado é `404`:
 
 ```bash
@@ -58,6 +57,33 @@ curl -I https://SEU-APP.onrender.com/prisma/dev.db
 5. Se pessoas diferentes receberem o aviso de muitas tentativas ao entrar ou se cadastrar, elas podem estar dividindo o mesmo IP. O Render não documenta quantos proxies ficam à frente do app: ajuste `TRUST_PROXY_HOPS` aos poucos. Um valor acima do real permite falsificar o IP.
 
 6. Para League of Legends se atualizar sozinho, defina também `PANDASCORE_TOKEN` em **Environment**.
+
+## Banco no Turso
+
+Em produção, os dados ficam no [Turso](https://turso.tech), um banco compatível com SQLite que tem plano gratuito. Contas, tópicos, curtidas e lembretes sobrevivem a deploys e hibernações. Na sua máquina e nos testes, nada muda: sem `TURSO_DATABASE_URL`, o app usa o arquivo do `DATABASE_URL`.
+
+**Para ligar:**
+
+1. Crie uma conta no Turso e um banco, por exemplo `ctrlgirl`, na região mais perto de Oregon, onde o Render roda o app. Dá para fazer tudo pelo painel do site. A linha de comando do Turso só roda no Windows pelo WSL:
+
+   ```bash
+   turso db create ctrlgirl
+   ```
+
+2. Copie o endereço do banco, que começa com `libsql://`, e gere um token de leitura e escrita. Pela linha de comando:
+
+   ```bash
+   turso db show ctrlgirl --url
+   ```
+
+   ```bash
+   turso db tokens create ctrlgirl
+   ```
+
+3. No Render, em **Environment**, defina `TURSO_DATABASE_URL` com o endereço e `TURSO_AUTH_TOKEN` com o token. Mantenha o `DATABASE_URL`. O token é senha: não vai para o Git nem para mensagens.
+4. Publique. No primeiro início, o `npm start` cria as tabelas no Turso e faz a carga inicial. O log mostra `Migrações aplicadas no Turso`. Nos inícios seguintes, mostra `O Turso já está com todas as migrações.`
+
+**Migrações:** o Prisma Migrate não funciona com o Turso. Por isso, `scripts/migrate.js` aplica cada `prisma/migrations/*/migration.sql` uma vez só, numa transação, e registra o nome na tabela `_libsql_migrations`. Para mudar o banco, crie a migração na sua máquina com `npx prisma migrate dev --name descricao`, e o próximo deploy a aplica no Turso. Não rode as migrações à mão no Turso: o registro ficaria sem elas, e o deploy tentaria aplicar de novo.
 
 ## Resultados automáticos
 
@@ -84,7 +110,7 @@ O vlresports é um projeto de terceiros, sem garantia de continuar no ar e sem t
 npm test
 ```
 
-Os testes usam um banco temporário em `test/.tmp`.
+Os testes usam um banco temporário em `test/.tmp`. Os testes da API rodam duas vezes: uma com o SQLite do Prisma e outra pelo adaptador do Turso (`test/turso.test.js`), num arquivo libSQL local, sem depender da rede. No Windows, o libSQL só solta o arquivo quando o processo termina, então pode sobrar banco em `test/.tmp`. As sobras com mais de uma hora são apagadas na rodada seguinte.
 
 ## Mudanças no visual
 
@@ -108,6 +134,7 @@ Ao publicar uma mudança no front, altere também `public/sw.js`, por exemplo o 
 ```text
 app.js              rotas da API e proteções
 articlePage.js      prévia das matérias no link compartilhado
+db.js               escolha do banco: Turso ou SQLite local
 server.js           início do servidor e leitura do ambiente
 validation.js       regras de validação
 matchSources.js     fontes externas de jogos
@@ -115,6 +142,6 @@ matchSync.js        atualização automática dos jogos
 prisma/             schema, migrações e carga inicial
 public/             tudo o que é servido ao navegador
 src/styles.css      origem do CSS
-scripts/            geração do CSS e cópia das fontes
+scripts/            migrações no início, geração do CSS e cópia das fontes
 test/               testes da API e do front
 ```
