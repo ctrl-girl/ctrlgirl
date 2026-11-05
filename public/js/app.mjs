@@ -25,6 +25,8 @@ import {
 
 const GUEST_KEY = 'ctrlgirl_guest';
 const DYSLEXIA_KEY = 'ctrlgirl_dyslexia_font';
+// Lido também pelo theme.js, que aplica o tema antes de a página aparecer.
+const THEME_KEY = 'ctrlgirl_theme';
 const RESULTS_PAUSED_KEY = 'ctrlgirl_results_paused';
 const MAX_AVATAR_SIZE = 256;
 const RESULTS_REFRESH_MS = 60 * 1000;
@@ -994,6 +996,17 @@ const FORM_HANDLERS = {
 };
 
 // ---------- Fonte para dislexia ----------
+function setTheme(dark) {
+  document.documentElement.dataset.theme = dark ? 'dark' : 'light';
+  document.querySelectorAll('[data-theme-toggle]').forEach((button) => button.setAttribute('aria-pressed', String(dark)));
+  document.querySelectorAll('[data-theme-badge]').forEach((badge) => {
+    badge.textContent = dark ? 'Ligado' : 'Desligado';
+    badge.className = dark
+      ? 'text-xs font-extrabold px-2 py-0.5 rounded-full bg-brand-darkPurple text-white'
+      : 'text-xs font-extrabold px-2 py-0.5 rounded-full bg-slate-200 text-slate-800';
+  });
+}
+
 function setDyslexia(on) {
   document.body.classList.toggle('dyslexia-mode', on);
   document.querySelectorAll('[data-dyslexia-toggle]').forEach((button) => button.setAttribute('aria-pressed', String(on)));
@@ -1037,6 +1050,12 @@ const ACTIONS = {
     localStorage.setItem(DYSLEXIA_KEY, String(on));
     setDyslexia(on);
     showToast(on ? 'Fonte para dislexia ligada.' : 'Fonte padrão restaurada.');
+  },
+  'toggle-theme': () => {
+    const dark = document.documentElement.dataset.theme !== 'dark';
+    localStorage.setItem(THEME_KEY, dark ? 'dark' : 'light');
+    setTheme(dark);
+    showToast(dark ? 'Modo escuro ligado.' : 'Modo claro ligado.');
   },
   'switch-auth': (element) => switchAuthPage(element.dataset.page),
   'toggle-password': (element) => {
@@ -1182,6 +1201,11 @@ async function boot() {
     $('btnNativeShare').classList.add('flex');
   }
   setDyslexia(localStorage.getItem(DYSLEXIA_KEY) === 'true');
+  setTheme(document.documentElement.dataset.theme === 'dark');
+  // Sem escolha guardada, o app acompanha quando o aparelho troca de tema.
+  matchMedia('(prefers-color-scheme: dark)').addEventListener('change', (event) => {
+    if (!localStorage.getItem(THEME_KEY)) setTheme(event.matches);
+  });
   setResultsPaused(localStorage.getItem(RESULTS_PAUSED_KEY) === 'true');
 
   await restoreSession();

@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import vm from 'node:vm';
 
 const ROOT = path.join(path.dirname(fileURLToPath(import.meta.url)), '..');
 const read = (file) => fs.readFileSync(path.join(ROOT, file), 'utf8');
@@ -382,6 +383,76 @@ describe('página (CSP e acessibilidade)', () => {
     assert.match(worker, /addEventListener\('activate'/);
     assert.match(worker, /caches\.delete/);
     assert.doesNotMatch(worker, /ctrl-girl-cache-v1'\)/);
+  });
+});
+
+describe('modo escuro', () => {
+  function startingTheme({ saved = null, prefersDark, storageFails = false }) {
+    const root = { dataset: {} };
+    vm.runInNewContext(read('public/js/theme.js'), {
+      localStorage: {
+        getItem: (key) => {
+          if (storageFails) throw new Error('armazenamento bloqueado');
+          return key === 'ctrlgirl_theme' ? saved : null;
+        },
+      },
+      matchMedia: (query) => ({ matches: query === '(prefers-color-scheme: dark)' && prefersDark }),
+      document: { documentElement: root },
+    });
+    return root.dataset.theme;
+  }
+
+  test('começa pelo tema do aparelho, e a escolha guardada vale mais', () => {
+    assert.equal(startingTheme({ prefersDark: true }), 'dark');
+    assert.equal(startingTheme({ prefersDark: false }), 'light');
+    assert.equal(startingTheme({ saved: 'light', prefersDark: true }), 'light');
+    assert.equal(startingTheme({ saved: 'dark', prefersDark: false }), 'dark');
+    assert.equal(startingTheme({ storageFails: true, prefersDark: true }), 'dark');
+  });
+
+  test('o tema entra antes do CSS, por arquivo, e funciona sem internet', () => {
+    const page = read('public/index.html');
+    const script = page.indexOf('<script src="/js/theme.js"></script>');
+    assert.ok(script > -1);
+    assert.ok(script < page.indexOf('<link rel="stylesheet"'));
+    assert.match(read('public/sw.js'), /'\/js\/theme\.js'/);
+  });
+
+  test('o botão fica no menu e na tela de entrar, com estado, e a escolha fica guardada', () => {
+    const toggles = read('public/index.html').match(/<button[^>]*data-action="toggle-theme"[^>]*>/g) || [];
+    assert.equal(toggles.length, 2);
+    for (const tag of toggles) {
+      assert.match(tag, /data-theme-toggle/);
+      assert.match(tag, /aria-pressed="false"/);
+    }
+    const app = read('public/js/app.mjs');
+    assert.match(app, /localStorage\.setItem\(THEME_KEY, dark \? 'dark' : 'light'\)/);
+    assert.match(app, /button\.setAttribute\('aria-pressed', String\(dark\)\)/);
+  });
+
+  test('toda cor clara usada nas telas tem a versão escura no CSS', () => {
+    const css = read('src/styles.css');
+    const start = css.indexOf('/* ===== Modo escuro ===== */');
+    assert.ok(start > -1, 'falta a seção do modo escuro em src/styles.css');
+    const dark = css.slice(start);
+    const COLOR = /^((?:[a-z0-9\-[\]=]+:)*)(bg|text|border(?:-[trblxy])?|divide|from|via|to)-((slate|gray|zinc|red|orange|amber|yellow|lime|green|emerald|teal|cyan|sky|blue|indigo|violet|purple|fuchsia|pink|rose)-(\d{2,3})|white|brand-[A-Za-z]+)(\/\d+)?$/;
+    // Fundo, borda e degradê claros precisam escurecer; texto escuro precisa clarear.
+    // Ficam como estão o texto branco, as cores da marca nos botões e o logotipo.
+    const needsDark = (kind, color, shade) => {
+      if (color === 'white') return kind !== 'text';
+      if (color === 'brand-purple' || color === 'brand-darkPurple') return kind === 'text';
+      if (color.startsWith('brand-')) return false;
+      return kind === 'text' ? Number(shade) >= 500 : Number(shade) <= 300;
+    };
+    const escapeClass = (name) => name.replace(/[:/[\]=]/g, (char) => `\\${char}`);
+    const missing = new Set();
+    for (const file of ['public/index.html', 'public/js/app.mjs', 'public/js/data.mjs']) {
+      for (const token of read(file).split(/[\s"'`<>{}()]+/)) {
+        const found = COLOR.exec(token);
+        if (found && needsDark(found[2], found[3], found[5]) && !dark.includes(`.${escapeClass(token)}`)) missing.add(token);
+      }
+    }
+    assert.deepEqual([...missing], []);
   });
 });
 
