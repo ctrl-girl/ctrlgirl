@@ -167,9 +167,12 @@ describe('aviso de atualização dos resultados', () => {
   });
 
   test('a tela inicial tem o botão de pausar, com alvo de toque de 44 px (WCAG 2.2.2)', () => {
-    const button = read('public/index.html').match(/<button\b[^>]*data-action="toggle-results-pause"[^>]*>/)?.[0];
+    const button = read('public/index.html').match(/<button\b[^>]*data-action="toggle-results-pause"[^>]*>[\s\S]*?<\/button>/)?.[0];
     assert.ok(button, 'sem botão de pausar');
-    assert.match(button, /\bmin-h-11\b/);
+    // Só com o ícone à vista, o botão precisa de 44 px nos dois sentidos, e o nome fica para o leitor de tela.
+    assert.match(button, /\bh-11\b/);
+    assert.match(button, /\bw-11\b/);
+    assert.match(button, /<span id="resultsPauseLabel" class="sr-only">Pausar atualização<\/span>/);
   });
 
   test('a escolha de pausar continua depois de recarregar', () => {
@@ -188,6 +191,58 @@ describe('aviso de atualização dos resultados', () => {
   test('pausada, a bolinha do selo "Ao vivo" para de piscar', () => {
     assert.match(read('public/js/app.mjs'), /motion-safe:animate-pulse group-data-\[paused\]:animate-none/);
     assert.match(read('public/css/app.css'), /group-data-\\\[paused\\\]\\:animate-none/);
+  });
+});
+
+describe('bloco de resultados do início', () => {
+  // Monta o cartão com o código do próprio app, sem página: ele só usa as regras do logic.mjs.
+  async function renderResultCard(match) {
+    const { html, toHtml, gameOfTournament, formatDate } = await logic();
+    const source = read('public/js/app.mjs').match(/function resultCard\(match\) \{[\s\S]*?\n\}/)?.[0];
+    assert.ok(source, 'sem resultCard');
+    return toHtml(vm.runInNewContext(`${source}\nresultCard(match);`, { html, gameOfTournament, formatDate, match }));
+  }
+
+  const finished = {
+    id: 'gc-final-superior', status: 'FINISHED', tournament: 'Game Changers 2026', stage: 'Championship São Paulo · Final da Chave Superior',
+    date: '2026-10-30T20:00:00Z', teamA: 'Gentle Mates GC', teamB: 'Shopify Rebellion Gold', scoreA: 2, scoreB: 1,
+  };
+  // O destaque vai no nome de quem ganhou, ou na linha em que ele está.
+  const highlighted = (card, team) => new RegExp(`text-emerald-300[^>]*>\\s*(?:<span[^>]*>)?${team}<`).test(card);
+
+  test('cada time fica numa linha, com o placar ao lado, para nome longo não espremer o cartão', async () => {
+    const card = await renderResultCard(finished);
+    assert.match(card, /<span[^>]*>Gentle Mates GC<\/span>\s*<span[^>]*>2<\/span>/);
+    assert.match(card, /<span[^>]*>Shopify Rebellion Gold<\/span>\s*<span[^>]*>1<\/span>/);
+  });
+
+  test('o leitor de tela ouve o placar numa frase só, e não duas vezes', async () => {
+    const card = await renderResultCard(finished);
+    assert.match(card, /<p class="sr-only">Gentle Mates GC 2 a 1 Shopify Rebellion Gold<\/p>/);
+    assert.match(card, /<div aria-hidden="true"[^>]*>[\s\S]*Gentle Mates GC[\s\S]*Shopify Rebellion Gold[\s\S]*<\/div>/);
+  });
+
+  test('quem ganhou fica em destaque, e ao vivo ninguém ganhou ainda', async () => {
+    const card = await renderResultCard(finished);
+    assert.equal(highlighted(card, 'Gentle Mates GC'), true);
+    assert.equal(highlighted(card, 'Shopify Rebellion Gold'), false);
+    const live = await renderResultCard({ ...finished, status: 'LIVE' });
+    assert.match(live, /Ao vivo/);
+    assert.equal(highlighted(live, 'Gentle Mates GC'), false);
+  });
+
+  test('título, setas e pausa ficam no alto, sem linha própria embaixo do carrossel', () => {
+    const page = read('public/index.html');
+    const block = page.slice(page.indexOf('id="viewHome"'), page.indexOf('id="featuredHero"'));
+    const [top, bottom] = block.split('id="resultsContainer"');
+    assert.equal((top.match(/data-action="scroll-results"/g) || []).length, 2);
+    assert.match(top, /data-action="toggle-results-pause"/);
+    assert.doesNotMatch(bottom, /<button\b/);
+  });
+
+  test('a barra de rolagem do carrossel acompanha o fundo escuro do bloco', () => {
+    assert.match(read('src/styles.css'), /\.on-dark \.custom-scrollbar::-webkit-scrollbar-track \{/);
+    assert.match(read('public/css/app.css'), /\.on-dark \.custom-scrollbar::-webkit-scrollbar-track\{/);
   });
 });
 
