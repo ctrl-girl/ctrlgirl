@@ -356,10 +356,17 @@ function resultCard(match) {
   const isLive = match.status === 'LIVE';
   // Enquanto o jogo não acaba, quem está na frente ainda não ganhou.
   const teamColor = (mine, other) => (!isLive && mine > other ? 'text-emerald-300 font-extrabold' : 'text-slate-200 font-semibold');
+  // Um time por linha, com o placar ao lado: nome longo cabe sem espremer o cartão em três colunas.
+  const teamRow = (team, mine, other) => html`
+    <p class="flex items-baseline justify-between gap-3 ${teamColor(mine, other)}">
+      <span class="min-w-0 break-words">${team}</span>
+      <span class="font-black tabular-nums">${mine}</span>
+    </p>
+  `;
   return html`
-    <article class="shrink-0 w-72 bg-gradient-to-r from-slate-900 via-slate-800 to-slate-900 rounded-xl p-3 border border-slate-700/70 shadow-sm space-y-2.5 ${family.border}">
-      <div class="flex items-center justify-between gap-2 text-xs border-b border-slate-800/80 pb-1.5">
-        <span class="font-extrabold px-2.5 py-0.5 rounded-full ${family.badge}">${match.tournament}</span>
+    <article class="shrink-0 w-72 bg-gradient-to-r from-slate-900 via-slate-800 to-slate-900 rounded-xl px-3 py-2 border border-slate-700/70 shadow-sm space-y-1.5 ${family.border}">
+      <div class="flex items-center justify-between gap-2 text-xs">
+        <span class="font-extrabold px-2 py-0.5 rounded-full ${family.badge}">${match.tournament}</span>
         ${isLive ? html`
           <span class="inline-flex items-center gap-1.5 text-rose-200 font-extrabold shrink-0">
             <span class="w-2 h-2 rounded-full bg-rose-400 motion-safe:animate-pulse group-data-[paused]:animate-none" aria-hidden="true"></span>Ao vivo
@@ -367,13 +374,11 @@ function resultCard(match) {
         ` : html`<span class="text-slate-200 font-semibold shrink-0">${formatDate(match.date)}</span>`}
       </div>
       ${match.stage ? html`<p class="text-xs font-bold text-slate-200">${match.stage}</p>` : ''}
-      <div class="grid grid-cols-[1fr_auto_1fr] items-center gap-2 bg-slate-950/90 px-3 py-2 rounded-lg border border-slate-800/90 text-sm">
-        <span class="${teamColor(match.scoreA, match.scoreB)} break-words">${match.teamA}</span>
-        <span class="bg-gradient-to-r from-purple-950 to-slate-900 border border-purple-500/50 text-emerald-300 font-black px-2.5 py-1 rounded shadow-inner">
-          <span aria-hidden="true">${match.scoreA} - ${match.scoreB}</span><span class="sr-only">${match.scoreA} a ${match.scoreB}</span>
-        </span>
-        <span class="${teamColor(match.scoreB, match.scoreA)} text-right break-words">${match.teamB}</span>
+      <div aria-hidden="true" class="text-sm">
+        ${teamRow(match.teamA, match.scoreA, match.scoreB)}
+        ${teamRow(match.teamB, match.scoreB, match.scoreA)}
       </div>
+      <p class="sr-only">${match.teamA} ${match.scoreA} a ${match.scoreB} ${match.teamB}</p>
     </article>
   `;
 }

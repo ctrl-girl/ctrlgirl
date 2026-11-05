@@ -1,5 +1,5 @@
 // Ao publicar, a própria mudança deste arquivo faz o navegador instalar a versão nova.
-const CACHE = 'ctrl-girl-v7';
+const CACHE = 'ctrl-girl-v8';
 const SHELL = [
   '/',
   '/index.html',

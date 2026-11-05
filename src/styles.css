@@ -80,6 +80,10 @@
   .custom-scrollbar::-webkit-scrollbar-track {
     background: #e2e8f0;
   }
+  /* Nos blocos de fundo escuro, como o dos resultados, a trilha clara virava uma faixa branca. */
+  .on-dark .custom-scrollbar::-webkit-scrollbar-track {
+    background: #1e293b;
+  }
   .custom-scrollbar::-webkit-scrollbar-thumb {
     background: #7c6bb5;
     border-radius: 10px;
