@@ -1174,7 +1174,7 @@ function onImageError(event) {
   const image = event.target;
   if (!(image instanceof HTMLImageElement) || image.dataset.fallback) return;
   image.dataset.fallback = 'true';
-  image.src = '/img/mascote.svg';
+  image.src = '/img/mascote.png';
 }
 
 // ---------- Início do app ----------

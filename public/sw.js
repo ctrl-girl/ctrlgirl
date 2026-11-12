@@ -1,5 +1,5 @@
 // Ao publicar, a própria mudança deste arquivo faz o navegador instalar a versão nova.
-const CACHE = 'ctrl-girl-v8';
+const CACHE = 'ctrl-girl-v9';
 const SHELL = [
   '/',
   '/index.html',
@@ -10,7 +10,7 @@ const SHELL = [
   '/js/api.mjs',
   '/js/logic.mjs',
   '/js/data.mjs',
-  '/img/mascote.svg',
+  '/img/mascote.png',
   '/img/carranca.svg',
   '/icons/icon-192.png',
   '/vendor/fontawesome/css/all.min.css',
