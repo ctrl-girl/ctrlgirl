@@ -58,7 +58,7 @@ describe('busca e filtros (US6, US8, US24)', () => {
     const { searchContent } = await logic();
     const { articles } = await data();
     const found = searchContent({ query: articles[0].title.slice(0, 20), filter: 'all', articles, matches, topics });
-    assert.ok(found.articles.some((article) => article.id === 0));
+    assert.ok(found.articles.some((article) => article.id === articles[0].id));
   });
 
   test('sem texto e sem filtro, traz tudo', async () => {
