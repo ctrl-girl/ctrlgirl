@@ -34,9 +34,9 @@ describe('montagem de listas', () => {
 });
 
 describe('dados das matérias (US5)', () => {
-  test('o destaque aponta para a matéria do guia', async () => {
+  test('o destaque aponta para a matéria da final do CBLOL', async () => {
     const { articles, HERO_ARTICLE_ID } = await data();
-    assert.match(articles.find((article) => article.id === HERO_ARTICLE_ID).title, /Guia de sobrevivência/);
+    assert.match(articles.find((article) => article.id === HERO_ARTICLE_ID).title, /LOS conquista o título/);
   });
 
   test('o HTML das matérias está balanceado e sem título acima de h2', async () => {
@@ -358,10 +358,11 @@ describe('página (CSP e acessibilidade)', () => {
   });
 
   test('a tela de jogos mostra "Onde assistir" uma vez só, no topo, e não em cada cartão', async () => {
-    const { HERO_ARTICLE_ID } = await data();
+    const { articles } = await data();
     const page = read('public/index.html');
     const header = page.slice(page.indexOf('id="viewMatches"'), page.indexOf('id="matchesContainer"'));
-    assert.match(header, new RegExp(`href="#/materia/${HERO_ARTICLE_ID}"[^>]*>[\\s\\S]*?Onde assistir`));
+    const [, guideId] = header.match(/href="#\/materia\/(\d+)"[^>]*>[\s\S]*?Onde assistir/) ?? [];
+    assert.match(articles.find((article) => article.id === Number(guideId))?.title ?? '', /Guia de sobrevivência/);
     const app = read('public/js/app.mjs');
     const card = app.slice(app.indexOf('function matchCard('), app.indexOf('function showMatches('));
     assert.doesNotMatch(card, /Onde assistir/);

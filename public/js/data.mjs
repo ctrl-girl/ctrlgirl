@@ -1,5 +1,5 @@
 // Matérias do portal. Curtidas e comentários ficam no banco, ligados pelo id.
-export const HERO_ARTICLE_ID = 2;
+export const HERO_ARTICLE_ID = 0;
 
 export const articles = [
       {
