@@ -1,7 +1,28 @@
 // Matérias do portal. Curtidas e comentários ficam no banco, ligados pelo id.
-export const HERO_ARTICLE_ID = 2;
+export const HERO_ARTICLE_ID = 0;
 
 export const articles = [
+      {
+        id: 5,
+        games: ['valorant'],
+        title: "VALORANT Game Changers: conheça o circuito que fortalece a presença feminina nos e-sports",
+        category: "VALORANT",
+        author: "Julia Gabriela Ribeiro",
+        date: "13/10/2026",
+        image: "https://www.pichauarena.com.br/wp-content/uploads/2025/12/54955270006_29fa35c64e_o-scaled.jpg.webp",
+        imageAlt: "Daiki, capitã da Team Liquid Brazil, segura o troféu do Game Changers Championship 2025",
+        summary: "Em 2025, o Brasil conquistou o primeiro título mundial do circuito com a Team Liquid Brazil",
+        content: `
+          <p>O VALORANT Game Changers é o circuito inclusivo competitivo oficial da Riot Games voltado para mulheres cis, trans e pessoas não binárias. Em 2026, o Game Changers Brasil Championship 2026 acontece entre 22 de outubro e 1º de novembro, na Riot Games Arena, em São Paulo.</p>
+          <p>Game Changers Series surgiu em 2021, como uma iniciativa de competições regionais em diversas partes do mundo, incluindo o Brasil. A primeira edição do torneio no Brasil ocorreu em junho do mesmo ano, com oito times pela disputa do troféu.</p>
+          <p>A competição funciona como um circuito anual, com diferentes momentos ao longo da temporada. As etapas regionais acontecem durante o ano, com qualificatórias e torneios que definem as equipes classificadas para a disputa internacional.</p>
+          <p>O campeonato mundial, Game Changers Championship, acontece uma vez por ano, e reúne as melhores equipes de cada região. Em 2025, o Brasil conquistou o primeiro título mundial do VALORANT Game Changers Championship, com a Team Liquid Brazil.</p>
+          <p>A final de 2025 foi realizada em Seul, na Coreia do Sul, e a equipe brasileira venceu a Shopify Rebellion Gold por 3 a 2. Isso garantiu o título inédito ao Brasil. No ano de 2023, a Team Liquid Brazil chegou perto de levantar a taça, conquistando o segundo lugar no torneio.</p>
+          <p>Natália “Daiki” Vilela é um dos principais nomes do Game Changers no Brasil. Ela é capitã da Team Liquid Brazil, e foi a MVP do mundial de 2025, em que levantou a taça com a equipe.</p>
+          <p>Buscando ampliar o competitivo de VALORANT, a Riot Games criou o Game Changers para garantir visibilidade às mulheres cis, trans e pessoas não binárias nos e-sports. Além da competição, o torneio também representa uma iniciativa de inclusão e valorização em um cenário dominado por homens.</p>
+          <p>Créditos/Foto: Christina Oh/Riot Games</p>
+        `,
+      },
        {
         id: 0,
         games: ['lol'],
@@ -52,27 +73,6 @@ export const articles = [
           <p>Este texto é uma colaboração com o Portal GeekPop News.</p>
         `,
         },
-      {
-        id: 5,
-        games: ['valorant'],
-        title: "VALORANT Game Changers: conheça o circuito que fortalece a presença feminina nos e-sports",
-        category: "VALORANT",
-        author: "Julia Gabriela Ribeiro",
-        date: "07/10/2026",
-        image: "https://www.pichauarena.com.br/wp-content/uploads/2025/12/54955270006_29fa35c64e_o-scaled.jpg.webp",
-        imageAlt: "Daiki, capitã da Team Liquid Brazil, segura o troféu do Game Changers Championship 2025",
-        summary: "Em 2025, o Brasil conquistou o primeiro título mundial do circuito com a Team Liquid Brazil",
-        content: `
-          <p>O VALORANT Game Changers é o circuito inclusivo competitivo oficial da Riot Games voltado para mulheres cis, trans e pessoas não binárias. Em 2026, o Game Changers Brasil Championship 2026 acontece entre 22 de outubro e 1º de novembro, na Riot Games Arena, em São Paulo.</p>
-          <p>Game Changers Series surgiu em 2021, como uma iniciativa de competições regionais em diversas partes do mundo, incluindo o Brasil. A primeira edição do torneio no Brasil ocorreu em junho do mesmo ano, com oito times pela disputa do troféu.</p>
-          <p>A competição funciona como um circuito anual, com diferentes momentos ao longo da temporada. As etapas regionais acontecem durante o ano, com qualificatórias e torneios que definem as equipes classificadas para a disputa internacional.</p>
-          <p>O campeonato mundial, Game Changers Championship, acontece uma vez por ano, e reúne as melhores equipes de cada região. Em 2025, o Brasil conquistou o primeiro título mundial do VALORANT Game Changers Championship, com a Team Liquid Brazil.</p>
-          <p>A final de 2025 foi realizada em Seul, na Coreia do Sul, e a equipe brasileira venceu a Shopify Rebellion Gold por 3 a 2. Isso garantiu o título inédito ao Brasil. No ano de 2023, a Team Liquid Brazil chegou perto de levantar a taça, conquistando o segundo lugar no torneio.</p>
-          <p>Natália “Daiki” Vilela é um dos principais nomes do Game Changers no Brasil. Ela é capitã da Team Liquid Brazil, e foi a MVP do mundial de 2025, em que levantou a taça com a equipe.</p>
-          <p>Buscando ampliar o competitivo de VALORANT, a Riot Games criou o Game Changers para garantir visibilidade às mulheres cis, trans e pessoas não binárias nos e-sports. Além da competição, o torneio também representa uma iniciativa de inclusão e valorização em um cenário dominado por homens.</p>
-          <p>Créditos/Foto: Christina Oh/Riot Games</p>
-        `,
-      },
       {
         id: 1,
         games: ['valorant'],
